@@ -1,0 +1,2 @@
+# artifacts_calculator_project
+Калькулятор артефактов
