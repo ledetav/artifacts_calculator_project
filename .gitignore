@@ -1,27 +1,82 @@
-# Compiled class file
-*.class
+# Файлы метаданных, создаваемые IDE и редакторами
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.DS_Store
 
-# Log file
+# Сгенерированные Dart файлы и директории
+.dart_tool/
+.packages
+.pub-cache/
+build/
+
+# Для Windows:
+/build/
+
+# Файлы, генерируемые Flutter
+.flutter-plugins
+.flutter-plugins-dependencies
+.pubspec.lock # Закомментируйте, если хотите отслеживать точные версии зависимостей для всех разработчиков
+
+# Сгенерированные файлы для нативных платформ
+# Android
+/android/app/build/
+/android/build/
+/android/.gradle/
+/android/key.properties # Никогда не добавляйте ключи подписи в Git
+/android/local.properties
+/android/.idea/
+/android/captures/
+/android/*.iml
+
+# iOS
+/ios/build/
+/ios/Pods/
+/ios/Runner.xcworkspace
+/ios/Runner.xcodeproj/project.xcworkspace/
+/ios/Runner.xcodeproj/xcuserdata/
+/ios/Flutter/App.framework
+/ios/Flutter/engine.version
+/ios/Flutter/flutter_export_environment.sh
+/ios/Flutter/.last_build_id
+/ios/Podfile.lock
+
+# Ключи и сертификаты
+*.p12
+*.cer
+
+# macOS
+/macos/build/
+/macos/Pods/
+/macos/Runner.xcworkspace
+/macos/Runner.xcodeproj/project.xcworkspace/
+/macos/Runner.xcodeproj/xcuserdata/
+/macos/Flutter/ephemeral/
+/macos/Podfile.lock
+
+# Web
+/web/build/
+
+# Windows
+/windows/build/
+/windows/flutter/ephemeral/
+/windows/runner/Debug/
+/windows/runner/Profile/
+/windows/runner/Release/
+.vs/
+
+# Linux
+/linux/build/
+/linux/flutter/ephemeral/
+
+# Логи и тестовые отчеты
+app.log
 *.log
+coverage/
+/test/coverage/
 
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
-
-# Kotlin Gradle plugin data, see https://kotlinlang.org/docs/whatsnew20.html#new-directory-for-kotlin-data-in-gradle-projects
-.kotlin/
+# Специфичные для Flutter файлы, которые не нужно отслеживать
+flutter_diag.log
+flutter_tools.stamp
