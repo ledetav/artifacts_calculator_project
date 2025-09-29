@@ -18,7 +18,7 @@
 
 ### **Спринт 1: Основа и ручной ввод (Завершение: 22 сентября 2025)**
 
-* [ ] Настроить новый проект в Android Studio с использованием Kotlin и Jetpack Compose.
+* [x] Настроить новый проект в Android Studio с использованием Kotlin и Jetpack Compose.
 * [ ] Спроектировать базовую архитектуру MVVM: View (Composable-функции), ViewModel и Model (`data class`).
 * [ ] Создать `data class` для сущности "Артефакт".
 * [ ] Создать Composable-экран с UI-формой для ручного ввода данных артефакта.
