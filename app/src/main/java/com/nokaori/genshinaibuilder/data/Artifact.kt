@@ -3,6 +3,7 @@ package com.nokaori.genshinaibuilder.data
 data class Artifact(
     val id: Int = 0, // по умолчанию для нового артефакта
     val slot: ArtifactSlot, // цветок, перо, часы, кубок, корона
+    val rarity: ArtifactRarity,
     val setName: String, // название сета артефактов
     val level: Int, // уроень прокачки
     val mainStat: ArtifactStat,
@@ -18,6 +19,11 @@ data class ArtifactStat(
     val type: StatType, // тип хар-ки
     val value: StatValue
 )
+
+enum class ArtifactRarity(val stars: Int) {
+    FOUR_STARS(4),
+    FIVE_STARS(5)
+}
 
 enum class ArtifactSlot{
     FLOWER_OF_LIFE,
