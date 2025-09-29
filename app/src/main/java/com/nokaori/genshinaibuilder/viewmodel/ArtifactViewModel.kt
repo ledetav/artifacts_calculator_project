@@ -2,6 +2,7 @@ package com.nokaori.genshinaibuilder.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.nokaori.genshinaibuilder.data.Artifact
+import com.nokaori.genshinaibuilder.data.ArtifactRarity
 import com.nokaori.genshinaibuilder.data.ArtifactSlot
 import com.nokaori.genshinaibuilder.data.ArtifactStat
 import com.nokaori.genshinaibuilder.data.StatType
@@ -18,6 +19,7 @@ class ArtifactViewModel : ViewModel() {
     fun addDefaultaArtifact() {
         val newArtifact = Artifact(
             slot = ArtifactSlot.SANDS_OF_EON,
+            rarity = ArtifactRarity.FIVE_STARS,
             setName = "Киноварное загробье",
             level = 0,
             mainStat = ArtifactStat(StatType.DEF_PERCENT, StatValue.DoubleValue(8.7)),

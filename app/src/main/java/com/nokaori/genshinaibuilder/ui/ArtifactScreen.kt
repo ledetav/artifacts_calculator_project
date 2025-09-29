@@ -27,7 +27,7 @@ import com.nokaori.genshinaibuilder.viewmodel.ArtifactViewModel
 fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
     val artifacts by artifactViewModel.artifacts.collectAsState()
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(24.dp)) {
         Text(
             text = "Артефакты",
             style = MaterialTheme.typography.headlineMedium
@@ -40,7 +40,10 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Добавить артефакт")
+            Text(
+                text = "Добавить артефакт",
+                style = MaterialTheme.typography.titleMedium
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -63,6 +66,13 @@ fun ArtifactItem(artifact: Artifact){
                 text = "${artifact.setName} (+${artifact.level})",
                 style = MaterialTheme.typography.titleMedium
             )
+            Text(
+                text = "⭐".repeat(artifact.rarity.stars),
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = artifact.slot.name,
                 style = MaterialTheme.typography.bodyMedium
