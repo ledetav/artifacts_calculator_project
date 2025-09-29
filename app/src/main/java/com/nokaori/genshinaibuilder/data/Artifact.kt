@@ -9,6 +9,11 @@ data class Artifact(
     val subStats: List<ArtifactStat>
 )
 
+sealed interface StatValue{
+    data class IntValue(val value: Int): StatValue
+    data class DoubleValue(val value: Double): StatValue
+}
+
 data class ArtifactStat(
     val type: StatType, // тип хар-ки
     val value: StatValue
