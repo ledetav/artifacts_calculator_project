@@ -11,7 +11,7 @@ data class Artifact(
 
 data class ArtifactStat(
     val type: StatType, // тип хар-ки
-    val value: Double
+    val value: StatValue
 )
 
 enum class ArtifactSlot{
@@ -22,35 +22,35 @@ enum class ArtifactSlot{
     CIRCLET_OF_LOGOS
 }
 
-enum class StatType(val displayName: String){
+enum class StatType(val displayName: String, val isPercentage: Boolean){
     // Плоские
-    HP("HP"),
-    ATK("Сила атаки"),
-    DEF("Защита"),
+    HP("HP", false),
+    ATK("Сила атаки", false),
+    DEF("Защита", false),
 
     // Проценты
-    HP_PERCENT("HP %"),
-    ATK_PERCENT("Сила атаки %"),
-    DEF_PERCENT("Защита %"),
+    HP_PERCENT("HP %", true),
+    ATK_PERCENT("Сила атаки %", true),
+    DEF_PERCENT("Защита %", true),
 
     // Крит
-    CRIT_RATE("Шанс крит. попадания %"),
-    CRIT_DMG("Крит. урон %"),
+    CRIT_RATE("Шанс крит. попадания %", true),
+    CRIT_DMG("Крит. урон %", true),
 
     // ВЭ, МС
-    ENERGY_RECHARGE("Восст. энергии %"),
-    ELEMENTAL_MASTERY("Мастерство стихий"),
+    ENERGY_RECHARGE("Восст. энергии %", true),
+    ELEMENTAL_MASTERY("Мастерство стихий", false),
 
     // Урон
-    PYRO_DAMAGE_BONUS("Бонус Пиро урона %"),
-    HYDRO_DAMAGE_BONUS("Бонус Гидро урона %"),
-    DENDRO_DAMAGE_BONUS("Бонус Дендро урона %"),
-    ELECTRO_DAMAGE_BONUS("Бонус Электро урона %"),
-    ANEMO_DAMAGE_BONUS("Бонус Анемо урона %"),
-    CRYO_DAMAGE_BONUS("Бонус Крио урона %"),
-    GEO_DAMAGE_BONUS("Бонус Гео урона %"),
-    PHYSICAL_DAMAGE_BONUS("Бонус физ. урона %"),
+    PYRO_DAMAGE_BONUS("Бонус Пиро урона %", true),
+    HYDRO_DAMAGE_BONUS("Бонус Гидро урона %", true),
+    DENDRO_DAMAGE_BONUS("Бонус Дендро урона %", true),
+    ELECTRO_DAMAGE_BONUS("Бонус Электро урона %", true),
+    ANEMO_DAMAGE_BONUS("Бонус Анемо урона %", true),
+    CRYO_DAMAGE_BONUS("Бонус Крио урона %", true),
+    GEO_DAMAGE_BONUS("Бонус Гео урона %", true),
+    PHYSICAL_DAMAGE_BONUS("Бонус физ. урона %", true),
 
     // Лечение
-    HEALING_BONUS("Бонус лечения %")
+    HEALING_BONUS("Бонус лечения %", true)
 }
