@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder
+package com.nokaori.genshinaibuilder.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
