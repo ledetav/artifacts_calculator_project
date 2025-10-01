@@ -77,6 +77,10 @@ fun ArtifactItem(artifact: Artifact){
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(
+                text = artifact.artifactName,
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
                 text = "${artifact.setName} (+${artifact.level})",
                 style = MaterialTheme.typography.titleMedium
             )
