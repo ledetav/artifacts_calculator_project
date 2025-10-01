@@ -28,11 +28,16 @@ class ArtifactViewModel : ViewModel() {
         if (query.isBlank()) {
             allArtifacts
         } else {
-            allArtifacts.filter { artifact ->
-                val matchesSetName = artifact.setName.contains(query, ignoreCase = true)
-                val matchesArtifactName = artifact.artifactName.contains(query, ignoreCase = true)
+            val matchingArtifacts = allArtifacts.filter { artifact ->
+                artifact.setName.contains(query, ignoreCase = true) ||
+                artifact.artifactName.contains(query, ignoreCase = true)
+            }
 
-                matchesSetName || matchesArtifactName
+            matchingArtifacts.sortedBy { artifact ->
+                when {
+                    artifact.artifactName.contains(query, ignoreCase = true) -> 0
+                    else -> 1
+                }
             }
         }
     }.stateIn(
