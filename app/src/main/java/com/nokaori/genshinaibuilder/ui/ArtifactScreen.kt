@@ -88,7 +88,7 @@ fun ArtifactItem(artifact: Artifact){
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = artifact.slot.name,
+                text = artifact.slot.diasplayName,
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
