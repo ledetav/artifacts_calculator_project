@@ -1,6 +1,7 @@
 # Файлы метаданных, создаваемые IDE и редакторами
-.idea/
-.vscode/
+.idea
+.vscode
+.kotlin
 *.iml
 *.ipr
 *.iws
