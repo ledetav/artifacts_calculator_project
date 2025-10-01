@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.OutlinedTextField
 import com.nokaori.genshinaibuilder.data.Artifact
 import com.nokaori.genshinaibuilder.data.ArtifactStat
 import com.nokaori.genshinaibuilder.data.StatValue
@@ -25,13 +26,26 @@ import com.nokaori.genshinaibuilder.viewmodel.ArtifactViewModel
 
 @Composable
 fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
-    val artifacts by artifactViewModel.artifacts.collectAsState()
+    val searchQuery by artifactViewModel.searchQuery.collectAsState()
+    val searchedArtifacts by artifactViewModel.searchedArtifacts.collectAsState()
 
     Column(modifier = Modifier.padding(24.dp)) {
         Text(
             text = "Артефакты",
             style = MaterialTheme.typography.headlineMedium
         )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { newText ->
+                artifactViewModel.onSearchQueryChange(newText)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Поиск по артефактам") },
+            singleLine = true
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
@@ -49,7 +63,7 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn {
-            items(artifacts) {
+            items(searchedArtifacts) {
                 artifact -> ArtifactItem(artifact = artifact)
             }
         }
