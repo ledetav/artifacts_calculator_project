@@ -48,6 +48,7 @@ class ArtifactViewModel : ViewModel() {
             Artifact(
                 slot = ArtifactSlot.SANDS_OF_EON,
                 rarity = ArtifactRarity.FIVE_STARS,
+                artifactName = "Солнечная реликвия",
                 setName = "Киноварное загробье",
                 level = 0,
                 mainStat = ArtifactStat(StatType.DEF_PERCENT, StatValue.DoubleValue(8.7)),
@@ -62,6 +63,7 @@ class ArtifactViewModel : ViewModel() {
             Artifact(
                 slot = ArtifactSlot.FLOWER_OF_LIFE,
                 rarity = ArtifactRarity.FIVE_STARS,
+                artifactName = "Цветок жажды познания",
                 setName = "Ночь открытого неба",
                 level = 20,
                 mainStat = ArtifactStat(StatType.HP, StatValue.IntValue(4780)),

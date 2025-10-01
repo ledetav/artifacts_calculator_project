@@ -5,6 +5,7 @@ data class Artifact(
     val slot: ArtifactSlot, // цветок, перо, часы, кубок, корона
     val rarity: ArtifactRarity,
     val setName: String, // название сета артефактов
+    val artifactName: String,
     val level: Int, // уроень прокачки
     val mainStat: ArtifactStat,
     val subStats: List<ArtifactStat>
