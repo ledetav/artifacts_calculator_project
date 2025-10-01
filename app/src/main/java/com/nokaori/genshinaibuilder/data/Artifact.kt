@@ -25,12 +25,12 @@ enum class ArtifactRarity(val stars: Int) {
     FIVE_STARS(5)
 }
 
-enum class ArtifactSlot{
-    FLOWER_OF_LIFE,
-    PLUME_OF_DEATH,
-    SANDS_OF_EON,
-    GOBLET_OF_EONOTHEM,
-    CIRCLET_OF_LOGOS
+enum class ArtifactSlot(val diasplayName: String){
+    FLOWER_OF_LIFE("Цветок жизни"),
+    PLUME_OF_DEATH("Перо смерти"),
+    SANDS_OF_EON("Пески времени"),
+    GOBLET_OF_EONOTHEM("Кубок пространства"),
+    CIRCLET_OF_LOGOS("Корона разума")
 }
 
 enum class StatType(val displayName: String, val isPercentage: Boolean){
