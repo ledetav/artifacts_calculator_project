@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -49,7 +50,19 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
             },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Поиск по артефактам") },
-            singleLine = true
+            singleLine = true,
+            trailingIcon = {
+                IconButton(
+                    onClick = {
+                        // Заглушка.
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FilterList,
+                        contentDescription = "Фильтр артефактов"
+                    )
+                }
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
