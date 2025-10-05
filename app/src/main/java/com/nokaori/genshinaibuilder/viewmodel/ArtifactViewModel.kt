@@ -23,6 +23,30 @@ class ArtifactViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
+    private val _isFilterDialogShown = MutableStateFlow(false)
+    val isFilterDialogShown : StateFlow<Boolean> = _isFilterDialogShown.asStateFlow()
+
+    private val _areFiltersChanged = MutableStateFlow(false)
+    val areFiltersChanged : StateFlow<Boolean> = _areFiltersChanged.asStateFlow()
+
+    fun onFilterIconClicked(){
+        _isFilterDialogShown.value = true
+    }
+
+    fun onFilterDialogDismiss(){
+        _isFilterDialogShown.value = false
+    }
+
+    fun onApplyFilters(){
+        // Заглушка
+        onFilterDialogDismiss()
+    }
+
+    fun onResetFilters(){
+        // Заглушка
+        _areFiltersChanged.value = false
+    }
+
     val searchedArtifacts: StateFlow<List<Artifact>> = artifacts.combine(searchQuery) {
         allArtifacts, query ->
         if (query.isBlank()) {

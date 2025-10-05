@@ -1,10 +1,14 @@
 package com.nokaori.genshinaibuilder.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -15,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.window.Dialog
 import com.nokaori.genshinaibuilder.data.Artifact
 import com.nokaori.genshinaibuilder.data.ArtifactStat
 import com.nokaori.genshinaibuilder.data.StatValue
@@ -24,6 +29,17 @@ import com.nokaori.genshinaibuilder.viewmodel.ArtifactViewModel
 fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
     val searchQuery by artifactViewModel.searchQuery.collectAsState()
     val searchedArtifacts by artifactViewModel.searchedArtifacts.collectAsState()
+    val isFilterDialogShown by artifactViewModel.isFilterDialogShown.collectAsState()
+    val areFiltersChanged by artifactViewModel.areFiltersChanged.collectAsState()
+
+    if(isFilterDialogShown){
+        FilterDialog(
+            areFiltersChanged = areFiltersChanged,
+            onDismiss = artifactViewModel::onFilterDialogDismiss,
+            onApply = artifactViewModel::onApplyFilters,
+            onReset = artifactViewModel::onResetFilters
+        )
+    }
 
     Column(modifier = Modifier.padding(24.dp)) {
         Row(
@@ -53,9 +69,7 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
             singleLine = true,
             trailingIcon = {
                 IconButton(
-                    onClick = {
-                        // Заглушка.
-                    }
+                    onClick = { artifactViewModel.onFilterIconClicked() }
                 ) {
                     Icon(
                         imageVector = Icons.Default.FilterList,
@@ -120,5 +134,64 @@ private fun formatStat(stat: ArtifactStat): String {
         "$cleanName ${valueString}%"
     } else {
         "${stat.type.displayName} $valueString"
+    }
+}
+
+@Composable
+fun FilterDialog(
+    areFiltersChanged: Boolean,
+    onDismiss: () -> Unit,
+    onApply: () -> Unit,
+    onReset: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .fillMaxHeight(0.75f)
+        ){
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(onClick = onDismiss) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Закрыть фильтры"
+                        )
+                    }
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState()),
+                ) {
+                    Text("Здесь будут фильтры, но пока что их нет..")
+                    // Заглушка
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(onClick = onReset) {
+                        Text("Сбросить")
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = onApply,
+                        enabled = areFiltersChanged
+                    ) {
+                        Text("Применить")
+                    }
+                }
+            }
+        }
     }
 }
