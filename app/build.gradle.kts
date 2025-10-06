@@ -68,6 +68,7 @@ dependencies {
     // Coroutines для асинхронных операций
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.ui)
 
     // Тестовые зависимости
     testImplementation(libs.junit5.api)
