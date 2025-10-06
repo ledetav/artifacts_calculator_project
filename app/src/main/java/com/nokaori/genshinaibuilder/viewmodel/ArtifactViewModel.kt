@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nokaori.genshinaibuilder.data.Artifact
 import com.nokaori.genshinaibuilder.data.ArtifactRarity
+import com.nokaori.genshinaibuilder.data.ArtifactSet
 import com.nokaori.genshinaibuilder.data.ArtifactSlot
 import com.nokaori.genshinaibuilder.data.ArtifactStat
 import com.nokaori.genshinaibuilder.data.StatType
@@ -29,6 +30,45 @@ class ArtifactViewModel : ViewModel() {
     private val _areFiltersChanged = MutableStateFlow(false)
     val areFiltersChanged : StateFlow<Boolean> = _areFiltersChanged.asStateFlow()
 
+    private val _availableArtifactSets = MutableStateFlow<List<ArtifactSet>>(emptyList())
+    val availableArtifactSets : StateFlow<List<ArtifactSet>> = _availableArtifactSets.asStateFlow()
+
+    private val _selectedArtifactSet = MutableStateFlow<ArtifactSet?>(null)
+    val selectedArtifactSet : StateFlow<ArtifactSet?> = _selectedArtifactSet.asStateFlow()
+
+    private val _artifactSetSearchQuery = MutableStateFlow("")
+    val artifactSetSearchQuery : StateFlow<String> = _artifactSetSearchQuery.asStateFlow()
+
+    private val _isArtifactSetDropdownExpanded = MutableStateFlow(false)
+    val isArtifactSetDropdownExpanded : StateFlow<Boolean> = _isArtifactSetDropdownExpanded.asStateFlow()
+
+    val filteredArtifactSets: StateFlow<List<ArtifactSet>> = availableArtifactSets.combine(searchQuery) {
+        allArtifactSets, query ->
+        if(query.isBlank()){
+            allArtifactSets
+        } else {
+            allArtifactSets.filter {
+                it.name.contains(query, ignoreCase = true)
+            }
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyList()
+    )
+
+    init {
+        loadAvailableArtifactSets()
+    }
+
+    // Заглушка
+    private fun loadAvailableArtifactSets() {
+        _availableArtifactSets.value = listOf(
+            ArtifactSet("Киноварное загробье"),
+            ArtifactSet("Ночь открытого неба")
+        )
+    }
+
     fun onFilterIconClicked(){
         _isFilterDialogShown.value = true
     }
@@ -43,8 +83,25 @@ class ArtifactViewModel : ViewModel() {
     }
 
     fun onResetFilters(){
-        // Заглушка
+        _selectedArtifactSet.value = null
+        _artifactSetSearchQuery.value = ""
         _areFiltersChanged.value = false
+    }
+
+    fun onArtifactSetSelected(artifactSet: ArtifactSet){
+        _selectedArtifactSet.value = artifactSet
+        _artifactSetSearchQuery.value = artifactSet.name
+        _isArtifactSetDropdownExpanded.value = false
+        _areFiltersChanged.value = true
+    }
+
+    fun onArtifactSetSearchQueryChange(newQuery: String){
+        _artifactSetSearchQuery.value = newQuery
+        _isArtifactSetDropdownExpanded.value = true
+    }
+
+    fun onArtifactSetDropdownStateChanged(isExpanded: Boolean){
+        _isArtifactSetDropdownExpanded.value = isExpanded
     }
 
     val searchedArtifacts: StateFlow<List<Artifact>> = artifacts.combine(searchQuery) {
