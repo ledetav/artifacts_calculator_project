@@ -95,7 +95,7 @@ class ArtifactViewModel : ViewModel() {
         _areFiltersChanged.value = true
     }
 
-    fun onArtifactSetSearchQueryChange(newQuery: String){
+    fun onArtifactSetSearchQueryChanged(newQuery: String){
         _artifactSetSearchQuery.value = newQuery
         _isArtifactSetDropdownExpanded.value = true
     }

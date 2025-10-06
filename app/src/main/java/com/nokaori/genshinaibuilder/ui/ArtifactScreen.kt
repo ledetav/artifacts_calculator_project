@@ -19,26 +19,40 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nokaori.genshinaibuilder.data.Artifact
+import com.nokaori.genshinaibuilder.data.ArtifactSet
 import com.nokaori.genshinaibuilder.data.ArtifactStat
 import com.nokaori.genshinaibuilder.data.StatValue
 import com.nokaori.genshinaibuilder.viewmodel.ArtifactViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
     val searchQuery by artifactViewModel.searchQuery.collectAsState()
     val searchedArtifacts by artifactViewModel.searchedArtifacts.collectAsState()
     val isFilterDialogShown by artifactViewModel.isFilterDialogShown.collectAsState()
     val areFiltersChanged by artifactViewModel.areFiltersChanged.collectAsState()
+    val selectedArtifactSet by artifactViewModel.selectedArtifactSet.collectAsState()
+    val isArtifactSetDropdownExpanded by artifactViewModel.isArtifactSetDropdownExpanded.collectAsState()
+    val artifactSetSearchQuery by artifactViewModel.artifactSetSearchQuery.collectAsState()
+    val filteredArtifactSets by artifactViewModel.filteredArtifactSets.collectAsState()
 
     if(isFilterDialogShown){
         FilterDialog(
             areFiltersChanged = areFiltersChanged,
             onDismiss = artifactViewModel::onFilterDialogDismiss,
             onApply = artifactViewModel::onApplyFilters,
-            onReset = artifactViewModel::onResetFilters
+            onReset = artifactViewModel::onResetFilters,
+            selectedArtifactSet = selectedArtifactSet,
+            artifactSetSearchQuery = artifactSetSearchQuery,
+            isArtifactSetDropdownExpanded = isArtifactSetDropdownExpanded,
+            filteredArtifactSets = filteredArtifactSets,
+            onArtifactSetSelected = { artifactViewModel.onArtifactSetSelected(it) },
+            onArtifactSetSearchQueryChanged = { artifactViewModel.onArtifactSetSearchQueryChanged(it)},
+            onArtifactSetDropdownStateChanged = { artifactViewModel.onArtifactSetDropdownStateChanged(it)}
         )
     }
 
@@ -138,12 +152,20 @@ private fun formatStat(stat: ArtifactStat): String {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterDialog(
     areFiltersChanged: Boolean,
     onDismiss: () -> Unit,
     onApply: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    selectedArtifactSet: ArtifactSet?,
+    artifactSetSearchQuery: String,
+    isArtifactSetDropdownExpanded: Boolean,
+    filteredArtifactSets: List<ArtifactSet>,
+    onArtifactSetSelected: (ArtifactSet) -> Unit,
+    onArtifactSetSearchQueryChanged: (String) -> Unit,
+    onArtifactSetDropdownStateChanged: (Boolean) -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -177,8 +199,15 @@ fun FilterDialog(
                         .weight(1f)
                         .verticalScroll(rememberScrollState()),
                 ) {
-                    Text("Здесь будут фильтры, но пока что их нет..")
-                    // Заглушка
+                    ArtifactSetFilterView(
+                        selectedArtifactSet = selectedArtifactSet,
+                        artifactSetSearchQuery = artifactSetSearchQuery,
+                        isArtifactSetDropdownExpanded = isArtifactSetDropdownExpanded,
+                        filteredArtifactSets = filteredArtifactSets,
+                        onArtifactSetSelected = onArtifactSetSelected,
+                        onArtifactSetSearchQueryChanged = onArtifactSetSearchQueryChanged,
+                        onArtifactSetDropdownStateChanged = onArtifactSetDropdownStateChanged
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -200,6 +229,67 @@ fun FilterDialog(
                     ) {
                         Text("Применить")
                     }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ArtifactSetFilterView(
+    selectedArtifactSet: ArtifactSet?,
+    artifactSetSearchQuery: String,
+    isArtifactSetDropdownExpanded: Boolean,
+    filteredArtifactSets: List<ArtifactSet>,
+    onArtifactSetSelected: (ArtifactSet) -> Unit,
+    onArtifactSetSearchQueryChanged: (String) -> Unit,
+    onArtifactSetDropdownStateChanged: (Boolean) -> Unit
+) {
+    Column {
+        Text(
+            text = "Сет артефакта",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        ExposedDropdownMenuBox(
+            expanded = isArtifactSetDropdownExpanded,
+            onExpandedChange = onArtifactSetDropdownStateChanged
+        ) {
+            TextField(
+                modifier = Modifier.menuAnchor(), // Привязка меню к полю
+
+                value = artifactSetSearchQuery,
+                onValueChange = onArtifactSetSearchQueryChanged,
+                label = { Text("Выберeте сет") },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isArtifactSetDropdownExpanded)
+                },
+                colors = ExposedDropdownMenuDefaults.textFieldColors()
+            )
+
+            ExposedDropdownMenu(
+                expanded = isArtifactSetDropdownExpanded,
+                onDismissRequest = { onArtifactSetDropdownStateChanged(false) }
+            ) {
+                filteredArtifactSets.forEach { artifactSet ->
+                    DropdownMenuItem(
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = artifactSet.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(text = artifactSet.name)
+                            }
+                        },
+                        onClick = {
+                            onArtifactSetSelected(artifactSet)
+                        }
+                    )
                 }
             }
         }
