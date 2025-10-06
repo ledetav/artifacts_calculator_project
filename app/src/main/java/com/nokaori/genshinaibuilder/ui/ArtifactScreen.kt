@@ -258,8 +258,7 @@ fun ArtifactSetFilterView(
             onExpandedChange = onArtifactSetDropdownStateChanged
         ) {
             TextField(
-                modifier = Modifier.menuAnchor(), // Привязка меню к полю
-
+                modifier = Modifier.fillMaxWidth(),
                 value = artifactSetSearchQuery,
                 onValueChange = onArtifactSetSearchQueryChanged,
                 label = { Text("Выберeте сет") },
