@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -199,6 +200,11 @@ fun FilterDialog(
                         .weight(1f)
                         .verticalScroll(rememberScrollState()),
                 ) {
+                    Text(
+                        text = "Elements: ${filteredArtifactSets.size}",
+                        color = Color.Red,
+                        modifier = Modifier.padding(bottom = 10.dp)
+                    )
                     ArtifactSetFilterView(
                         selectedArtifactSet = selectedArtifactSet,
                         artifactSetSearchQuery = artifactSetSearchQuery,

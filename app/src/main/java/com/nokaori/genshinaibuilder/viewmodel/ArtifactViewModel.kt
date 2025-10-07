@@ -42,7 +42,7 @@ class ArtifactViewModel : ViewModel() {
     private val _isArtifactSetDropdownExpanded = MutableStateFlow(false)
     val isArtifactSetDropdownExpanded : StateFlow<Boolean> = _isArtifactSetDropdownExpanded.asStateFlow()
 
-    val filteredArtifactSets: StateFlow<List<ArtifactSet>> = availableArtifactSets.combine(searchQuery) {
+    val filteredArtifactSets: StateFlow<List<ArtifactSet>> = availableArtifactSets.combine(artifactSetSearchQuery) {
         allArtifactSets, query ->
         if(query.isBlank()){
             allArtifactSets
@@ -98,6 +98,7 @@ class ArtifactViewModel : ViewModel() {
     fun onArtifactSetSearchQueryChanged(newQuery: String){
         _artifactSetSearchQuery.value = newQuery
         _isArtifactSetDropdownExpanded.value = true
+        _selectedArtifactSet.value = null
     }
 
     fun onArtifactSetDropdownStateChanged(isExpanded: Boolean){
