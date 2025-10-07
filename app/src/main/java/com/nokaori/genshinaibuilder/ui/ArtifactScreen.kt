@@ -200,11 +200,6 @@ fun FilterDialog(
                         .weight(1f)
                         .verticalScroll(rememberScrollState()),
                 ) {
-                    Text(
-                        text = "Elements: ${filteredArtifactSets.size}",
-                        color = Color.Red,
-                        modifier = Modifier.padding(bottom = 10.dp)
-                    )
                     ArtifactSetFilterView(
                         selectedArtifactSet = selectedArtifactSet,
                         artifactSetSearchQuery = artifactSetSearchQuery,
