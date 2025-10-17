@@ -42,6 +42,9 @@ class ArtifactViewModel : ViewModel() {
     private val _isArtifactSetDropdownExpanded = MutableStateFlow(false)
     val isArtifactSetDropdownExpanded : StateFlow<Boolean> = _isArtifactSetDropdownExpanded.asStateFlow()
 
+    private val _selectedArtifactLevelRange = MutableStateFlow(0F..5f)
+    val selectedArtifactLevelRange: StateFlow<ClosedFloatingPointRange<Float>> = _selectedArtifactLevelRange
+
     val filteredArtifactSets: StateFlow<List<ArtifactSet>> = availableArtifactSets.combine(artifactSetSearchQuery) {
         allArtifactSets, query ->
         if(query.isBlank()){
@@ -56,6 +59,11 @@ class ArtifactViewModel : ViewModel() {
         SharingStarted.WhileSubscribed(5000),
         emptyList()
     )
+
+    fun onLevelRangeChanged(newRange: ClosedFloatingPointRange<Float>) {
+        _selectedArtifactLevelRange.value = newRange
+        _areFiltersChanged.value = true
+    }
 
     init {
         loadAvailableArtifactSets()
@@ -85,6 +93,7 @@ class ArtifactViewModel : ViewModel() {
     fun onResetFilters(){
         _selectedArtifactSet.value = null
         _artifactSetSearchQuery.value = ""
+        _selectedArtifactLevelRange.value = 0f..5f
         _areFiltersChanged.value = false
     }
 
@@ -113,9 +122,16 @@ class ArtifactViewModel : ViewModel() {
         _areFiltersChanged.value = true
     }
 
-    val searchedArtifacts: StateFlow<List<Artifact>> = combine(artifacts, searchQuery, selectedArtifactSet)
-    {
-        allArtifacts, searchQuery, selectedArtifactSet ->
+    val searchedArtifacts: StateFlow<List<Artifact>> = combine(
+        artifacts,
+        searchQuery,
+        selectedArtifactSet,
+        selectedArtifactLevelRange
+    ) {
+        allArtifacts,
+        searchQuery,
+        selectedArtifactSet,
+        artifactLevelRange ->
         val searchedList = if (searchQuery.isBlank()) {
             allArtifacts
         } else {
@@ -125,7 +141,7 @@ class ArtifactViewModel : ViewModel() {
             }
         }
 
-        val filteredList = if(selectedArtifactSet == null){
+        val setFilteredList = if(selectedArtifactSet == null){
             searchedList
         } else {
             searchedList.filter { artifact ->
@@ -133,7 +149,14 @@ class ArtifactViewModel : ViewModel() {
             }
         }
 
-        filteredList.sortedBy { artifact ->
+        val levelFilteredList = setFilteredList.filter{ artifact ->
+            val level = artifact.level
+            val minLevel = mapSliderValueToMinLevel(artifactLevelRange.start)
+            val maxLevel = mapSliderValueToMaxLevel(artifactLevelRange.endInclusive)
+            level in minLevel..maxLevel
+        }
+
+        levelFilteredList.sortedBy { artifact ->
             when {
                 searchQuery.isNotBlank() &&
                         artifact.artifactName.contains(searchQuery, ignoreCase = true) -> 0
@@ -145,6 +168,30 @@ class ArtifactViewModel : ViewModel() {
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
+
+    private fun mapSliderValueToMinLevel(value: Float): Int {
+        return when (value.toInt()) {
+            0 -> 0
+            1 -> 1
+            2 -> 5
+            3 -> 9
+            4 -> 13
+            5 -> 17
+            else -> 0
+        }
+    }
+
+    private fun mapSliderValueToMaxLevel(value: Float): Int {
+        return when (value.toInt()){
+            0 -> 0
+            1 -> 4
+            2 -> 8
+            3 -> 12
+            4 -> 16
+            5 -> 20
+            else -> 20
+        }
+    }
 
     fun onSearchQueryChange(newQuery: String){
         _searchQuery.value = newQuery

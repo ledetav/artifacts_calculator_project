@@ -27,6 +27,8 @@ import com.nokaori.genshinaibuilder.data.ArtifactSet
 import com.nokaori.genshinaibuilder.data.ArtifactStat
 import com.nokaori.genshinaibuilder.data.StatValue
 import com.nokaori.genshinaibuilder.viewmodel.ArtifactViewModel
+import kotlinx.coroutines.CloseableCoroutineDispatcher
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +41,7 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
     val isArtifactSetDropdownExpanded by artifactViewModel.isArtifactSetDropdownExpanded.collectAsState()
     val artifactSetSearchQuery by artifactViewModel.artifactSetSearchQuery.collectAsState()
     val filteredArtifactSets by artifactViewModel.filteredArtifactSets.collectAsState()
+    val selectedArtifactLevelRange by artifactViewModel.selectedArtifactLevelRange.collectAsState()
 
     if(isFilterDialogShown){
         FilterDialog(
@@ -53,7 +56,9 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
             onArtifactSetSelected = { artifactViewModel.onArtifactSetSelected(it) },
             onArtifactSetSearchQueryChanged = { artifactViewModel.onArtifactSetSearchQueryChanged(it)},
             onArtifactSetFilterDropdownDismiss = artifactViewModel::onArtifactSetFilterDropdownDismiss,
-            onClearSelectedArtifactSet = artifactViewModel::onClearSelectedArtifactSet
+            onClearSelectedArtifactSet = artifactViewModel::onClearSelectedArtifactSet,
+            selectedArtifactLevelRange = selectedArtifactLevelRange,
+            onArtifactLevelRangeChanged = { artifactViewModel.onLevelRangeChanged(it) }
         )
     }
 
@@ -167,7 +172,9 @@ fun FilterDialog(
     onArtifactSetSelected: (ArtifactSet) -> Unit,
     onArtifactSetSearchQueryChanged: (String) -> Unit,
     onArtifactSetFilterDropdownDismiss: () -> Unit,
-    onClearSelectedArtifactSet: () -> Unit
+    onClearSelectedArtifactSet: () -> Unit,
+    selectedArtifactLevelRange: ClosedFloatingPointRange<Float>,
+    onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -210,6 +217,13 @@ fun FilterDialog(
                         onArtifactSetSearchQueryChanged = onArtifactSetSearchQueryChanged,
                         onArtifactSetFilterDropdownDismiss = onArtifactSetFilterDropdownDismiss,
                         onClearSelectedArtifactSet = onClearSelectedArtifactSet
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    ArtifactLevelFilterView(
+                        artifactLevelRange = selectedArtifactLevelRange,
+                        onArtifactLevelRangeChanged = onArtifactLevelRangeChanged
                     )
                 }
 
@@ -318,5 +332,47 @@ fun ArtifactSetFilterView(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ArtifactLevelFilterView(
+    artifactLevelRange: ClosedFloatingPointRange<Float>,
+    onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit
+) {
+    fun mapSliderValueToDisplay(value: Float): String {
+        return when(value.roundToInt()){
+            0 -> "0"
+            1 -> "1-4"
+            2 -> "5-8"
+            3 -> "9-12"
+            4 -> "13-16"
+            5 -> "17-20"
+            else -> ""
+        }
+    }
+
+    Column{
+        Text(
+            text = "Уровень",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "От: ${mapSliderValueToDisplay(artifactLevelRange.start)}")
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text = "До: ${mapSliderValueToDisplay(artifactLevelRange.endInclusive)}")
+        }
+
+        RangeSlider(
+            value = artifactLevelRange,
+            onValueChange = onArtifactLevelRangeChanged,
+            valueRange = 0f..5f,
+            steps = 4
+        )
     }
 }
