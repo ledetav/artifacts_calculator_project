@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 class ArtifactViewModel : ViewModel() {
@@ -42,7 +43,7 @@ class ArtifactViewModel : ViewModel() {
     private val _isArtifactSetDropdownExpanded = MutableStateFlow(false)
     val isArtifactSetDropdownExpanded : StateFlow<Boolean> = _isArtifactSetDropdownExpanded.asStateFlow()
 
-    private val _selectedArtifactLevelRange = MutableStateFlow(0F..5f)
+    private val _selectedArtifactLevelRange = MutableStateFlow(0F..20f)
     val selectedArtifactLevelRange: StateFlow<ClosedFloatingPointRange<Float>> = _selectedArtifactLevelRange
 
     val filteredArtifactSets: StateFlow<List<ArtifactSet>> = availableArtifactSets.combine(artifactSetSearchQuery) {
@@ -61,7 +62,9 @@ class ArtifactViewModel : ViewModel() {
     )
 
     fun onLevelRangeChanged(newRange: ClosedFloatingPointRange<Float>) {
-        _selectedArtifactLevelRange.value = newRange
+        val roundedStart = newRange.start.roundToInt().toFloat()
+        val roundedEnd = newRange.endInclusive.roundToInt().toFloat()
+        _selectedArtifactLevelRange.value = roundedStart..roundedEnd
         _areFiltersChanged.value = true
     }
 
@@ -93,7 +96,7 @@ class ArtifactViewModel : ViewModel() {
     fun onResetFilters(){
         _selectedArtifactSet.value = null
         _artifactSetSearchQuery.value = ""
-        _selectedArtifactLevelRange.value = 0f..5f
+        _selectedArtifactLevelRange.value = 0f..20f
         _areFiltersChanged.value = false
     }
 
@@ -150,10 +153,7 @@ class ArtifactViewModel : ViewModel() {
         }
 
         val levelFilteredList = setFilteredList.filter{ artifact ->
-            val level = artifact.level
-            val minLevel = mapSliderValueToMinLevel(artifactLevelRange.start)
-            val maxLevel = mapSliderValueToMaxLevel(artifactLevelRange.endInclusive)
-            level in minLevel..maxLevel
+            artifact.level.toFloat() in artifactLevelRange
         }
 
         levelFilteredList.sortedBy { artifact ->
@@ -168,30 +168,6 @@ class ArtifactViewModel : ViewModel() {
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
-
-    private fun mapSliderValueToMinLevel(value: Float): Int {
-        return when (value.toInt()) {
-            0 -> 0
-            1 -> 1
-            2 -> 5
-            3 -> 9
-            4 -> 13
-            5 -> 17
-            else -> 0
-        }
-    }
-
-    private fun mapSliderValueToMaxLevel(value: Float): Int {
-        return when (value.toInt()){
-            0 -> 0
-            1 -> 4
-            2 -> 8
-            3 -> 12
-            4 -> 16
-            5 -> 20
-            else -> 20
-        }
-    }
 
     fun onSearchQueryChange(newQuery: String){
         _searchQuery.value = newQuery

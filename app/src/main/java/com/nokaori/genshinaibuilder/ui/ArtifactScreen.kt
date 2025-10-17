@@ -363,16 +363,16 @@ fun ArtifactLevelFilterView(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "От: ${mapSliderValueToDisplay(artifactLevelRange.start)}")
+            Text(text = "От: ${artifactLevelRange.start.roundToInt()}")
             Spacer(modifier = Modifier.width(16.dp))
-            Text(text = "До: ${mapSliderValueToDisplay(artifactLevelRange.endInclusive)}")
+            Text(text = "До: ${artifactLevelRange.endInclusive.roundToInt()}")
         }
 
         RangeSlider(
             value = artifactLevelRange,
             onValueChange = onArtifactLevelRangeChanged,
-            valueRange = 0f..5f,
-            steps = 4
+            valueRange = 0f..20f,
+            steps = 19
         )
     }
 }
