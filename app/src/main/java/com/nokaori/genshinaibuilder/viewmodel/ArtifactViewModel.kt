@@ -105,21 +105,31 @@ class ArtifactViewModel : ViewModel() {
         _isArtifactSetDropdownExpanded.value = isExpanded
     }
 
-    val searchedArtifacts: StateFlow<List<Artifact>> = artifacts.combine(searchQuery) {
-        allArtifacts, query ->
-        if (query.isBlank()) {
+    val searchedArtifacts: StateFlow<List<Artifact>> = combine(artifacts, searchQuery, selectedArtifactSet)
+    {
+        allArtifacts, searchQuery, selectedArtifactSet ->
+        val searchedList = if (searchQuery.isBlank()) {
             allArtifacts
         } else {
-            val matchingArtifacts = allArtifacts.filter { artifact ->
-                artifact.setName.contains(query, ignoreCase = true) ||
-                artifact.artifactName.contains(query, ignoreCase = true)
+            allArtifacts.filter { artifact ->
+                artifact.setName.contains(searchQuery, ignoreCase = true) ||
+                        artifact.artifactName.contains(searchQuery, ignoreCase = true)
             }
+        }
 
-            matchingArtifacts.sortedBy { artifact ->
-                when {
-                    artifact.artifactName.contains(query, ignoreCase = true) -> 0
-                    else -> 1
-                }
+        val filteredList = if(selectedArtifactSet == null){
+            searchedList
+        } else {
+            searchedList.filter { artifact ->
+                artifact.setName == selectedArtifactSet.name
+            }
+        }
+
+        filteredList.sortedBy { artifact ->
+            when {
+                searchQuery.isNotBlank() &&
+                        artifact.artifactName.contains(searchQuery, ignoreCase = true) -> 0
+                else -> 1
             }
         }
     }.stateIn(
