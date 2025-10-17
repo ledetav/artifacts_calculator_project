@@ -1,10 +1,13 @@
 package com.nokaori.genshinaibuilder.ui
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -22,12 +25,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
 import com.nokaori.genshinaibuilder.data.Artifact
 import com.nokaori.genshinaibuilder.data.ArtifactSet
 import com.nokaori.genshinaibuilder.data.ArtifactStat
 import com.nokaori.genshinaibuilder.data.StatValue
 import com.nokaori.genshinaibuilder.viewmodel.ArtifactViewModel
-import kotlinx.coroutines.CloseableCoroutineDispatcher
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -335,23 +340,12 @@ fun ArtifactSetFilterView(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtifactLevelFilterView(
     artifactLevelRange: ClosedFloatingPointRange<Float>,
     onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit
 ) {
-    fun mapSliderValueToDisplay(value: Float): String {
-        return when(value.roundToInt()){
-            0 -> "0"
-            1 -> "1-4"
-            2 -> "5-8"
-            3 -> "9-12"
-            4 -> "13-16"
-            5 -> "17-20"
-            else -> ""
-        }
-    }
-
     Column{
         Text(
             text = "Уровень",
@@ -368,11 +362,89 @@ fun ArtifactLevelFilterView(
             Text(text = "До: ${artifactLevelRange.endInclusive.roundToInt()}")
         }
 
+        val sliderColors = SliderDefaults.colors()
+        val thumbColor = MaterialTheme.colorScheme.primary
+        val activeTrackColor = sliderColors.activeTrackColor
+        val inactiveTrackColor = sliderColors.inactiveTrackColor
+        val keyLevels = listOf(0, 4, 8, 12, 16, 20)
+
         RangeSlider(
             value = artifactLevelRange,
             onValueChange = onArtifactLevelRangeChanged,
             valueRange = 0f..20f,
-            steps = 19
+            steps = 19,
+            colors = sliderColors,
+            startThumb = {
+                Box(
+                    modifier = Modifier.size(20.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clip(CircleShape)
+                            .background(thumbColor)
+                    )
+                }
+            },
+
+            endThumb = {
+                Box(
+                    modifier = Modifier.size(20.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clip(CircleShape)
+                            .background(thumbColor)
+                    )
+                }
+            },
+
+            track = { rangeSliderState ->
+                Canvas(modifier = Modifier.fillMaxWidth() ) {
+                    val trackWithPx = size.width
+                    val trackHeightCenter = center.y
+
+                    fun levelToPx(level: Int): Float {
+                        return (level / 20f) * trackWithPx
+                    }
+
+                    drawLine(
+                        color = sliderColors.inactiveTrackColor,
+                        start = Offset(0f, trackHeightCenter),
+                        end = Offset(trackWithPx, trackHeightCenter),
+                        strokeWidth = 5.dp.toPx(),
+                        cap = StrokeCap.Round
+                    )
+
+                    val activeStartPx = levelToPx(rangeSliderState.activeRangeStart.roundToInt())
+                    val activeEndPx = levelToPx((rangeSliderState.activeRangeEnd.roundToInt()))
+
+                    drawLine(
+                        color = activeTrackColor,
+                        start = Offset(activeStartPx, trackHeightCenter),
+                        end = Offset(activeEndPx, trackHeightCenter),
+                        strokeWidth = 5.dp.toPx(),
+                        cap = StrokeCap.Round
+                    )
+
+                    keyLevels.forEach { level ->
+                        val position = levelToPx(level)
+                        val levelAsFloat = level.toFloat()
+                        val color = if (levelAsFloat >= rangeSliderState.activeRangeStart &&
+                                    levelAsFloat <= rangeSliderState.activeRangeEnd)
+                            activeTrackColor else inactiveTrackColor
+
+                        drawCircle(
+                            color = color,
+                            center = Offset(x = position, y = center.y),
+                            radius = 6.dp.toPx()
+                        )
+                    }
+                }
+            }
         )
     }
 }
