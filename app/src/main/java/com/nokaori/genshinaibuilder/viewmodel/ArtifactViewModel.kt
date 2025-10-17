@@ -98,11 +98,19 @@ class ArtifactViewModel : ViewModel() {
     fun onArtifactSetSearchQueryChanged(newQuery: String){
         _artifactSetSearchQuery.value = newQuery
         _isArtifactSetDropdownExpanded.value = true
-        _selectedArtifactSet.value = null
+        if(_selectedArtifactSet.value?.name != newQuery){
+            _selectedArtifactSet.value = null
+        }
     }
 
-    fun onArtifactSetDropdownStateChanged(isExpanded: Boolean){
-        _isArtifactSetDropdownExpanded.value = isExpanded
+    fun onArtifactSetFilterDropdownDismiss(){
+        _isArtifactSetDropdownExpanded.value = false
+    }
+
+    fun onClearSelectedArtifactSet(){
+        _selectedArtifactSet.value = null
+        _artifactSetSearchQuery.value = ""
+        _areFiltersChanged.value = true
     }
 
     val searchedArtifacts: StateFlow<List<Artifact>> = combine(artifacts, searchQuery, selectedArtifactSet)

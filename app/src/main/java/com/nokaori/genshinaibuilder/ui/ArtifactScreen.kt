@@ -19,10 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.material.icons.filled.Clear
 import com.nokaori.genshinaibuilder.data.Artifact
 import com.nokaori.genshinaibuilder.data.ArtifactSet
 import com.nokaori.genshinaibuilder.data.ArtifactStat
@@ -53,7 +52,8 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
             filteredArtifactSets = filteredArtifactSets,
             onArtifactSetSelected = { artifactViewModel.onArtifactSetSelected(it) },
             onArtifactSetSearchQueryChanged = { artifactViewModel.onArtifactSetSearchQueryChanged(it)},
-            onArtifactSetDropdownStateChanged = { artifactViewModel.onArtifactSetDropdownStateChanged(it)}
+            onArtifactSetFilterDropdownDismiss = artifactViewModel::onArtifactSetFilterDropdownDismiss,
+            onClearSelectedArtifactSet = artifactViewModel::onClearSelectedArtifactSet
         )
     }
 
@@ -127,7 +127,7 @@ fun ArtifactItem(artifact: Artifact){
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = artifact.slot.diasplayName,
+                text = artifact.slot.displayName,
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
@@ -166,7 +166,8 @@ fun FilterDialog(
     filteredArtifactSets: List<ArtifactSet>,
     onArtifactSetSelected: (ArtifactSet) -> Unit,
     onArtifactSetSearchQueryChanged: (String) -> Unit,
-    onArtifactSetDropdownStateChanged: (Boolean) -> Unit
+    onArtifactSetFilterDropdownDismiss: () -> Unit,
+    onClearSelectedArtifactSet: () -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -207,7 +208,8 @@ fun FilterDialog(
                         filteredArtifactSets = filteredArtifactSets,
                         onArtifactSetSelected = onArtifactSetSelected,
                         onArtifactSetSearchQueryChanged = onArtifactSetSearchQueryChanged,
-                        onArtifactSetDropdownStateChanged = onArtifactSetDropdownStateChanged
+                        onArtifactSetFilterDropdownDismiss = onArtifactSetFilterDropdownDismiss,
+                        onClearSelectedArtifactSet = onClearSelectedArtifactSet
                     )
                 }
 
@@ -245,7 +247,8 @@ fun ArtifactSetFilterView(
     filteredArtifactSets: List<ArtifactSet>,
     onArtifactSetSelected: (ArtifactSet) -> Unit,
     onArtifactSetSearchQueryChanged: (String) -> Unit,
-    onArtifactSetDropdownStateChanged: (Boolean) -> Unit
+    onArtifactSetFilterDropdownDismiss: () -> Unit,
+    onClearSelectedArtifactSet: () -> Unit
 ) {
     Column {
         Text(
@@ -256,40 +259,62 @@ fun ArtifactSetFilterView(
 
         ExposedDropdownMenuBox(
             expanded = isArtifactSetDropdownExpanded,
-            onExpandedChange = onArtifactSetDropdownStateChanged
+            onExpandedChange = {
+                if(!it) {
+                    onArtifactSetFilterDropdownDismiss()
+                }
+            }
         ) {
             TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = artifactSetSearchQuery,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = selectedArtifactSet?.name ?: artifactSetSearchQuery,
                 onValueChange = onArtifactSetSearchQueryChanged,
                 label = { Text("Выберeте сет") },
                 trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isArtifactSetDropdownExpanded)
+                    if(artifactSetSearchQuery.isNotEmpty() || selectedArtifactSet != null){
+                        IconButton(onClick = onClearSelectedArtifactSet) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = "Очистить выбор сета"
+                            )
+                        }
+                    } else {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = isArtifactSetDropdownExpanded)
+                    }
                 },
                 colors = ExposedDropdownMenuDefaults.textFieldColors()
             )
 
             ExposedDropdownMenu(
                 expanded = isArtifactSetDropdownExpanded,
-                onDismissRequest = { onArtifactSetDropdownStateChanged(false) }
+                onDismissRequest = onArtifactSetFilterDropdownDismiss
             ) {
-                filteredArtifactSets.forEach { artifactSet ->
+                if(filteredArtifactSets.isEmpty()){
                     DropdownMenuItem(
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = artifactSet.icon,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(text = artifactSet.name)
-                            }
-                        },
-                        onClick = {
-                            onArtifactSetSelected(artifactSet)
-                        }
+                        text = { Text("Ничего не найдено")},
+                        onClick = {},
+                        enabled = false
                     )
+                } else {
+                    filteredArtifactSets.forEach { artifactSet ->
+                        DropdownMenuItem(
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = artifactSet.icon,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(text = artifactSet.name)
+                                }
+                            },
+                            onClick = {
+                                onArtifactSetSelected(artifactSet)
+                            }
+                        )
+                    }
                 }
             }
         }

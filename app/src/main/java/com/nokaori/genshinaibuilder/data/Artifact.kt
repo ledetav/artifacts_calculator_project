@@ -26,7 +26,7 @@ enum class ArtifactRarity(val stars: Int) {
     FIVE_STARS(5)
 }
 
-enum class ArtifactSlot(val diasplayName: String){
+enum class ArtifactSlot(val displayName: String){
     FLOWER_OF_LIFE("Цветок жизни"),
     PLUME_OF_DEATH("Перо смерти"),
     SANDS_OF_EON("Пески времени"),
