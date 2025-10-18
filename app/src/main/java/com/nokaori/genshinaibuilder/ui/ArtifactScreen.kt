@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -207,6 +208,10 @@ fun FilterDialog(
     selectedArtifactSlots: Set<ArtifactSlot>,
     onArtifactSlotClicked: (ArtifactSlot) -> Unit
 ) {
+
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp.dp
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -214,7 +219,7 @@ fun FilterDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.85f)
-                .fillMaxHeight(0.7f)
+                .height(screenHeight * 0.7f)
                 .padding(8.dp)
         ){
             Column(modifier = Modifier.fillMaxWidth()) {
