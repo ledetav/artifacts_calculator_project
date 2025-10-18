@@ -48,6 +48,9 @@ class ArtifactViewModel : ViewModel() {
     private val _selectedArtifactLevelRange = MutableStateFlow(0F..20f)
     val selectedArtifactLevelRange: StateFlow<ClosedFloatingPointRange<Float>> = _selectedArtifactLevelRange
 
+    private val _selectedArtifactSlots = MutableStateFlow<Set<ArtifactSlot>>(emptySet())
+    val selectedArtifactSlots: StateFlow<Set<ArtifactSlot>> = _selectedArtifactSlots.asStateFlow()
+
     val filteredArtifactSets: StateFlow<List<ArtifactSet>> = availableArtifactSets.combine(artifactSetSearchQuery) {
         allArtifactSets, query ->
         if(query.isBlank()){
@@ -99,6 +102,7 @@ class ArtifactViewModel : ViewModel() {
         _selectedArtifactSet.value = null
         _artifactSetSearchQuery.value = ""
         _selectedArtifactLevelRange.value = 0f..20f
+        _selectedArtifactSlots.value = emptySet()
         _areFiltersChanged.value = false
     }
 
@@ -131,12 +135,14 @@ class ArtifactViewModel : ViewModel() {
         artifacts,
         searchQuery,
         selectedArtifactSet,
-        selectedArtifactLevelRange
+        selectedArtifactLevelRange,
+        selectedArtifactSlots
     ) {
         allArtifacts,
         searchQuery,
         selectedArtifactSet,
-        artifactLevelRange ->
+        artifactLevelRange,
+        artifactSlots ->
         val searchedList = if (searchQuery.isBlank()) {
             allArtifacts
         } else {
@@ -158,7 +164,15 @@ class ArtifactViewModel : ViewModel() {
             artifact.level.toFloat() in artifactLevelRange
         }
 
-        levelFilteredList.sortedBy { artifact ->
+        val slotFilteredList = if (artifactSlots.isEmpty()) {
+            levelFilteredList
+        } else {
+            levelFilteredList.filter { artifact ->
+                artifact.slot in artifactSlots
+            }
+        }
+
+        slotFilteredList.sortedBy { artifact ->
             when {
                 searchQuery.isNotBlank() &&
                         artifact.artifactName.contains(searchQuery, ignoreCase = true) -> 0
@@ -189,6 +203,19 @@ class ArtifactViewModel : ViewModel() {
         val finalTo = max(fromInt, toInt)
 
         _selectedArtifactLevelRange.value = finalFrom.toFloat()..finalTo.toFloat()
+        _areFiltersChanged.value = true
+    }
+
+    fun onArtifactSlotClicked(slot: ArtifactSlot) {
+        val currentArtifactSlots = _selectedArtifactSlots.value.toMutableSet()
+
+        if(currentArtifactSlots.contains(slot)) {
+            currentArtifactSlots.remove(slot)
+        } else {
+            currentArtifactSlots.add(slot)
+        }
+
+        _selectedArtifactSlots.value = currentArtifactSlots
         _areFiltersChanged.value = true
     }
 

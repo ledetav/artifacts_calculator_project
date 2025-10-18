@@ -27,6 +27,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Egg
+import androidx.compose.material.icons.filled.HourglassEmpty
+import androidx.compose.material.icons.filled.LocalFlorist
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.WineBar
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +46,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.nokaori.genshinaibuilder.data.Artifact
 import com.nokaori.genshinaibuilder.data.ArtifactSet
+import com.nokaori.genshinaibuilder.data.ArtifactSlot
 import com.nokaori.genshinaibuilder.data.ArtifactStat
 import com.nokaori.genshinaibuilder.data.StatValue
 import com.nokaori.genshinaibuilder.viewmodel.ArtifactViewModel
@@ -57,6 +64,7 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
     val artifactSetSearchQuery by artifactViewModel.artifactSetSearchQuery.collectAsState()
     val filteredArtifactSets by artifactViewModel.filteredArtifactSets.collectAsState()
     val selectedArtifactLevelRange by artifactViewModel.selectedArtifactLevelRange.collectAsState()
+    val selectedArtifactSlots by artifactViewModel.selectedArtifactSlots.collectAsState()
 
     if(isFilterDialogShown){
         FilterDialog(
@@ -74,7 +82,9 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
             onClearSelectedArtifactSet = artifactViewModel::onClearSelectedArtifactSet,
             selectedArtifactLevelRange = selectedArtifactLevelRange,
             onArtifactLevelRangeChanged = { artifactViewModel.onLevelRangeChanged(it) },
-            onLevelManualInput = { from, to -> artifactViewModel.onLevelManualInputChanged(from, to)}
+            onLevelManualInput = { from, to -> artifactViewModel.onLevelManualInputChanged(from, to)},
+            selectedArtifactSlots = selectedArtifactSlots,
+            onArtifactSlotClicked = { artifactViewModel.onArtifactSlotClicked(it) }
         )
     }
 
@@ -129,7 +139,9 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
 @Composable
 fun ArtifactItem(artifact: Artifact){
     Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(
@@ -191,7 +203,9 @@ fun FilterDialog(
     onClearSelectedArtifactSet: () -> Unit,
     selectedArtifactLevelRange: ClosedFloatingPointRange<Float>,
     onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
-    onLevelManualInput: (String, String) -> Unit
+    onLevelManualInput: (String, String) -> Unit,
+    selectedArtifactSlots: Set<ArtifactSlot>,
+    onArtifactSlotClicked: (ArtifactSlot) -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -203,7 +217,7 @@ fun FilterDialog(
                 .fillMaxHeight(0.7f)
                 .padding(8.dp)
         ){
-            Column() {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -222,34 +236,40 @@ fun FilterDialog(
                         )
                     }
                 }
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(horizontal = 16.dp)
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp)
                 ) {
-                    item {
-                        ArtifactSetFilterView(
-                            selectedArtifactSet = selectedArtifactSet,
-                            artifactSetSearchQuery = artifactSetSearchQuery,
-                            isArtifactSetDropdownExpanded = isArtifactSetDropdownExpanded,
-                            filteredArtifactSets = filteredArtifactSets,
-                            onArtifactSetSelected = onArtifactSetSelected,
-                            onArtifactSetSearchQueryChanged = onArtifactSetSearchQueryChanged,
-                            onArtifactSetFilterDropdownDismiss = onArtifactSetFilterDropdownDismiss,
-                            onClearSelectedArtifactSet = onClearSelectedArtifactSet
-                        )
 
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
+                    ArtifactSetFilterView(
+                        selectedArtifactSet = selectedArtifactSet,
+                        artifactSetSearchQuery = artifactSetSearchQuery,
+                        isArtifactSetDropdownExpanded = isArtifactSetDropdownExpanded,
+                        filteredArtifactSets = filteredArtifactSets,
+                        onArtifactSetSelected = onArtifactSetSelected,
+                        onArtifactSetSearchQueryChanged = onArtifactSetSearchQueryChanged,
+                        onArtifactSetFilterDropdownDismiss = onArtifactSetFilterDropdownDismiss,
+                        onClearSelectedArtifactSet = onClearSelectedArtifactSet
+                    )
 
-                    item {
-                        ArtifactLevelFilterView(
-                            artifactLevelRange = selectedArtifactLevelRange,
-                            onArtifactLevelRangeChanged = onArtifactLevelRangeChanged,
-                            onLevelManualInput = onLevelManualInput
-                        )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
+                    ArtifactLevelFilterView(
+                        artifactLevelRange = selectedArtifactLevelRange,
+                        onArtifactLevelRangeChanged = onArtifactLevelRangeChanged,
+                        onLevelManualInput = onLevelManualInput
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    ArtifactSlotFilterView(
+                        selectedArtifactSlots = selectedArtifactSlots,
+                        onArtifactSlotClicked = onArtifactSlotClicked
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
                 Row(
@@ -399,7 +419,7 @@ fun ArtifactLevelFilterView(
                 modifier = Modifier
                     .weight(1f)
                     .onFocusChanged { focusState ->
-                        if(!focusState.isFocused){
+                        if (!focusState.isFocused) {
                             commitChanges()
                         }
                     },
@@ -419,7 +439,7 @@ fun ArtifactLevelFilterView(
                 modifier = Modifier
                     .weight(1f)
                     .onFocusChanged { focusState ->
-                        if(!focusState.isFocused){
+                        if (!focusState.isFocused) {
                             commitChanges()
                         }
                     },
@@ -516,5 +536,54 @@ fun ArtifactLevelFilterView(
                 }
             }
         )
+    }
+}
+
+@Composable
+fun ArtifactSlotFilterView(
+    selectedArtifactSlots: Set<ArtifactSlot>,
+    onArtifactSlotClicked: (ArtifactSlot) -> Unit
+) {
+    fun getIconForSlot(slot: ArtifactSlot) = when (slot) {
+        ArtifactSlot.FLOWER_OF_LIFE -> Icons.Default.LocalFlorist
+        ArtifactSlot.PLUME_OF_DEATH -> Icons.Default.Edit
+        ArtifactSlot.SANDS_OF_EON -> Icons.Default.HourglassEmpty
+        ArtifactSlot.GOBLET_OF_EONOTHEM -> Icons.Default.WineBar
+        ArtifactSlot.CIRCLET_OF_LOGOS -> Icons.Default.School
+    }
+
+    Column {
+        Text(
+            text = "Слот",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            ArtifactSlot.entries.forEach { slot ->
+                val isSelected = slot in selectedArtifactSlots
+
+                val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else
+                    MaterialTheme.colorScheme.surfaceVariant
+                val iconColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else
+                    MaterialTheme.colorScheme.onSurfaceVariant
+
+                Surface(
+                    shape = CircleShape,
+                    color = backgroundColor
+                ) {
+                    IconButton(onClick = {onArtifactSlotClicked(slot)}) {
+                        Icon(
+                            imageVector = getIconForSlot(slot),
+                            contentDescription = slot.displayName,
+                            tint = iconColor
+                        )
+                    }
+                }
+            }
+        }
     }
 }
