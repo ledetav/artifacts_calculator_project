@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -25,9 +27,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import com.nokaori.genshinaibuilder.data.Artifact
 import com.nokaori.genshinaibuilder.data.ArtifactSet
 import com.nokaori.genshinaibuilder.data.ArtifactStat
@@ -63,7 +73,8 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
             onArtifactSetFilterDropdownDismiss = artifactViewModel::onArtifactSetFilterDropdownDismiss,
             onClearSelectedArtifactSet = artifactViewModel::onClearSelectedArtifactSet,
             selectedArtifactLevelRange = selectedArtifactLevelRange,
-            onArtifactLevelRangeChanged = { artifactViewModel.onLevelRangeChanged(it) }
+            onArtifactLevelRangeChanged = { artifactViewModel.onLevelRangeChanged(it) },
+            onLevelManualInput = { from, to -> artifactViewModel.onLevelManualInputChanged(from, to)}
         )
     }
 
@@ -179,7 +190,8 @@ fun FilterDialog(
     onArtifactSetFilterDropdownDismiss: () -> Unit,
     onClearSelectedArtifactSet: () -> Unit,
     selectedArtifactLevelRange: ClosedFloatingPointRange<Float>,
-    onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit
+    onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
+    onLevelManualInput: (String, String) -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -228,7 +240,8 @@ fun FilterDialog(
 
                     ArtifactLevelFilterView(
                         artifactLevelRange = selectedArtifactLevelRange,
-                        onArtifactLevelRangeChanged = onArtifactLevelRangeChanged
+                        onArtifactLevelRangeChanged = onArtifactLevelRangeChanged,
+                        onLevelManualInput = onLevelManualInput
                     )
                 }
 
@@ -344,8 +357,24 @@ fun ArtifactSetFilterView(
 @Composable
 fun ArtifactLevelFilterView(
     artifactLevelRange: ClosedFloatingPointRange<Float>,
-    onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit
+    onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
+    onLevelManualInput: (String, String) -> Unit
 ) {
+    var fromText by remember { mutableStateOf(artifactLevelRange.start.roundToInt().toString()) }
+    var toText by remember { mutableStateOf(artifactLevelRange.endInclusive.roundToInt().toString()) }
+
+    val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(artifactLevelRange) {
+        fromText = artifactLevelRange.start.roundToInt().toString()
+        toText = artifactLevelRange.endInclusive.roundToInt().toString()
+    }
+
+    val commitChanges = {
+        onLevelManualInput(fromText, toText)
+        focusManager.clearFocus()
+    }
+
     Column{
         Text(
             text = "Уровень",
@@ -357,9 +386,43 @@ fun ArtifactLevelFilterView(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "От: ${artifactLevelRange.start.roundToInt()}")
+            TextField(
+                value = fromText,
+                onValueChange = { fromText = it},
+                modifier = Modifier
+                    .weight(1f)
+                    .onFocusChanged { focusState ->
+                        if(!focusState.isFocused){
+                            commitChanges()
+                        }
+                    },
+                label = { Text("От") },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = { commitChanges() })
+            )
+
             Spacer(modifier = Modifier.width(16.dp))
-            Text(text = "До: ${artifactLevelRange.endInclusive.roundToInt()}")
+
+            TextField(
+                value = toText,
+                onValueChange = { toText = it},
+                modifier = Modifier
+                    .weight(1f)
+                    .onFocusChanged { focusState ->
+                        if(!focusState.isFocused){
+                            commitChanges()
+                        }
+                    },
+                label = { Text("До") },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = { commitChanges() })
+            )
         }
 
         val sliderColors = SliderDefaults.colors()

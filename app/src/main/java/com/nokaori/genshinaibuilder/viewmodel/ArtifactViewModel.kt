@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -171,6 +173,23 @@ class ArtifactViewModel : ViewModel() {
 
     fun onSearchQueryChange(newQuery: String){
         _searchQuery.value = newQuery
+    }
+
+    fun onLevelManualInputChanged(from: String, to: String) {
+        val currentFrom = _selectedArtifactLevelRange.value.start.roundToInt()
+        val currentTo = _selectedArtifactLevelRange.value.endInclusive.roundToInt()
+
+        var fromInt = from.toIntOrNull() ?: currentFrom
+        var toInt = to.toIntOrNull() ?: currentTo
+
+        fromInt = fromInt.coerceIn(0, 20)
+        toInt = toInt.coerceIn(0, 20)
+
+        val finalFrom = min(fromInt, toInt)
+        val finalTo = max(fromInt, toInt)
+
+        _selectedArtifactLevelRange.value = finalFrom.toFloat()..finalTo.toFloat()
+        _areFiltersChanged.value = true
     }
 
     fun addDefaultaArtifact() {
