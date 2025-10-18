@@ -203,9 +203,11 @@ fun FilterDialog(
                 .fillMaxHeight(0.7f)
                 .padding(8.dp)
         ){
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column() {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp, 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -220,35 +222,40 @@ fun FilterDialog(
                         )
                     }
                 }
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState()),
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
-                    ArtifactSetFilterView(
-                        selectedArtifactSet = selectedArtifactSet,
-                        artifactSetSearchQuery = artifactSetSearchQuery,
-                        isArtifactSetDropdownExpanded = isArtifactSetDropdownExpanded,
-                        filteredArtifactSets = filteredArtifactSets,
-                        onArtifactSetSelected = onArtifactSetSelected,
-                        onArtifactSetSearchQueryChanged = onArtifactSetSearchQueryChanged,
-                        onArtifactSetFilterDropdownDismiss = onArtifactSetFilterDropdownDismiss,
-                        onClearSelectedArtifactSet = onClearSelectedArtifactSet
-                    )
+                    item {
+                        ArtifactSetFilterView(
+                            selectedArtifactSet = selectedArtifactSet,
+                            artifactSetSearchQuery = artifactSetSearchQuery,
+                            isArtifactSetDropdownExpanded = isArtifactSetDropdownExpanded,
+                            filteredArtifactSets = filteredArtifactSets,
+                            onArtifactSetSelected = onArtifactSetSelected,
+                            onArtifactSetSearchQueryChanged = onArtifactSetSearchQueryChanged,
+                            onArtifactSetFilterDropdownDismiss = onArtifactSetFilterDropdownDismiss,
+                            onClearSelectedArtifactSet = onClearSelectedArtifactSet
+                        )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
 
-                    ArtifactLevelFilterView(
-                        artifactLevelRange = selectedArtifactLevelRange,
-                        onArtifactLevelRangeChanged = onArtifactLevelRangeChanged,
-                        onLevelManualInput = onLevelManualInput
-                    )
+                    item {
+                        ArtifactLevelFilterView(
+                            artifactLevelRange = selectedArtifactLevelRange,
+                            onArtifactLevelRangeChanged = onArtifactLevelRangeChanged,
+                            onLevelManualInput = onLevelManualInput
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp, 8.dp),
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
