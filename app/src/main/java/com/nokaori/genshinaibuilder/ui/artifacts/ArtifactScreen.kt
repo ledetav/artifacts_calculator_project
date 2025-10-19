@@ -22,7 +22,10 @@ import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
+fun ArtifactScreen(
+    modifier: Modifier = Modifier,
+    artifactViewModel: ArtifactViewModel = viewModel()
+) {
     val searchQuery by artifactViewModel.searchQuery.collectAsState()
     val searchedArtifacts by artifactViewModel.searchedArtifacts.collectAsState()
     val isFilterDialogShown by artifactViewModel.isFilterDialogShown.collectAsState()
@@ -51,7 +54,7 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
         )
     }
 
-    Column(modifier = Modifier.padding(24.dp)) {
+    Column(modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
