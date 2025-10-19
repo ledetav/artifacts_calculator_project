@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import com.nokaori.genshinaibuilder.data.ArtifactSlot
+import com.nokaori.genshinaibuilder.ui.common.components.IconToggleButton
 import com.nokaori.genshinaibuilder.ui.common.components.MultiSelectToggleButtonGroup
 
 @Composable
@@ -29,29 +30,16 @@ fun ArtifactSlotFilter(
     }
 
     MultiSelectToggleButtonGroup(
-        title = "",
+        title = "Слот",
         items = ArtifactSlot.entries,
         selectedItems = selectedArtifactSlots,
         onItemClick = onArtifactSlotClicked
     ) { slot, isSelected ->
-        val isSelected = slot in selectedArtifactSlots
-
-        val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else
-            MaterialTheme.colorScheme.surfaceVariant
-        val iconColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else
-            MaterialTheme.colorScheme.onSurfaceVariant
-
-        Surface(
-            shape = CircleShape,
-            color = backgroundColor
-        ) {
-            IconButton(onClick = {onArtifactSlotClicked(slot)}) {
-                Icon(
-                    imageVector = getIconForSlot(slot),
-                    contentDescription = slot.displayName,
-                    tint = iconColor
-                )
-            }
-        }
+        IconToggleButton(
+            onClick = { onArtifactSlotClicked },
+            isSelected = isSelected,
+            icon = getIconForSlot(slot),
+            contentDescription = slot.displayName
+        )
     }
 }
