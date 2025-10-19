@@ -49,13 +49,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import com.nokaori.genshinaibuilder.data.Artifact
 import com.nokaori.genshinaibuilder.data.ArtifactSet
 import com.nokaori.genshinaibuilder.data.ArtifactSlot
-import com.nokaori.genshinaibuilder.data.ArtifactStat
 import com.nokaori.genshinaibuilder.data.StatType
-import com.nokaori.genshinaibuilder.data.StatValue
 import com.nokaori.genshinaibuilder.viewmodel.ArtifactViewModel
+import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactItem
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -143,56 +141,6 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
                 artifact -> ArtifactItem(artifact = artifact)
             }
         }
-    }
-}
-
-@Composable
-fun ArtifactItem(artifact: Artifact){
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(
-                text = artifact.artifactName,
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text(
-                text = "${artifact.setName} (+${artifact.level})",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = "⭐".repeat(artifact.rarity.stars),
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = artifact.slot.displayName,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = formatStat(artifact.mainStat),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
-
-@Composable
-private fun formatStat(stat: ArtifactStat): String {
-    val valueString = when (val statValue = stat.value) {
-        is StatValue.IntValue -> statValue.value.toString()
-        is StatValue.DoubleValue -> statValue.value.toString()
-    }
-
-    return if (stat.type.isPercentage) {
-        val cleanName = stat.type.displayName.replace(" %", "")
-        "$cleanName ${valueString}%"
-    } else {
-        "${stat.type.displayName} $valueString"
     }
 }
 
