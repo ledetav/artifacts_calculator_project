@@ -4,11 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -18,20 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalConfiguration
-import com.nokaori.genshinaibuilder.data.ArtifactSet
-import com.nokaori.genshinaibuilder.data.ArtifactSlot
-import com.nokaori.genshinaibuilder.data.StatType
 import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactFilterDialog
 import com.nokaori.genshinaibuilder.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactItem
-import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactLevelFilter
-import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactMainStatFilter
-import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactSetFilter
-import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactSlotFilter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
