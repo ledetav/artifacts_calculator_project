@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import com.nokaori.genshinaibuilder.data.ArtifactSet
 import com.nokaori.genshinaibuilder.data.ArtifactSlot
 import com.nokaori.genshinaibuilder.data.StatType
+import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactFilterDialog
 import com.nokaori.genshinaibuilder.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactItem
 import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactLevelFilter
@@ -48,7 +49,7 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
     val selectedArtifactMainStat by artifactViewModel.selectedArtifactMainStat.collectAsState()
 
     if(isFilterDialogShown){
-        FilterDialog(
+        ArtifactFilterDialog(
             areFiltersChanged = areFiltersChanged,
             onDismiss = artifactViewModel::onFilterDialogDismiss,
             onApply = artifactViewModel::onApplyFilters,
@@ -115,132 +116,6 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
         LazyColumn {
             items(searchedArtifacts) {
                 artifact -> ArtifactItem(artifact = artifact)
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FilterDialog(
-    areFiltersChanged: Boolean,
-    onDismiss: () -> Unit,
-    onApply: () -> Unit,
-    onReset: () -> Unit,
-    selectedArtifactSet: ArtifactSet?,
-    artifactSetSearchQuery: String,
-    isArtifactSetDropdownExpanded: Boolean,
-    filteredArtifactSets: List<ArtifactSet>,
-    onArtifactSetSelected: (ArtifactSet) -> Unit,
-    onArtifactSetSearchQueryChanged: (String) -> Unit,
-    onArtifactSetFilterDropdownDismiss: () -> Unit,
-    onClearSelectedArtifactSet: () -> Unit,
-    selectedArtifactLevelRange: ClosedFloatingPointRange<Float>,
-    onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
-    onLevelManualInput: (String, String) -> Unit,
-    selectedArtifactSlots: Set<ArtifactSlot>,
-    onArtifactSlotClicked: (ArtifactSlot) -> Unit,
-    selectedArtifactMainStat: StatType?,
-    onArtifactMainStatSelected: (StatType) -> Unit,
-    onClearSelectedArtifactMainStat: () -> Unit
-) {
-
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
-
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth(0.85f)
-                .height(screenHeight * 0.7f)
-                .padding(8.dp)
-        ){
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp, 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Фильтры",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    IconButton(onClick = onDismiss) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Закрыть фильтры"
-                        )
-                    }
-                }
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp)
-                ) {
-
-                    ArtifactSetFilter(
-                        selectedArtifactSet = selectedArtifactSet,
-                        artifactSetSearchQuery = artifactSetSearchQuery,
-                        isArtifactSetDropdownExpanded = isArtifactSetDropdownExpanded,
-                        filteredArtifactSets = filteredArtifactSets,
-                        onArtifactSetSelected = onArtifactSetSelected,
-                        onArtifactSetSearchQueryChanged = onArtifactSetSearchQueryChanged,
-                        onArtifactSetFilterDropdownDismiss = onArtifactSetFilterDropdownDismiss,
-                        onClearSelectedArtifactSet = onClearSelectedArtifactSet
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    ArtifactLevelFilter(
-                        artifactLevelRange = selectedArtifactLevelRange,
-                        onArtifactLevelRangeChanged = onArtifactLevelRangeChanged,
-                        onLevelManualInput = onLevelManualInput
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    ArtifactSlotFilter(
-                        selectedArtifactSlots = selectedArtifactSlots,
-                        onArtifactSlotClicked = onArtifactSlotClicked
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    ArtifactMainStatFilter(
-                        selectedArtifactMainStat = selectedArtifactMainStat,
-                        onArtifactMainStatSelected = onArtifactMainStatSelected,
-                        onClearSelectedArtifactMainStat = onClearSelectedArtifactMainStat
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp, 8.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(onClick = onReset) {
-                        Text("Сбросить")
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Button(
-                        onClick = onApply,
-                        enabled = areFiltersChanged
-                    ) {
-                        Text("Применить")
-                    }
-                }
             }
         }
     }
