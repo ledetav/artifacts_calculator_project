@@ -1,5 +1,6 @@
 package com.nokaori.genshinaibuilder.ui.common.components
 
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -15,7 +16,8 @@ fun IconToggleButton(
     isSelected: Boolean,
     icon: ImageVector,
     contentDescription: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    shape: Shape = CircleShape
 ) {
     val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary
     else MaterialTheme.colorScheme.surfaceVariant
@@ -25,7 +27,7 @@ fun IconToggleButton(
 
     Surface(
         modifier = modifier,
-        shape = CircleShape,
+        shape = shape,
         color = backgroundColor
     ) {
         IconButton(onClick = onClick) {
