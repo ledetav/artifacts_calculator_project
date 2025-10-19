@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nokaori.genshinaibuilder.data.Artifact
 import com.nokaori.genshinaibuilder.data.ArtifactRarity
+import com.nokaori.genshinaibuilder.data.ArtifactSet
 import com.nokaori.genshinaibuilder.data.ArtifactSlot
 import com.nokaori.genshinaibuilder.data.ArtifactStat
 import com.nokaori.genshinaibuilder.data.StatType
@@ -14,6 +15,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 class ArtifactViewModel : ViewModel() {
@@ -23,21 +27,180 @@ class ArtifactViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    val searchedArtifacts: StateFlow<List<Artifact>> = artifacts.combine(searchQuery) {
-        allArtifacts, query ->
-        if (query.isBlank()) {
+    private val _isFilterDialogShown = MutableStateFlow(false)
+    val isFilterDialogShown : StateFlow<Boolean> = _isFilterDialogShown.asStateFlow()
+
+    private val _areFiltersChanged = MutableStateFlow(false)
+    val areFiltersChanged : StateFlow<Boolean> = _areFiltersChanged.asStateFlow()
+
+    private val _availableArtifactSets = MutableStateFlow<List<ArtifactSet>>(emptyList())
+    val availableArtifactSets : StateFlow<List<ArtifactSet>> = _availableArtifactSets.asStateFlow()
+
+    private val _selectedArtifactSet = MutableStateFlow<ArtifactSet?>(null)
+    val selectedArtifactSet : StateFlow<ArtifactSet?> = _selectedArtifactSet.asStateFlow()
+
+    private val _artifactSetSearchQuery = MutableStateFlow("")
+    val artifactSetSearchQuery : StateFlow<String> = _artifactSetSearchQuery.asStateFlow()
+
+    private val _isArtifactSetDropdownExpanded = MutableStateFlow(false)
+    val isArtifactSetDropdownExpanded : StateFlow<Boolean> = _isArtifactSetDropdownExpanded.asStateFlow()
+
+    private val _selectedArtifactLevelRange = MutableStateFlow(0F..20f)
+    val selectedArtifactLevelRange: StateFlow<ClosedFloatingPointRange<Float>> = _selectedArtifactLevelRange
+
+    private val _selectedArtifactSlots = MutableStateFlow<Set<ArtifactSlot>>(emptySet())
+    val selectedArtifactSlots: StateFlow<Set<ArtifactSlot>> = _selectedArtifactSlots.asStateFlow()
+
+    private val _selectedArtifactMainStat = MutableStateFlow<StatType?>(null)
+    val selectedArtifactMainStat: StateFlow<StatType?> = _selectedArtifactMainStat.asStateFlow()
+
+    val filteredArtifactSets: StateFlow<List<ArtifactSet>> = availableArtifactSets.combine(artifactSetSearchQuery) {
+        allArtifactSets, query ->
+        if(query.isBlank()){
+            allArtifactSets
+        } else {
+            allArtifactSets.filter {
+                it.name.contains(query, ignoreCase = true)
+            }
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyList()
+    )
+
+    fun onArtifactMainStatSelected(statType: StatType) {
+        _selectedArtifactMainStat.value = statType
+        _areFiltersChanged.value = true
+    }
+
+    fun onClearSelectedArtifactMainStat() {
+        _selectedArtifactMainStat.value = null
+        _areFiltersChanged.value = true
+    }
+
+    fun onLevelRangeChanged(newRange: ClosedFloatingPointRange<Float>) {
+        val roundedStart = newRange.start.roundToInt().toFloat()
+        val roundedEnd = newRange.endInclusive.roundToInt().toFloat()
+        _selectedArtifactLevelRange.value = roundedStart..roundedEnd
+        _areFiltersChanged.value = true
+    }
+
+    init {
+        loadAvailableArtifactSets()
+    }
+
+    // Заглушка
+    private fun loadAvailableArtifactSets() {
+        _availableArtifactSets.value = listOf(
+            ArtifactSet("Киноварное загробье"),
+            ArtifactSet("Ночь открытого неба")
+        )
+    }
+
+    fun onFilterIconClicked(){
+        _isFilterDialogShown.value = true
+    }
+
+    fun onFilterDialogDismiss(){
+        _isFilterDialogShown.value = false
+    }
+
+    fun onApplyFilters(){
+        // Заглушка
+        onFilterDialogDismiss()
+    }
+
+    fun onResetFilters(){
+        _selectedArtifactSet.value = null
+        _artifactSetSearchQuery.value = ""
+        _selectedArtifactLevelRange.value = 0f..20f
+        _selectedArtifactSlots.value = emptySet()
+        _areFiltersChanged.value = false
+    }
+
+    fun onArtifactSetSelected(artifactSet: ArtifactSet){
+        _selectedArtifactSet.value = artifactSet
+        _artifactSetSearchQuery.value = artifactSet.name
+        _isArtifactSetDropdownExpanded.value = false
+        _areFiltersChanged.value = true
+    }
+
+    fun onArtifactSetSearchQueryChanged(newQuery: String){
+        _artifactSetSearchQuery.value = newQuery
+        _isArtifactSetDropdownExpanded.value = true
+        if(_selectedArtifactSet.value?.name != newQuery){
+            _selectedArtifactSet.value = null
+        }
+    }
+
+    fun onArtifactSetFilterDropdownDismiss(){
+        _isArtifactSetDropdownExpanded.value = false
+    }
+
+    fun onClearSelectedArtifactSet(){
+        _selectedArtifactSet.value = null
+        _artifactSetSearchQuery.value = ""
+        _areFiltersChanged.value = true
+    }
+
+    val searchedArtifacts: StateFlow<List<Artifact>> = combine(
+        artifacts,
+        searchQuery,
+        selectedArtifactSet,
+        selectedArtifactLevelRange,
+        selectedArtifactSlots,
+        selectedArtifactMainStat
+    ) { values ->
+        val allArtifacts = values[0] as List<Artifact>
+        val searchQuery = values[1] as String
+        val selectedArtifactSet = values[2] as ArtifactSet?
+        val selectedArtifactLevelRange = values[3] as ClosedFloatingPointRange<Float>
+        val selectedArtifactSlots = values[4] as Set<ArtifactSlot>
+        val selectedArtifactMainStat = values[5] as StatType?
+
+        val searchedList = if (searchQuery.isBlank()) {
             allArtifacts
         } else {
-            val matchingArtifacts = allArtifacts.filter { artifact ->
-                artifact.setName.contains(query, ignoreCase = true) ||
-                artifact.artifactName.contains(query, ignoreCase = true)
+            allArtifacts.filter { artifact ->
+                artifact.setName.contains(searchQuery, ignoreCase = true) ||
+                        artifact.artifactName.contains(searchQuery, ignoreCase = true)
             }
+        }
 
-            matchingArtifacts.sortedBy { artifact ->
-                when {
-                    artifact.artifactName.contains(query, ignoreCase = true) -> 0
-                    else -> 1
-                }
+        val setFilteredList = if(selectedArtifactSet == null){
+            searchedList
+        } else {
+            searchedList.filter { artifact ->
+                artifact.setName == selectedArtifactSet.name
+            }
+        }
+
+        val levelFilteredList = setFilteredList.filter{ artifact ->
+            artifact.level.toFloat() in selectedArtifactLevelRange
+        }
+
+        val slotFilteredList = if (selectedArtifactSlots.isEmpty()) {
+            levelFilteredList
+        } else {
+            levelFilteredList.filter { artifact ->
+                artifact.slot in selectedArtifactSlots
+            }
+        }
+
+        val mainStatFilteredList = if (selectedArtifactMainStat == null) {
+            slotFilteredList
+        } else {
+            slotFilteredList.filter { artifact ->
+                artifact.mainStat.type == selectedArtifactMainStat
+            }
+        }
+
+        mainStatFilteredList.sortedBy { artifact ->
+            when {
+                searchQuery.isNotBlank() &&
+                        artifact.artifactName.contains(searchQuery, ignoreCase = true) -> 0
+                else -> 1
             }
         }
     }.stateIn(
@@ -48,6 +211,36 @@ class ArtifactViewModel : ViewModel() {
 
     fun onSearchQueryChange(newQuery: String){
         _searchQuery.value = newQuery
+    }
+
+    fun onLevelManualInputChanged(from: String, to: String) {
+        val currentFrom = _selectedArtifactLevelRange.value.start.roundToInt()
+        val currentTo = _selectedArtifactLevelRange.value.endInclusive.roundToInt()
+
+        var fromInt = from.toIntOrNull() ?: currentFrom
+        var toInt = to.toIntOrNull() ?: currentTo
+
+        fromInt = fromInt.coerceIn(0, 20)
+        toInt = toInt.coerceIn(0, 20)
+
+        val finalFrom = min(fromInt, toInt)
+        val finalTo = max(fromInt, toInt)
+
+        _selectedArtifactLevelRange.value = finalFrom.toFloat()..finalTo.toFloat()
+        _areFiltersChanged.value = true
+    }
+
+    fun onArtifactSlotClicked(slot: ArtifactSlot) {
+        val currentArtifactSlots = _selectedArtifactSlots.value.toMutableSet()
+
+        if(currentArtifactSlots.contains(slot)) {
+            currentArtifactSlots.remove(slot)
+        } else {
+            currentArtifactSlots.add(slot)
+        }
+
+        _selectedArtifactSlots.value = currentArtifactSlots
+        _areFiltersChanged.value = true
     }
 
     fun addDefaultaArtifact() {
