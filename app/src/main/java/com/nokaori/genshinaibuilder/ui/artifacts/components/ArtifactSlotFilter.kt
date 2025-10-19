@@ -13,13 +13,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import com.nokaori.genshinaibuilder.data.ArtifactSlot
+import com.nokaori.genshinaibuilder.ui.common.Orientation
 import com.nokaori.genshinaibuilder.ui.common.components.IconToggleButton
 import com.nokaori.genshinaibuilder.ui.common.components.MultiSelectToggleButtonGroup
 
 @Composable
 fun ArtifactSlotFilter(
     selectedArtifactSlots: Set<ArtifactSlot>,
-    onArtifactSlotClicked: (ArtifactSlot) -> Unit
+    onArtifactSlotClicked: (ArtifactSlot) -> Unit,
+    orientation: Orientation = Orientation.HORIZONTAL
 ) {
     fun getIconForSlot(slot: ArtifactSlot) = when (slot) {
         ArtifactSlot.FLOWER_OF_LIFE -> Icons.Default.LocalFlorist
@@ -33,7 +35,8 @@ fun ArtifactSlotFilter(
         title = "Слот",
         items = ArtifactSlot.entries,
         selectedItems = selectedArtifactSlots,
-        onItemClick = onArtifactSlotClicked
+        onItemClick = onArtifactSlotClicked,
+        orientation = orientation
     ) { slot, isSelected ->
         IconToggleButton(
             onClick = { onArtifactSlotClicked(slot) },
