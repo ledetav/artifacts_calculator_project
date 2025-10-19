@@ -1,6 +1,5 @@
-package com.nokaori.genshinaibuilder.ui
+package com.nokaori.genshinaibuilder.ui.artifacts
 
-import android.R
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
