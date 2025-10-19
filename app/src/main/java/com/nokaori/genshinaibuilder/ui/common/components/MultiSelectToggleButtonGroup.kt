@@ -1,15 +1,7 @@
 package com.nokaori.genshinaibuilder.ui.common.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun <T> MultiSelectToggleButtonGroup(
@@ -17,23 +9,16 @@ fun <T> MultiSelectToggleButtonGroup(
     items: List<T>,
     selectedItems: Set<T>,
     onItemClick: (T) -> Unit,
+    modifier: Modifier = Modifier,
     itemContent: @Composable (item: T, isSelected: Boolean) -> Unit
 ) {
-    Column {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+    BaseToggleButtonGroup(
+        title = title,
+        items = items,
+        modifier = modifier
+    ) { item ->
+        val isSelected = item in selectedItems
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            items.forEach { item ->
-                val isSelected = item in selectedItems
-                itemContent(item, isSelected)
-            }
-        }
+        itemContent(item, isSelected)
     }
 }
