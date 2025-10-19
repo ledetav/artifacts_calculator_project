@@ -1,7 +1,11 @@
 package com.nokaori.genshinaibuilder.ui
 
+import android.R
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +17,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.*
@@ -23,12 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Egg
 import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.LocalFlorist
 import androidx.compose.material.icons.filled.School
@@ -37,6 +41,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
@@ -49,6 +54,7 @@ import com.nokaori.genshinaibuilder.data.Artifact
 import com.nokaori.genshinaibuilder.data.ArtifactSet
 import com.nokaori.genshinaibuilder.data.ArtifactSlot
 import com.nokaori.genshinaibuilder.data.ArtifactStat
+import com.nokaori.genshinaibuilder.data.StatType
 import com.nokaori.genshinaibuilder.data.StatValue
 import com.nokaori.genshinaibuilder.viewmodel.ArtifactViewModel
 import kotlin.math.roundToInt
@@ -66,6 +72,7 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
     val filteredArtifactSets by artifactViewModel.filteredArtifactSets.collectAsState()
     val selectedArtifactLevelRange by artifactViewModel.selectedArtifactLevelRange.collectAsState()
     val selectedArtifactSlots by artifactViewModel.selectedArtifactSlots.collectAsState()
+    val selectedArtifactMainStat by artifactViewModel.selectedArtifactMainStat.collectAsState()
 
     if(isFilterDialogShown){
         FilterDialog(
@@ -85,7 +92,10 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
             onArtifactLevelRangeChanged = { artifactViewModel.onLevelRangeChanged(it) },
             onLevelManualInput = { from, to -> artifactViewModel.onLevelManualInputChanged(from, to)},
             selectedArtifactSlots = selectedArtifactSlots,
-            onArtifactSlotClicked = { artifactViewModel.onArtifactSlotClicked(it) }
+            onArtifactSlotClicked = { artifactViewModel.onArtifactSlotClicked(it) },
+            selectedArtifactMainStat = selectedArtifactMainStat,
+            onArtifactMainStatSelected = { artifactViewModel.onArtifactMainStatSelected(it) },
+            onClearSelectedArtifactMainStat = artifactViewModel::onClearSelectedArtifactMainStat
         )
     }
 
@@ -206,7 +216,10 @@ fun FilterDialog(
     onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
     onLevelManualInput: (String, String) -> Unit,
     selectedArtifactSlots: Set<ArtifactSlot>,
-    onArtifactSlotClicked: (ArtifactSlot) -> Unit
+    onArtifactSlotClicked: (ArtifactSlot) -> Unit,
+    selectedArtifactMainStat: StatType?,
+    onArtifactMainStatSelected: (StatType) -> Unit,
+    onClearSelectedArtifactMainStat: () -> Unit
 ) {
 
     val configuration = LocalConfiguration.current
@@ -272,6 +285,14 @@ fun FilterDialog(
                     ArtifactSlotFilterView(
                         selectedArtifactSlots = selectedArtifactSlots,
                         onArtifactSlotClicked = onArtifactSlotClicked
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    ArtifactMainStatFilterView(
+                        selectedArtifactMainStat = selectedArtifactMainStat,
+                        onArtifactMainStatSelected = onArtifactMainStatSelected,
+                        onClearSelectedArtifactMainStat = onClearSelectedArtifactMainStat
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -587,6 +608,88 @@ fun ArtifactSlotFilterView(
                             tint = iconColor
                         )
                     }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ArtifactMainStatFilterView(
+    selectedArtifactMainStat: StatType?,
+    onArtifactMainStatSelected: (StatType) -> Unit,
+    onClearSelectedArtifactMainStat: () -> Unit
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    val allArtifactStats = remember { StatType.entries.toTypedArray() }
+
+    Column {
+        Text(
+            text = "Главный стат",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Box {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline,
+                        shape = MaterialTheme.shapes.extraLarge
+                    )
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = { isExpanded = true}
+                    )
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = selectedArtifactMainStat?.displayName ?: "Выбрать главный стат",
+                    color = if (selectedArtifactMainStat != null) MaterialTheme.colorScheme.onSurface else
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                if (selectedArtifactMainStat != null) {
+                    IconButton(
+                        onClick = onClearSelectedArtifactMainStat,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Очистить выбор"
+                        )
+                    }
+                } else {
+                    Icon(
+                        imageVector = if (isExpanded) Icons.Default.ArrowDropUp else
+                            Icons.Default.ArrowDropDown,
+                        contentDescription = "открыть список"
+                    )
+                }
+            }
+
+            DropdownMenu(
+                expanded = isExpanded,
+                onDismissRequest = { isExpanded = false },
+                modifier = Modifier.fillMaxWidth(0.7f)
+            ) {
+                allArtifactStats.forEach { artifactStat ->
+                    DropdownMenuItem(
+                        text = { Text(text = artifactStat.displayName) },
+                        onClick = {
+                            onArtifactMainStatSelected(artifactStat)
+                            isExpanded = false
+                        }
+                    )
                 }
             }
         }

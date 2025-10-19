@@ -51,6 +51,9 @@ class ArtifactViewModel : ViewModel() {
     private val _selectedArtifactSlots = MutableStateFlow<Set<ArtifactSlot>>(emptySet())
     val selectedArtifactSlots: StateFlow<Set<ArtifactSlot>> = _selectedArtifactSlots.asStateFlow()
 
+    private val _selectedArtifactMainStat = MutableStateFlow<StatType?>(null)
+    val selectedArtifactMainStat: StateFlow<StatType?> = _selectedArtifactMainStat.asStateFlow()
+
     val filteredArtifactSets: StateFlow<List<ArtifactSet>> = availableArtifactSets.combine(artifactSetSearchQuery) {
         allArtifactSets, query ->
         if(query.isBlank()){
@@ -65,6 +68,16 @@ class ArtifactViewModel : ViewModel() {
         SharingStarted.WhileSubscribed(5000),
         emptyList()
     )
+
+    fun onArtifactMainStatSelected(statType: StatType) {
+        _selectedArtifactMainStat.value = statType
+        _areFiltersChanged.value = true
+    }
+
+    fun onClearSelectedArtifactMainStat() {
+        _selectedArtifactMainStat.value = null
+        _areFiltersChanged.value = true
+    }
 
     fun onLevelRangeChanged(newRange: ClosedFloatingPointRange<Float>) {
         val roundedStart = newRange.start.roundToInt().toFloat()
@@ -136,13 +149,16 @@ class ArtifactViewModel : ViewModel() {
         searchQuery,
         selectedArtifactSet,
         selectedArtifactLevelRange,
-        selectedArtifactSlots
-    ) {
-        allArtifacts,
-        searchQuery,
-        selectedArtifactSet,
-        artifactLevelRange,
-        artifactSlots ->
+        selectedArtifactSlots,
+        selectedArtifactMainStat
+    ) { values ->
+        val allArtifacts = values[0] as List<Artifact>
+        val searchQuery = values[1] as String
+        val selectedArtifactSet = values[2] as ArtifactSet?
+        val selectedArtifactLevelRange = values[3] as ClosedFloatingPointRange<Float>
+        val selectedArtifactSlots = values[4] as Set<ArtifactSlot>
+        val selectedArtifactMainStat = values[5] as StatType?
+
         val searchedList = if (searchQuery.isBlank()) {
             allArtifacts
         } else {
@@ -161,18 +177,26 @@ class ArtifactViewModel : ViewModel() {
         }
 
         val levelFilteredList = setFilteredList.filter{ artifact ->
-            artifact.level.toFloat() in artifactLevelRange
+            artifact.level.toFloat() in selectedArtifactLevelRange
         }
 
-        val slotFilteredList = if (artifactSlots.isEmpty()) {
+        val slotFilteredList = if (selectedArtifactSlots.isEmpty()) {
             levelFilteredList
         } else {
             levelFilteredList.filter { artifact ->
-                artifact.slot in artifactSlots
+                artifact.slot in selectedArtifactSlots
             }
         }
 
-        slotFilteredList.sortedBy { artifact ->
+        val mainStatFilteredList = if (selectedArtifactMainStat == null) {
+            slotFilteredList
+        } else {
+            slotFilteredList.filter { artifact ->
+                artifact.mainStat.type == selectedArtifactMainStat
+            }
+        }
+
+        mainStatFilteredList.sortedBy { artifact ->
             when {
                 searchQuery.isNotBlank() &&
                         artifact.artifactName.contains(searchQuery, ignoreCase = true) -> 0
