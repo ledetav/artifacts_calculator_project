@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.data.ArtifactSet
+import com.nokaori.genshinaibuilder.ui.common.components.SearchableExposedDropdown
 import kotlin.collections.forEach
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,64 +45,43 @@ fun ArtifactSetFilter(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        ExposedDropdownMenuBox(
-            expanded = isArtifactSetDropdownExpanded,
+        SearchableExposedDropdown(
+            modifier = Modifier.fillMaxWidth(),
+            label = "Выберите сет артефакта",
+            searchQuery = artifactSetSearchQuery,
+            onSearchQueryChange = onArtifactSetSearchQueryChanged,
+            isExpanded = isArtifactSetDropdownExpanded,
             onExpandedChange = {
-                if(!it) {
-                    onArtifactSetFilterDropdownDismiss()
-                }
-            }
+                if (!it) onArtifactSetFilterDropdownDismiss()
+            },
+            onDismiss = onArtifactSetFilterDropdownDismiss,
+            selectedValueText = selectedArtifactSet?.name ?: "",
+            onClear = onClearSelectedArtifactSet
         ) {
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                value = selectedArtifactSet?.name ?: artifactSetSearchQuery,
-                onValueChange = onArtifactSetSearchQueryChanged,
-                label = { Text("Выберeте сет") },
-                trailingIcon = {
-                    if(artifactSetSearchQuery.isNotEmpty() || selectedArtifactSet != null){
-                        IconButton(onClick = onClearSelectedArtifactSet) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Очистить выбор сета"
-                            )
-                        }
-                    } else {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = isArtifactSetDropdownExpanded)
-                    }
-                },
-                colors = ExposedDropdownMenuDefaults.textFieldColors()
-            )
-
-            ExposedDropdownMenu(
-                expanded = isArtifactSetDropdownExpanded,
-                onDismissRequest = onArtifactSetFilterDropdownDismiss
-            ) {
-                if(filteredArtifactSets.isEmpty()){
+            if (filteredArtifactSets.isEmpty()) {
+                DropdownMenuItem(
+                    text = { Text("Ничего не найдено") },
+                    onClick = {},
+                    enabled = false
+                )
+            } else {
+                filteredArtifactSets.forEach { artifactSet ->
                     DropdownMenuItem(
-                        text = { Text("Ничего не найдено")},
-                        onClick = {},
-                        enabled = false
-                    )
-                } else {
-                    filteredArtifactSets.forEach { artifactSet ->
-                        DropdownMenuItem(
-                            text = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        imageVector = artifactSet.icon,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(text = artifactSet.name)
-                                }
-                            },
-                            onClick = {
-                                onArtifactSetSelected(artifactSet)
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = artifactSet.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(text = artifactSet.name)
                             }
-                        )
-                    }
+                        },
+                        onClick = {
+                            onArtifactSetSelected(artifactSet)
+                        }
+                    )
                 }
             }
         }
