@@ -26,14 +26,14 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
     val searchQuery by artifactViewModel.searchQuery.collectAsState()
     val searchedArtifacts by artifactViewModel.searchedArtifacts.collectAsState()
     val isFilterDialogShown by artifactViewModel.isFilterDialogShown.collectAsState()
-    val artifactFilterState by artifactViewModel.artifactFilterState.collectAsState()
 
     if(isFilterDialogShown){
-        val areFiltersChanged by artifactViewModel.areFiltersChanged.collectAsState()
+        val draftArtifactFilterState by artifactViewModel.draftArtifactFilterState.collectAsState()
+        val areFiltersChanged by artifactViewModel.areArtifactFiltersChanged.collectAsState()
         val filteredArtifactSets by artifactViewModel.filteredArtifactSets.collectAsState()
 
         ArtifactFilterDialog(
-            artifactFilterState = artifactFilterState,
+            artifactFilterState = draftArtifactFilterState,
             areFiltersChanged = areFiltersChanged,
             onDismiss = artifactViewModel::onFilterDialogDismiss,
             onApply = artifactViewModel::onApplyFilters,

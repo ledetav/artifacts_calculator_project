@@ -35,12 +35,23 @@ class ArtifactViewModel : ViewModel() {
     private val _isFilterDialogShown = MutableStateFlow(false)
     val isFilterDialogShown : StateFlow<Boolean> = _isFilterDialogShown.asStateFlow()
 
-    private val _areFiltersChanged = MutableStateFlow(false)
-    val areFiltersChanged : StateFlow<Boolean> = _areFiltersChanged.asStateFlow()
+    private val _activeArtifactFilterState = MutableStateFlow(ArtifactFilterState())
+    val activeArtifactFilterState: StateFlow<ArtifactFilterState> = _activeArtifactFilterState.asStateFlow()
+    
+    private val _draftArtifactFilterState = MutableStateFlow(ArtifactFilterState())
+    val draftArtifactFilterState: StateFlow<ArtifactFilterState> = _draftArtifactFilterState.asStateFlow()
 
-    private val _artifactFilterState = MutableStateFlow(ArtifactFilterState())
-    val artifactFilterState: StateFlow<ArtifactFilterState> = _artifactFilterState.asStateFlow()
-
+    val areArtifactFiltersChanged: StateFlow<Boolean> = combine(
+        activeArtifactFilterState,
+        draftArtifactFilterState
+    ) { active, draft ->
+        active != draft
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+    
     private val _availableArtifactSets = MutableStateFlow<List<ArtifactSet>>(emptyList())
     val availableArtifactSets : StateFlow<List<ArtifactSet>> = _availableArtifactSets.asStateFlow()
 
@@ -58,7 +69,7 @@ class ArtifactViewModel : ViewModel() {
 
     val filteredArtifactSets: StateFlow<List<ArtifactSet>> = combine(
         availableArtifactSets,
-        artifactFilterState
+        draftArtifactFilterState
     ){ allArtifactSets, filters ->
         val query = filters.artifactSetSearchQuery
 
@@ -78,7 +89,7 @@ class ArtifactViewModel : ViewModel() {
     val searchedArtifacts: StateFlow<List<Artifact>> = combine(
         artifacts,
         searchQuery,
-        artifactFilterState
+        activeArtifactFilterState
     ) { artifacts, query, filters ->
         filterArtifactsUseCase(artifacts, query, filters)
     }.stateIn(
@@ -92,6 +103,7 @@ class ArtifactViewModel : ViewModel() {
     }
 
     fun onFilterIconClicked(){
+        _draftArtifactFilterState.value = _activeArtifactFilterState.value
         _isFilterDialogShown.value = true
     }
 
@@ -100,28 +112,31 @@ class ArtifactViewModel : ViewModel() {
     }
 
     fun onApplyFilters(){
-        // Заглушка
-        onFilterDialogDismiss()
+        _activeArtifactFilterState.value = _draftArtifactFilterState.value
+        _isFilterDialogShown.value = false
     }
 
     fun onResetFilters(){
-        _artifactFilterState.value = ArtifactFilterState()
-        _areFiltersChanged.value = false
+        val defaultState = ArtifactFilterState()
+        
+        _activeArtifactFilterState.value = defaultState
+        _draftArtifactFilterState.value = defaultState
+        
+        _isFilterDialogShown.value = false
     }
 
     fun onArtifactSetSelected(artifactSet: ArtifactSet){
-        _artifactFilterState.update { currentState ->
+        _draftArtifactFilterState.update { currentState ->
             currentState.copy(
                 selectedArtifactSet = artifactSet,
                 artifactSetSearchQuery = artifactSet.name,
                 isArtifactSetDropdownExpanded = false
             )
         }
-        _areFiltersChanged.value = true
     }
 
     fun onArtifactSetSearchQueryChanged(newQuery: String){
-        _artifactFilterState.update { currentState ->
+        _draftArtifactFilterState.update { currentState ->
             currentState.copy(
                 artifactSetSearchQuery = newQuery,
                 isArtifactSetDropdownExpanded = true,
@@ -133,23 +148,21 @@ class ArtifactViewModel : ViewModel() {
     }
 
     fun onArtifactSetFilterDropdownDismiss(){
-        _artifactFilterState.update { it.copy(isArtifactSetDropdownExpanded =  false) }
+        _draftArtifactFilterState.update { it.copy(isArtifactSetDropdownExpanded =  false) }
     }
 
     fun onClearSelectedArtifactSet(){
-        _artifactFilterState.update { it.copy(selectedArtifactSet = null, artifactSetSearchQuery = "") }
-        _areFiltersChanged.value = true
+        _draftArtifactFilterState.update { it.copy(selectedArtifactSet = null, artifactSetSearchQuery = "") }
     }
 
     fun onLevelRangeChanged(newRange: ClosedFloatingPointRange<Float>) {
         val roundedStart = newRange.start.roundToInt().toFloat()
         val roundedEnd = newRange.endInclusive.roundToInt().toFloat()
-        _artifactFilterState.update { it.copy(selectedArtifactLevelRange = roundedStart..roundedEnd) }
-        _areFiltersChanged.value = true
+        _draftArtifactFilterState.update { it.copy(selectedArtifactLevelRange = roundedStart..roundedEnd) }
     }
 
     fun onLevelManualInputChanged(from: String, to: String) {
-        val currentRange = _artifactFilterState.value.selectedArtifactLevelRange
+        val currentRange = _draftArtifactFilterState.value.selectedArtifactLevelRange
         var fromInt = from.toIntOrNull() ?: currentRange.start.roundToInt()
         var toInt = to.toIntOrNull() ?: currentRange.endInclusive.roundToInt()
 
@@ -159,12 +172,11 @@ class ArtifactViewModel : ViewModel() {
         val finalFrom = min(fromInt, toInt).toFloat()
         val finalTo = max(fromInt, toInt).toFloat()
 
-        _artifactFilterState.update { it.copy(selectedArtifactLevelRange = finalFrom..finalTo) }
-        _areFiltersChanged.value = true
+        _draftArtifactFilterState.update { it.copy(selectedArtifactLevelRange = finalFrom..finalTo) }
     }
 
     fun onArtifactSlotClicked(slot: ArtifactSlot) {
-        _artifactFilterState.update { currentState ->
+        _draftArtifactFilterState.update { currentState ->
             val currentSlots = currentState.selectedArtifactSlots.toMutableSet()
 
             if (currentSlots.contains(slot)){
@@ -175,17 +187,14 @@ class ArtifactViewModel : ViewModel() {
 
             currentState.copy(selectedArtifactSlots = currentSlots)
         }
-        _areFiltersChanged.value = true
     }
 
     fun onArtifactMainStatSelected(statType: StatType) {
-        _artifactFilterState.update { it.copy(selectedArtifactMainStat = statType) }
-        _areFiltersChanged.value = true
+        _draftArtifactFilterState.update { it.copy(selectedArtifactMainStat = statType) }
     }
 
     fun onClearSelectedArtifactMainStat() {
-        _artifactFilterState.update { it.copy(selectedArtifactMainStat = null) }
-        _areFiltersChanged.value = true
+        _draftArtifactFilterState.update { it.copy(selectedArtifactMainStat = null) }
     }
 
     fun addDefaultArtifact() {
