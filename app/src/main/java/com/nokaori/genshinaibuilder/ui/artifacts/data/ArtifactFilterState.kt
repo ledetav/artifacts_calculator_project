@@ -6,7 +6,7 @@ import com.nokaori.genshinaibuilder.data.StatType
 
 data class ArtifactFilterState(
     val selectedArtifactSet: ArtifactSet? = null,
-    val artifactSrtSearchQuery: String = "",
+    val artifactSetSearchQuery: String = "",
     val isArtifactSetDropdownExpanded: Boolean = false,
     val selectedArtifactLevelRange: ClosedFloatingPointRange<Float> = 0f..20f,
     val selectedArtifactSlots: Set<ArtifactSlot> = emptySet(),

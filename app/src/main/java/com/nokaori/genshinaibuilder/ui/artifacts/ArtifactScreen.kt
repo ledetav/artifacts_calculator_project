@@ -26,35 +26,26 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
     val searchQuery by artifactViewModel.searchQuery.collectAsState()
     val searchedArtifacts by artifactViewModel.searchedArtifacts.collectAsState()
     val isFilterDialogShown by artifactViewModel.isFilterDialogShown.collectAsState()
-    val areFiltersChanged by artifactViewModel.areFiltersChanged.collectAsState()
-    val selectedArtifactSet by artifactViewModel.selectedArtifactSet.collectAsState()
-    val isArtifactSetDropdownExpanded by artifactViewModel.isArtifactSetDropdownExpanded.collectAsState()
-    val artifactSetSearchQuery by artifactViewModel.artifactSetSearchQuery.collectAsState()
-    val filteredArtifactSets by artifactViewModel.filteredArtifactSets.collectAsState()
-    val selectedArtifactLevelRange by artifactViewModel.selectedArtifactLevelRange.collectAsState()
-    val selectedArtifactSlots by artifactViewModel.selectedArtifactSlots.collectAsState()
-    val selectedArtifactMainStat by artifactViewModel.selectedArtifactMainStat.collectAsState()
+    val artifactFilterState by artifactViewModel.artifactFilterState.collectAsState()
 
     if(isFilterDialogShown){
+        val areFiltersChanged by artifactViewModel.areFiltersChanged.collectAsState()
+        val filteredArtifactSets by artifactViewModel.filteredArtifactSets.collectAsState()
+
         ArtifactFilterDialog(
+            artifactFilterState = artifactFilterState,
             areFiltersChanged = areFiltersChanged,
             onDismiss = artifactViewModel::onFilterDialogDismiss,
             onApply = artifactViewModel::onApplyFilters,
             onReset = artifactViewModel::onResetFilters,
-            selectedArtifactSet = selectedArtifactSet,
-            artifactSetSearchQuery = artifactSetSearchQuery,
-            isArtifactSetDropdownExpanded = isArtifactSetDropdownExpanded,
             filteredArtifactSets = filteredArtifactSets,
             onArtifactSetSelected = { artifactViewModel.onArtifactSetSelected(it) },
             onArtifactSetSearchQueryChanged = { artifactViewModel.onArtifactSetSearchQueryChanged(it)},
             onArtifactSetFilterDropdownDismiss = artifactViewModel::onArtifactSetFilterDropdownDismiss,
             onClearSelectedArtifactSet = artifactViewModel::onClearSelectedArtifactSet,
-            selectedArtifactLevelRange = selectedArtifactLevelRange,
             onArtifactLevelRangeChanged = { artifactViewModel.onLevelRangeChanged(it) },
             onLevelManualInput = { from, to -> artifactViewModel.onLevelManualInputChanged(from, to)},
-            selectedArtifactSlots = selectedArtifactSlots,
             onArtifactSlotClicked = { artifactViewModel.onArtifactSlotClicked(it) },
-            selectedArtifactMainStat = selectedArtifactMainStat,
             onArtifactMainStatSelected = { artifactViewModel.onArtifactMainStatSelected(it) },
             onClearSelectedArtifactMainStat = artifactViewModel::onClearSelectedArtifactMainStat
         )
@@ -71,7 +62,7 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            IconButton(onClick = { artifactViewModel.addDefaultaArtifact() }) {
+            IconButton(onClick = { artifactViewModel.addDefaultArtifact() }) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Добавить артефакт"

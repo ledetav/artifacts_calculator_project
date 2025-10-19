@@ -16,29 +16,25 @@ import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.data.ArtifactSet
 import com.nokaori.genshinaibuilder.data.ArtifactSlot
 import com.nokaori.genshinaibuilder.data.StatType
+import com.nokaori.genshinaibuilder.ui.artifacts.data.ArtifactFilterState
 import com.nokaori.genshinaibuilder.ui.common.components.BaseDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtifactFilterDialog(
+    artifactFilterState: ArtifactFilterState,
     areFiltersChanged: Boolean,
     onDismiss: () -> Unit,
     onApply: () -> Unit,
     onReset: () -> Unit,
-    selectedArtifactSet: ArtifactSet?,
-    artifactSetSearchQuery: String,
-    isArtifactSetDropdownExpanded: Boolean,
     filteredArtifactSets: List<ArtifactSet>,
     onArtifactSetSelected: (ArtifactSet) -> Unit,
     onArtifactSetSearchQueryChanged: (String) -> Unit,
     onArtifactSetFilterDropdownDismiss: () -> Unit,
     onClearSelectedArtifactSet: () -> Unit,
-    selectedArtifactLevelRange: ClosedFloatingPointRange<Float>,
     onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
     onLevelManualInput: (String, String) -> Unit,
-    selectedArtifactSlots: Set<ArtifactSlot>,
     onArtifactSlotClicked: (ArtifactSlot) -> Unit,
-    selectedArtifactMainStat: StatType?,
     onArtifactMainStatSelected: (StatType) -> Unit,
     onClearSelectedArtifactMainStat: () -> Unit
 ) {
@@ -52,9 +48,9 @@ fun ArtifactFilterDialog(
             ) {
 
                 ArtifactSetFilter(
-                    selectedArtifactSet = selectedArtifactSet,
-                    artifactSetSearchQuery = artifactSetSearchQuery,
-                    isArtifactSetDropdownExpanded = isArtifactSetDropdownExpanded,
+                    selectedArtifactSet = artifactFilterState.selectedArtifactSet,
+                    artifactSetSearchQuery = artifactFilterState.artifactSetSearchQuery,
+                    isArtifactSetDropdownExpanded = artifactFilterState.isArtifactSetDropdownExpanded,
                     filteredArtifactSets = filteredArtifactSets,
                     onArtifactSetSelected = onArtifactSetSelected,
                     onArtifactSetSearchQueryChanged = onArtifactSetSearchQueryChanged,
@@ -65,7 +61,7 @@ fun ArtifactFilterDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 ArtifactLevelFilter(
-                    artifactLevelRange = selectedArtifactLevelRange,
+                    artifactLevelRange = artifactFilterState.selectedArtifactLevelRange,
                     onArtifactLevelRangeChanged = onArtifactLevelRangeChanged,
                     onLevelManualInput = onLevelManualInput
                 )
@@ -73,14 +69,14 @@ fun ArtifactFilterDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 ArtifactSlotFilter(
-                    selectedArtifactSlots = selectedArtifactSlots,
+                    selectedArtifactSlots = artifactFilterState.selectedArtifactSlots,
                     onArtifactSlotClicked = onArtifactSlotClicked
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 ArtifactMainStatFilter(
-                    selectedArtifactMainStat = selectedArtifactMainStat,
+                    selectedArtifactMainStat = artifactFilterState.selectedArtifactMainStat,
                     onArtifactMainStatSelected = onArtifactMainStatSelected,
                     onClearSelectedArtifactMainStat = onClearSelectedArtifactMainStat
                 )
