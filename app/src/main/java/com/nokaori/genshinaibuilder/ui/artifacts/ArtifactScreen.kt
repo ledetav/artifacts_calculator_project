@@ -29,19 +29,19 @@ fun ArtifactScreen(artifactViewModel: ArtifactViewModel = viewModel()) {
 
     if(isFilterDialogShown){
         val draftArtifactFilterState by artifactViewModel.draftArtifactFilterState.collectAsState()
-        val areFiltersChanged by artifactViewModel.areArtifactFiltersChanged.collectAsState()
+        val areArtifactFiltersChanged by artifactViewModel.areArtifactFiltersChanged.collectAsState()
         val filteredArtifactSets by artifactViewModel.filteredArtifactSets.collectAsState()
 
         ArtifactFilterDialog(
             artifactFilterState = draftArtifactFilterState,
-            areFiltersChanged = areFiltersChanged,
+            areArtifactFiltersChanged = areArtifactFiltersChanged,
             onDismiss = artifactViewModel::onFilterDialogDismiss,
             onApply = artifactViewModel::onApplyFilters,
             onReset = artifactViewModel::onResetFilters,
             filteredArtifactSets = filteredArtifactSets,
             onArtifactSetSelected = { artifactViewModel.onArtifactSetSelected(it) },
             onArtifactSetSearchQueryChanged = { artifactViewModel.onArtifactSetSearchQueryChanged(it)},
-            onArtifactSetFilterDropdownDismiss = artifactViewModel::onArtifactSetFilterDropdownDismiss,
+            onArtifactSetDropdownExpandedChange = artifactViewModel::onArtifactSetFilterDropdownExpandedChanged,
             onClearSelectedArtifactSet = artifactViewModel::onClearSelectedArtifactSet,
             onArtifactLevelRangeChanged = { artifactViewModel.onLevelRangeChanged(it) },
             onLevelManualInput = { from, to -> artifactViewModel.onLevelManualInputChanged(from, to)},

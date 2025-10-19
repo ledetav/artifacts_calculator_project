@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
@@ -32,7 +33,10 @@ fun SearchableExposedDropdown(
         onExpandedChange = onExpandedChange
     ) {
         TextField(
-            modifier = modifier,
+            modifier = modifier.menuAnchor(
+                type = ExposedDropdownMenuAnchorType.PrimaryEditable,
+                enabled = true
+            ),
             value = selectedValueText.ifEmpty { searchQuery },
             onValueChange = onSearchQueryChange,
             label = { Text(label) },
@@ -48,12 +52,14 @@ fun SearchableExposedDropdown(
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
                 }
             },
-            colors = ExposedDropdownMenuDefaults.textFieldColors()
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            singleLine = true
         )
 
         ExposedDropdownMenu(
             expanded = isExpanded,
-            onDismissRequest = onDismiss
+            onDismissRequest = onDismiss,
+            modifier = Modifier.exposedDropdownSize(matchAnchorWidth = true)
         ) {
             dropdownContent()
         }

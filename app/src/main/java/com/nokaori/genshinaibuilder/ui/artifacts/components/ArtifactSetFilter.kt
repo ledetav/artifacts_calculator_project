@@ -35,7 +35,7 @@ fun ArtifactSetFilter(
     filteredArtifactSets: List<ArtifactSet>,
     onArtifactSetSelected: (ArtifactSet) -> Unit,
     onArtifactSetSearchQueryChanged: (String) -> Unit,
-    onArtifactSetFilterDropdownDismiss: () -> Unit,
+    onArtifactSetDropdownExpandedChange: (Boolean) -> Unit,
     onClearSelectedArtifactSet: () -> Unit
 ) {
     Column {
@@ -51,10 +51,8 @@ fun ArtifactSetFilter(
             searchQuery = artifactSetSearchQuery,
             onSearchQueryChange = onArtifactSetSearchQueryChanged,
             isExpanded = isArtifactSetDropdownExpanded,
-            onExpandedChange = {
-                if (!it) onArtifactSetFilterDropdownDismiss()
-            },
-            onDismiss = onArtifactSetFilterDropdownDismiss,
+            onExpandedChange = onArtifactSetDropdownExpandedChange,
+            onDismiss = { onArtifactSetDropdownExpandedChange(false) },
             selectedValueText = selectedArtifactSet?.name ?: "",
             onClear = onClearSelectedArtifactSet
         ) {

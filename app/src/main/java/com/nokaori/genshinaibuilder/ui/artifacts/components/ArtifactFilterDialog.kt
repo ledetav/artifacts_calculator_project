@@ -23,14 +23,14 @@ import com.nokaori.genshinaibuilder.ui.common.components.BaseDialog
 @Composable
 fun ArtifactFilterDialog(
     artifactFilterState: ArtifactFilterState,
-    areFiltersChanged: Boolean,
+    areArtifactFiltersChanged: Boolean,
     onDismiss: () -> Unit,
     onApply: () -> Unit,
     onReset: () -> Unit,
     filteredArtifactSets: List<ArtifactSet>,
     onArtifactSetSelected: (ArtifactSet) -> Unit,
     onArtifactSetSearchQueryChanged: (String) -> Unit,
-    onArtifactSetFilterDropdownDismiss: () -> Unit,
+    onArtifactSetDropdownExpandedChange: (Boolean) -> Unit,
     onClearSelectedArtifactSet: () -> Unit,
     onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
     onLevelManualInput: (String, String) -> Unit,
@@ -54,7 +54,7 @@ fun ArtifactFilterDialog(
                     filteredArtifactSets = filteredArtifactSets,
                     onArtifactSetSelected = onArtifactSetSelected,
                     onArtifactSetSearchQueryChanged = onArtifactSetSearchQueryChanged,
-                    onArtifactSetFilterDropdownDismiss = onArtifactSetFilterDropdownDismiss,
+                    onArtifactSetDropdownExpandedChange = onArtifactSetDropdownExpandedChange,
                     onClearSelectedArtifactSet = onClearSelectedArtifactSet
                 )
 
@@ -93,7 +93,7 @@ fun ArtifactFilterDialog(
 
             Button(
                 onClick = onApply,
-                enabled = areFiltersChanged
+                enabled = areArtifactFiltersChanged
             ) {
                 Text("Применить")
             }

@@ -139,16 +139,17 @@ class ArtifactViewModel : ViewModel() {
         _draftArtifactFilterState.update { currentState ->
             currentState.copy(
                 artifactSetSearchQuery = newQuery,
-                isArtifactSetDropdownExpanded = true,
 
                 selectedArtifactSet = if (currentState.selectedArtifactSet?.name != newQuery) null
-                    else currentState.selectedArtifactSet
+                    else currentState.selectedArtifactSet,
+
+                isArtifactSetDropdownExpanded = true
             )
         }
     }
 
-    fun onArtifactSetFilterDropdownDismiss(){
-        _draftArtifactFilterState.update { it.copy(isArtifactSetDropdownExpanded =  false) }
+    fun onArtifactSetFilterDropdownExpandedChanged(isExpanded: Boolean) {
+        _draftArtifactFilterState.update { it.copy(isArtifactSetDropdownExpanded = isExpanded) }
     }
 
     fun onClearSelectedArtifactSet(){
