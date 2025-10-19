@@ -36,7 +36,7 @@ fun ArtifactSlotFilter(
         onItemClick = onArtifactSlotClicked
     ) { slot, isSelected ->
         IconToggleButton(
-            onClick = { onArtifactSlotClicked },
+            onClick = { onArtifactSlotClicked(slot) },
             isSelected = isSelected,
             icon = getIconForSlot(slot),
             contentDescription = slot.displayName
