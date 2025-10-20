@@ -1,5 +1,6 @@
 package com.nokaori.genshinaibuilder.ui.common.components
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -18,7 +19,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MainToAppBar(
     title: String,
-    onNavigationIconClick: () -> Unit
+    onNavigationIconClick: () -> Unit,
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
         title = {
@@ -35,6 +37,7 @@ fun MainToAppBar(
                 )
             }
         },
+        actions = actions,
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
