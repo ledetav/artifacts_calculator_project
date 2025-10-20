@@ -7,7 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
@@ -17,6 +19,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -56,6 +59,8 @@ fun AppContent() {
         NavigationItem.Settings
     )
 
+    val currentNavItem = navigationItems.find { it.route == currentRoute }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -63,6 +68,15 @@ fun AppContent() {
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
+                ModalDrawerSheet {
+                    Text(
+                        text = "Genshin AI Builder",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(16.dp)
+                    )
+
+                HorizontalDivider()
+
                 AppDrawer(
                     items = navigationItems,
                     currentItemRoute = currentRoute,
@@ -75,11 +89,12 @@ fun AppContent() {
                     }
                 )
             }
+    }
         ) {
             Scaffold(
                 topBar = {
                     MainToAppBar(
-                        title = "Genshin AI Builder",
+                        title = currentNavItem?.title ?: "Genshin AI Builder",
                         onNavigationIconClick = {
                             scope.launch { drawerState.open() }
                         }
