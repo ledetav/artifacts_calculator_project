@@ -66,6 +66,7 @@ fun AppContent() {
     )
 
     val currentNavItem = navigationItems.find { it.route == currentRoute }
+    val artifactViewModel: ArtifactViewModel = viewModel()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -125,7 +126,7 @@ fun AppContent() {
                     modifier = Modifier.padding(innerPadding)
                 ) {
                     composable(NavigationItem.Artifacts.route) {
-                        ArtifactScreen()
+                        ArtifactScreen(artifactViewModel = artifactViewModel)
                     }
 
                     composable(NavigationItem.Weapons.route) {

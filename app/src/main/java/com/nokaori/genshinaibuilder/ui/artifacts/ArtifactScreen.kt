@@ -24,7 +24,7 @@ import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactItem
 @Composable
 fun ArtifactScreen(
     modifier: Modifier = Modifier,
-    artifactViewModel: ArtifactViewModel = viewModel()
+    artifactViewModel: ArtifactViewModel
 ) {
     val searchQuery by artifactViewModel.searchQuery.collectAsState()
     val searchedArtifacts by artifactViewModel.searchedArtifacts.collectAsState()
@@ -78,7 +78,7 @@ fun ArtifactScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn(
-            contentPadding = PaddingValues(horizontal = 16.dp)
+            contentPadding = PaddingValues(horizontal = 8.dp)
         ) {
             items(searchedArtifacts) {
                 artifact -> ArtifactItem(artifact = artifact)
