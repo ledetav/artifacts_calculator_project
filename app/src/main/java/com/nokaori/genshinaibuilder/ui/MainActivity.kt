@@ -6,25 +6,109 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.nokaori.genshinaibuilder.ui.artifacts.ArtifactScreen
+import com.nokaori.genshinaibuilder.ui.common.components.AppDrawer
+import com.nokaori.genshinaibuilder.ui.common.components.MainToAppBar
+import com.nokaori.genshinaibuilder.ui.navigation.NavigationItem
 import com.nokaori.genshinaibuilder.ui.theme.GenshinAIBuilderTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            AppContent()
             GenshinAIBuilderTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+            }
+        }
+    }
+}
+
+@Composable
+fun AppContent() {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    val navigationItems = listOf(
+        NavigationItem.Artifacts,
+        NavigationItem.Weapons,
+        NavigationItem.Characters,
+        NavigationItem.Builds,
+        NavigationItem.Settings
+    )
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                AppDrawer(
+                    items = navigationItems,
+                    currentItemRoute = currentRoute,
+                    onItemClick = { item ->
+                        scope.launch { drawerState.close() }
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.startDestinationId)
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+        ) {
+            Scaffold(
+                topBar = {
+                    MainToAppBar(
+                        title = "Genshin AI Builder",
+                        onNavigationIconClick = {
+                            scope.launch { drawerState.open() }
+                        }
+                    )
+                }
+            ) { innerPadding ->
+                NavHost(
+                    navController = navController,
+                    startDestination = NavigationItem.Artifacts.route,
+                    modifier = Modifier.padding(innerPadding)
                 ) {
-                    Scaffold { innerPadding ->
-                        ArtifactScreen(modifier = Modifier.padding(innerPadding))
+                    composable(NavigationItem.Artifacts.route) {
+                        ArtifactScreen()
+                    }
+
+                    composable(NavigationItem.Weapons.route) {
+                        Text("Weapons")
+                    }
+
+                    composable(NavigationItem.Characters.route) {
+                        Text("Characters")
+                    }
+
+                    composable(NavigationItem.Builds.route) {
+                        Text("Builds")
+                    }
+
+                    composable(NavigationItem.Settings.route) {
+                        Text("Settings")
                     }
                 }
             }
