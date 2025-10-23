@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainToAppBar(
+fun MainTopAppBar(
     title: String,
     onNavigationIconClick: () -> Unit,
     actions: @Composable RowScope.() -> Unit = {}
