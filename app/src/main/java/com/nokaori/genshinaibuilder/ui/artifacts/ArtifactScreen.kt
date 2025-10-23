@@ -24,7 +24,7 @@ import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactItem
 @Composable
 fun ArtifactScreen(
     modifier: Modifier = Modifier,
-    artifactViewModel: ArtifactViewModel = viewModel()
+    artifactViewModel: ArtifactViewModel
 ) {
     val searchQuery by artifactViewModel.searchQuery.collectAsState()
     val searchedArtifacts by artifactViewModel.searchedArtifacts.collectAsState()
@@ -54,30 +54,13 @@ fun ArtifactScreen(
         )
     }
 
-    Column(modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Артефакты",
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            IconButton(onClick = { artifactViewModel.addDefaultArtifact() }) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Добавить артефакт"
-                )
-            }
-        }
+    Column(modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { newText ->
                 artifactViewModel.onSearchQueryChange(newText)
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             label = { Text("Поиск по артефактам") },
             singleLine = true,
             trailingIcon = {
@@ -94,7 +77,9 @@ fun ArtifactScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn {
+        LazyColumn(
+            contentPadding = PaddingValues(horizontal = 8.dp)
+        ) {
             items(searchedArtifacts) {
                 artifact -> ArtifactItem(artifact = artifact)
             }
