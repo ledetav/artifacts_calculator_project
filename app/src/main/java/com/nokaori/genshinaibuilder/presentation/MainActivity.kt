@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.ui
+package com.nokaori.genshinaibuilder.presentation
 
 import android.app.Activity
 import android.os.Bundle
@@ -42,7 +42,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.nokaori.genshinaibuilder.data.repository.ThemeManager
+import com.nokaori.genshinaibuilder.data.repository.ThemeRepositoryImpl
 import com.nokaori.genshinaibuilder.ui.artifacts.ArtifactScreen
 import com.nokaori.genshinaibuilder.ui.common.components.AppDrawer
 import com.nokaori.genshinaibuilder.ui.common.components.MainTopAppBar
@@ -70,7 +70,7 @@ fun AppContent() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val context = LocalContext.current
-    val themeManager = remember { ThemeManager(context) }
+    val themeManager = remember { ThemeRepositoryImpl(context) }
     val themeViewModel = remember { ThemeViewModel(themeManager) }
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
 
