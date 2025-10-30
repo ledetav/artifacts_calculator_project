@@ -42,7 +42,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.nokaori.genshinaibuilder.manager.ThemeManager
+import com.nokaori.genshinaibuilder.data.repository.ThemeManager
 import com.nokaori.genshinaibuilder.ui.artifacts.ArtifactScreen
 import com.nokaori.genshinaibuilder.ui.common.components.AppDrawer
 import com.nokaori.genshinaibuilder.ui.common.components.MainTopAppBar

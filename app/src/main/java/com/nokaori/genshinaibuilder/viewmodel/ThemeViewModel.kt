@@ -2,7 +2,7 @@ package com.nokaori.genshinaibuilder.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nokaori.genshinaibuilder.manager.ThemeManager
+import com.nokaori.genshinaibuilder.data.repository.ThemeManager
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
