@@ -11,9 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nokaori.genshinaibuilder.data.Artifact
-import com.nokaori.genshinaibuilder.data.ArtifactStat
-import com.nokaori.genshinaibuilder.data.StatValue
+import com.nokaori.genshinaibuilder.domain.model.Artifact
+import com.nokaori.genshinaibuilder.domain.model.ArtifactStat
+import com.nokaori.genshinaibuilder.domain.model.StatValue
 
 @Composable
 fun ArtifactItem(artifact: Artifact){

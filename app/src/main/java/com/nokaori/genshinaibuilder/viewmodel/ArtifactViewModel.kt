@@ -2,13 +2,13 @@ package com.nokaori.genshinaibuilder.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nokaori.genshinaibuilder.data.Artifact
-import com.nokaori.genshinaibuilder.data.ArtifactRarity
-import com.nokaori.genshinaibuilder.data.ArtifactSet
-import com.nokaori.genshinaibuilder.data.ArtifactSlot
-import com.nokaori.genshinaibuilder.data.ArtifactStat
-import com.nokaori.genshinaibuilder.data.StatType
-import com.nokaori.genshinaibuilder.data.StatValue
+import com.nokaori.genshinaibuilder.domain.model.Artifact
+import com.nokaori.genshinaibuilder.domain.model.ArtifactRarity
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
+import com.nokaori.genshinaibuilder.domain.model.ArtifactStat
+import com.nokaori.genshinaibuilder.domain.model.StatType
+import com.nokaori.genshinaibuilder.domain.model.StatValue
 import com.nokaori.genshinaibuilder.domain.usecase.FilterArtifactsUseCase
 import com.nokaori.genshinaibuilder.ui.artifacts.data.ArtifactFilterState
 import kotlinx.coroutines.flow.MutableStateFlow

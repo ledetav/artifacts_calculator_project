@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.data
+package com.nokaori.genshinaibuilder.domain.model
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Style

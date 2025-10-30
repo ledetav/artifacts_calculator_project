@@ -1,18 +1,13 @@
 package com.nokaori.genshinaibuilder.ui.artifacts.components
 
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.LocalFlorist
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.WineBar
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import com.nokaori.genshinaibuilder.data.ArtifactSlot
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.ui.common.Orientation
 import com.nokaori.genshinaibuilder.ui.common.components.IconToggleButton
 import com.nokaori.genshinaibuilder.ui.common.components.MultiSelectToggleButtonGroup

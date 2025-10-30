@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.nokaori.genshinaibuilder.data.StatType
+import com.nokaori.genshinaibuilder.domain.model.StatType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

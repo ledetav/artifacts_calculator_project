@@ -1,6 +1,6 @@
 package com.nokaori.genshinaibuilder.domain.usecase
 
-import com.nokaori.genshinaibuilder.data.Artifact
+import com.nokaori.genshinaibuilder.domain.model.Artifact
 import com.nokaori.genshinaibuilder.ui.artifacts.data.ArtifactFilterState
 
 class FilterArtifactsUseCase {

@@ -13,9 +13,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nokaori.genshinaibuilder.data.ArtifactSet
-import com.nokaori.genshinaibuilder.data.ArtifactSlot
-import com.nokaori.genshinaibuilder.data.StatType
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
+import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.ui.artifacts.data.ArtifactFilterState
 import com.nokaori.genshinaibuilder.ui.common.components.BaseDialog
 

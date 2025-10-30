@@ -1,8 +1,8 @@
 package com.nokaori.genshinaibuilder.ui.artifacts.data
 
-import com.nokaori.genshinaibuilder.data.ArtifactSet
-import com.nokaori.genshinaibuilder.data.ArtifactSlot
-import com.nokaori.genshinaibuilder.data.StatType
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
+import com.nokaori.genshinaibuilder.domain.model.StatType
 
 data class ArtifactFilterState(
     val selectedArtifactSet: ArtifactSet? = null,

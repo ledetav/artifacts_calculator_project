@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.data
+package com.nokaori.genshinaibuilder.domain.model
 
 data class Artifact(
     val id: Int = 0, // по умолчанию для нового артефакта
