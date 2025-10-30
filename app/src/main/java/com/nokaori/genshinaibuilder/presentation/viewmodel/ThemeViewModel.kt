@@ -2,14 +2,14 @@ package com.nokaori.genshinaibuilder.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nokaori.genshinaibuilder.data.repository.ThemeManager
+import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class ThemeViewModel(private val themeManager: ThemeManager) : ViewModel() {
-    val isDarkTheme: StateFlow<Boolean> = themeManager.isDarkTheme
+class ThemeViewModel(private val themeRepository: ThemeRepository) : ViewModel() {
+    val isDarkTheme: StateFlow<Boolean> = themeRepository.isDarkTheme
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -18,7 +18,7 @@ class ThemeViewModel(private val themeManager: ThemeManager) : ViewModel() {
     fun toggleTheme() {
         viewModelScope.launch {
             val newThemeValue = !isDarkTheme.value
-            themeManager.setTheme(newThemeValue)
+            themeRepository.setDarkTheme(newThemeValue)
         }
     }
 }
