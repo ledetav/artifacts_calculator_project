@@ -2,6 +2,7 @@ package com.nokaori.genshinaibuilder.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nokaori.genshinaibuilder.data.repository.ArtifactRepositoryImpl
 import com.nokaori.genshinaibuilder.domain.model.Artifact
 import com.nokaori.genshinaibuilder.domain.model.ArtifactRarity
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
@@ -9,6 +10,7 @@ import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.ArtifactStat
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.StatValue
+import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
 import com.nokaori.genshinaibuilder.domain.usecase.FilterArtifactsUseCase
 import com.nokaori.genshinaibuilder.ui.artifacts.data.ArtifactFilterState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,17 +20,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
-class ArtifactViewModel : ViewModel() {
-    private val filterArtifactsUseCase = FilterArtifactsUseCase()
-
-    private val _artifacts = MutableStateFlow<List<Artifact>>(emptyList())
-    val artifacts: StateFlow<List<Artifact>> = _artifacts.asStateFlow()
-
+class ArtifactViewModel(
+    private val artifactRepository: ArtifactRepository = ArtifactRepositoryImpl(), // Заглушка
+    private val filterArtifactsUseCase: FilterArtifactsUseCase = FilterArtifactsUseCase() // Заглушка
+) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
@@ -36,13 +37,11 @@ class ArtifactViewModel : ViewModel() {
     val isFilterDialogShown : StateFlow<Boolean> = _isFilterDialogShown.asStateFlow()
 
     private val _activeArtifactFilterState = MutableStateFlow(ArtifactFilterState())
-    val activeArtifactFilterState: StateFlow<ArtifactFilterState> = _activeArtifactFilterState.asStateFlow()
-    
     private val _draftArtifactFilterState = MutableStateFlow(ArtifactFilterState())
     val draftArtifactFilterState: StateFlow<ArtifactFilterState> = _draftArtifactFilterState.asStateFlow()
 
     val areArtifactFiltersChanged: StateFlow<Boolean> = combine(
-        activeArtifactFilterState,
+        _activeArtifactFilterState,
         draftArtifactFilterState
     ) { active, draft ->
         active != draft
@@ -51,21 +50,13 @@ class ArtifactViewModel : ViewModel() {
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = false
     )
-    
-    private val _availableArtifactSets = MutableStateFlow<List<ArtifactSet>>(emptyList())
-    val availableArtifactSets : StateFlow<List<ArtifactSet>> = _availableArtifactSets.asStateFlow()
 
-    init {
-        loadAvailableArtifactSets()
-    }
-
-    // Заглушка
-    private fun loadAvailableArtifactSets() {
-        _availableArtifactSets.value = listOf(
-            ArtifactSet("Киноварное загробье"),
-            ArtifactSet("Ночь открытого неба")
+    val availableArtifactSets : StateFlow<List<ArtifactSet>> = artifactRepository.getAvailableArtifactSets()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            emptyList()
         )
-    }
 
     val filteredArtifactSets: StateFlow<List<ArtifactSet>> = combine(
         availableArtifactSets,
@@ -87,11 +78,18 @@ class ArtifactViewModel : ViewModel() {
     )
 
     val searchedArtifacts: StateFlow<List<Artifact>> = combine(
-        artifacts,
-        searchQuery,
-        activeArtifactFilterState
+        artifactRepository.getArtifacts(),
+        _searchQuery,
+        _activeArtifactFilterState
     ) { artifacts, query, filters ->
-        filterArtifactsUseCase(artifacts, query, filters)
+        filterArtifactsUseCase(
+            artifacts,
+            query,
+            filters.selectedArtifactSet,
+            filters.selectedArtifactLevelRange,
+            filters.selectedArtifactSlots,
+            filters.selectedArtifactMainStat
+            )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -199,8 +197,15 @@ class ArtifactViewModel : ViewModel() {
     }
 
     fun addDefaultArtifact() {
-        val randomArtifact = if(Random.nextBoolean()) {
-            Artifact(
+        viewModelScope.launch {
+            val randomArtifact = createRandomArtifact()
+            artifactRepository.addArtifact(randomArtifact)
+        }
+    }
+
+    private fun createRandomArtifact(): Artifact {
+        if (Random.nextBoolean()) {
+            return Artifact(
                 slot = ArtifactSlot.SANDS_OF_EON,
                 rarity = ArtifactRarity.FIVE_STARS,
                 artifactName = "Солнечная реликвия",
@@ -215,7 +220,7 @@ class ArtifactViewModel : ViewModel() {
                 )
             )
         } else {
-            Artifact(
+            return Artifact(
                 slot = ArtifactSlot.FLOWER_OF_LIFE,
                 rarity = ArtifactRarity.FIVE_STARS,
                 artifactName = "Цветок жажды познания",
@@ -230,6 +235,5 @@ class ArtifactViewModel : ViewModel() {
                 )
             )
         }
-        _artifacts.value += randomArtifact
     }
 }
