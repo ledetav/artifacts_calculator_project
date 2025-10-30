@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.viewmodel
+package com.nokaori.genshinaibuilder.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

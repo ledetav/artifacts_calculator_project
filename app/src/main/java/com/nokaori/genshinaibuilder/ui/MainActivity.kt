@@ -48,8 +48,8 @@ import com.nokaori.genshinaibuilder.ui.common.components.AppDrawer
 import com.nokaori.genshinaibuilder.ui.common.components.MainTopAppBar
 import com.nokaori.genshinaibuilder.ui.navigation.NavigationItem
 import com.nokaori.genshinaibuilder.ui.theme.GenshinAIBuilderTheme
-import com.nokaori.genshinaibuilder.viewmodel.ArtifactViewModel
-import com.nokaori.genshinaibuilder.viewmodel.ThemeViewModel
+import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
+import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
