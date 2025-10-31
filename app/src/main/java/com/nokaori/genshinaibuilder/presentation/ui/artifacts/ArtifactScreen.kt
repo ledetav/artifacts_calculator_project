@@ -12,6 +12,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.res.stringResource
+import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.components.ArtifactFilterDialog
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.components.ArtifactItem
@@ -57,7 +59,7 @@ fun ArtifactScreen(
                 artifactViewModel.onSearchQueryChange(newText)
             },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-            label = { Text("Поиск по артефактам") },
+            label = { Text(stringResource(R.string.artifact_search_placeholder)) },
             singleLine = true,
             trailingIcon = {
                 IconButton(
@@ -65,7 +67,7 @@ fun ArtifactScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.FilterList,
-                        contentDescription = "Фильтр артефактов"
+                        contentDescription = stringResource(R.string.filter_dialog_title)
                     )
                 }
             }

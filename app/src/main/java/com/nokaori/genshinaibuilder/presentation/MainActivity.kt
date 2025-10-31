@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -113,7 +114,7 @@ fun AppContent() {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Genshin AI Builder",
+                                text = stringResource(R.string.app_name),
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.weight(1f)
                             )
@@ -124,7 +125,7 @@ fun AppContent() {
                                 Icon(
                                     imageVector = if (isDarkTheme) Icons.Default.Brightness7
                                     else Icons.Default.Brightness4,
-                                    contentDescription = "Переключить тему"
+                                    contentDescription = stringResource(R.string.theme_switch)
                                 )
                             }
                         }
@@ -148,7 +149,7 @@ fun AppContent() {
                 Scaffold(
                     topBar = {
                         MainTopAppBar(
-                            title = currentNavItem?.title ?: "Genshin AI Builder",
+                            title = currentNavItem?.title ?: stringResource(R.string.app_name),
                             onNavigationIconClick = {
                                 scope.launch { drawerState.open() }
                             },
@@ -157,7 +158,7 @@ fun AppContent() {
                                     IconButton(onClick = { artifactViewModel.addDefaultArtifact() }) {
                                         Icon(
                                             imageVector = Icons.Default.Add,
-                                            contentDescription = "Add artifact"
+                                            contentDescription = stringResource(R.string.add_artifact)
                                         )
                                     }
                                 }

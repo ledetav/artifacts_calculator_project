@@ -30,7 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.StatType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,7 +48,7 @@ fun ArtifactMainStatFilter(
 
     Column {
         Text(
-            text = "Главный стат",
+            text = stringResource(R.string.filter_artifact_main_stat),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
@@ -72,7 +74,7 @@ fun ArtifactMainStatFilter(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = selectedArtifactMainStat?.displayName ?: "Выбрать главный стат",
+                    text = selectedArtifactMainStat?.displayName ?: stringResource(R.string.filter_artifact_main_stat_choose),
                     color = if (selectedArtifactMainStat != null) MaterialTheme.colorScheme.onSurface else
                         MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -84,14 +86,14 @@ fun ArtifactMainStatFilter(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Clear,
-                            contentDescription = "Очистить выбор"
+                            contentDescription = stringResource(R.string.selection_clear)
                         )
                     }
                 } else {
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.ArrowDropUp else
                             Icons.Default.ArrowDropDown,
-                        contentDescription = "открыть список"
+                        contentDescription = stringResource(R.string.list_open)
                     )
                 }
             }

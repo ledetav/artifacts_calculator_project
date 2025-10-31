@@ -32,9 +32,11 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.nokaori.genshinaibuilder.R
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +63,7 @@ fun ArtifactLevelFilter(
 
     Column{
         Text(
-            text = "Уровень",
+            text = stringResource(R.string.filter_level),
             style = MaterialTheme.typography.titleMedium
         )
 
@@ -80,7 +82,7 @@ fun ArtifactLevelFilter(
                             commitChanges()
                         }
                     },
-                label = { Text("От") },
+                label = { Text(stringResource(R.string.filter_level_from)) },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
@@ -100,7 +102,7 @@ fun ArtifactLevelFilter(
                             commitChanges()
                         }
                     },
-                label = { Text("До") },
+                label = { Text(stringResource(R.string.filter_level_to)) },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
