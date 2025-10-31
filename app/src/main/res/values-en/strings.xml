@@ -29,4 +29,20 @@
     <string name="filter_dialog_close">Close filters</string>
     <string name="theme_switch">Switch theme</string>
     <string name="artifact_add_button">Add artifact</string>
+    <string name="stat_type_atk">ATK</string>
+    <string name="stat_type_def">DEF</string>
+    <string name="stat_type_hp">HP</string>
+    <string name="stat_type_crit_rate">CRIT Rate</string>
+    <string name="stat_type_crit_dmg">CRIT DMG</string>
+    <string name="stat_type_energy_recharge">Energy Recharge</string>
+    <string name="stat_type_elemental_mastery">Elemental Mactery</string>
+    <string name="stat_type_anemo_damage_bonus">Anemo DMG Bonus</string>
+    <string name="stat_type_geo_damage_bonus">Geo DMG Bonus</string>
+    <string name="stat_type_electro_damage_bonus">Electro DMG Bonus</string>
+    <string name="stat_type_cryo_damage_bonus">Cryo DMG Bonus</string>
+    <string name="stat_type_dendro_damage_bonus">Dendro DMG Bonus</string>
+    <string name="stat_type_hydro_damage_bonus">Hydro DMG Bonus</string>
+    <string name="stat_type_physical_damage_bonus">Physical DMG Bonus</string>
+    <string name="stat_type_pyro_damage_bonus">Pyro DMG Bonus</string>
+    <string name="stat_type_healing_bonus">Healing Bonus</string>
 </resources>

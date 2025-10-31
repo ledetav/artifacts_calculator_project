@@ -23,9 +23,9 @@ fun StatType.toDisplayName(): String {
         StatType.ATK -> R.string.stat_type_atk
         StatType.DEF -> R.string.stat_type_def
         StatType.HP -> R.string.stat_type_hp
-        StatType.ATK_PERCENT -> R.string.stat_type_atk_percent
-        StatType.DEF_PERCENT -> R.string.stat_type_def_percent
-        StatType.HP_PERCENT -> R.string.stat_type_hp_percent
+        StatType.ATK_PERCENT -> R.string.stat_type_atk
+        StatType.DEF_PERCENT -> R.string.stat_type_def
+        StatType.HP_PERCENT -> R.string.stat_type_hp
         StatType.CRIT_RATE -> R.string.stat_type_crit_rate
         StatType.CRIT_DMG -> R.string.stat_type_crit_dmg
         StatType.ENERGY_RECHARGE -> R.string.stat_type_energy_recharge
