@@ -43,11 +43,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nokaori.genshinaibuilder.data.repository.ThemeRepositoryImpl
-import com.nokaori.genshinaibuilder.ui.artifacts.ArtifactScreen
-import com.nokaori.genshinaibuilder.ui.common.components.AppDrawer
-import com.nokaori.genshinaibuilder.ui.common.components.MainTopAppBar
-import com.nokaori.genshinaibuilder.ui.navigation.NavigationItem
-import com.nokaori.genshinaibuilder.ui.theme.GenshinAIBuilderTheme
+import com.nokaori.genshinaibuilder.presentation.ui.artifacts.ArtifactScreen
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.MainTopAppBar
+import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
+import com.nokaori.genshinaibuilder.presentation.ui.theme.GenshinAIBuilderTheme
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
 import kotlinx.coroutines.launch

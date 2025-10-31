@@ -1,15 +1,15 @@
-package com.nokaori.genshinaibuilder.ui.common.components
+package com.nokaori.genshinaibuilder.presentation.ui.common.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.nokaori.genshinaibuilder.ui.common.Orientation
+import com.nokaori.genshinaibuilder.presentation.ui.common.Orientation
 
 @Composable
-fun <T> MultiSelectToggleButtonGroup(
+fun <T> SingleSelectToggleButtonGroup(
     title: String,
     items: List<T>,
-    selectedItems: Set<T>,
-    onItemClick: (T) -> Unit,
+    selectedItem: T?,
+    onItemSelect: (T) -> Unit,
     modifier: Modifier = Modifier,
     orientation: Orientation = Orientation.HORIZONTAL,
     itemContent: @Composable (item: T, isSelected: Boolean) -> Unit
@@ -20,7 +20,7 @@ fun <T> MultiSelectToggleButtonGroup(
         modifier = modifier,
         orientation = orientation
     ) { item ->
-        val isSelected = item in selectedItems
+        val isSelected = (item == selectedItem)
 
         itemContent(item, isSelected)
     }

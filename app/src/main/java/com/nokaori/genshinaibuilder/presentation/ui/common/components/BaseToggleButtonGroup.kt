@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.ui.common.components
+package com.nokaori.genshinaibuilder.presentation.ui.common.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.unit.dp
-import com.nokaori.genshinaibuilder.ui.common.Orientation
+import com.nokaori.genshinaibuilder.presentation.ui.common.Orientation
 
 @Composable
 fun <T> BaseToggleButtonGroup(

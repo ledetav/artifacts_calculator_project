@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.ui.artifacts.components
+package com.nokaori.genshinaibuilder.presentation.ui.artifacts.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

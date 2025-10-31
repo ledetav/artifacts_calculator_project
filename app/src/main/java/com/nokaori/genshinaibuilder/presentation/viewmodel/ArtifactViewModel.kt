@@ -12,7 +12,7 @@ import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.StatValue
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
 import com.nokaori.genshinaibuilder.domain.usecase.FilterArtifactsUseCase
-import com.nokaori.genshinaibuilder.ui.artifacts.data.ArtifactFilterState
+import com.nokaori.genshinaibuilder.presentation.ui.artifacts.data.ArtifactFilterState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

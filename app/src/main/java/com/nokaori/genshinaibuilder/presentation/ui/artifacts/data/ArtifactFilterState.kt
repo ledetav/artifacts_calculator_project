@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.ui.artifacts.data
+package com.nokaori.genshinaibuilder.presentation.ui.artifacts.data
 
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot

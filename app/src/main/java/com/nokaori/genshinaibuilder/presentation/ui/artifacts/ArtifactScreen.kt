@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.ui.artifacts
+package com.nokaori.genshinaibuilder.presentation.ui.artifacts
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,9 +12,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.OutlinedTextField
-import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactFilterDialog
+import com.nokaori.genshinaibuilder.presentation.ui.artifacts.components.ArtifactFilterDialog
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
-import com.nokaori.genshinaibuilder.ui.artifacts.components.ArtifactItem
+import com.nokaori.genshinaibuilder.presentation.ui.artifacts.components.ArtifactItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

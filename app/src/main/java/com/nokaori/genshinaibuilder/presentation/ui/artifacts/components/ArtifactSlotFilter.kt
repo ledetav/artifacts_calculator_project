@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.ui.artifacts.components
+package com.nokaori.genshinaibuilder.presentation.ui.artifacts.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -8,9 +8,9 @@ import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.WineBar
 import androidx.compose.runtime.Composable
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
-import com.nokaori.genshinaibuilder.ui.common.Orientation
-import com.nokaori.genshinaibuilder.ui.common.components.IconToggleButton
-import com.nokaori.genshinaibuilder.ui.common.components.MultiSelectToggleButtonGroup
+import com.nokaori.genshinaibuilder.presentation.ui.common.Orientation
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.IconToggleButton
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.MultiSelectToggleButtonGroup
 
 @Composable
 fun ArtifactSlotFilter(

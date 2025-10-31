@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.ui.common.components
+package com.nokaori.genshinaibuilder.presentation.ui.common.components
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.icons.Icons

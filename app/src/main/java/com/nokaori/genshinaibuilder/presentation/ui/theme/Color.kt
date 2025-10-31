@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.ui.theme
+package com.nokaori.genshinaibuilder.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

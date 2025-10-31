@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.ui.artifacts.components
+package com.nokaori.genshinaibuilder.presentation.ui.artifacts.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,8 +16,8 @@ import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.StatType
-import com.nokaori.genshinaibuilder.ui.artifacts.data.ArtifactFilterState
-import com.nokaori.genshinaibuilder.ui.common.components.BaseDialog
+import com.nokaori.genshinaibuilder.presentation.ui.artifacts.data.ArtifactFilterState
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.BaseDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
