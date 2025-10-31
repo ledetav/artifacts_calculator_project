@@ -43,6 +43,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.data.repository.ThemeRepositoryImpl
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.ArtifactScreen
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
@@ -149,7 +150,7 @@ fun AppContent() {
                 Scaffold(
                     topBar = {
                         MainTopAppBar(
-                            title = currentNavItem?.title ?: stringResource(R.string.app_name),
+                            title = stringResource(id = currentNavItem?.titleResId ?: R.string.app_name),
                             onNavigationIconClick = {
                                 scope.launch { drawerState.open() }
                             },
@@ -158,7 +159,7 @@ fun AppContent() {
                                     IconButton(onClick = { artifactViewModel.addDefaultArtifact() }) {
                                         Icon(
                                             imageVector = Icons.Default.Add,
-                                            contentDescription = stringResource(R.string.add_artifact)
+                                            contentDescription = stringResource(R.string.artifact_add_button)
                                         )
                                     }
                                 }

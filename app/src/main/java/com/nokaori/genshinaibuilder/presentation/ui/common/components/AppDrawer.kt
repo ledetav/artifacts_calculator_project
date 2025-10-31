@@ -10,6 +10,7 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
 
@@ -24,7 +25,7 @@ fun AppDrawer(
         items.forEach { item ->
             NavigationDrawerItem(
                 icon = { Icon(item.icon, contentDescription = null) },
-                label = { Text(item.title) },
+                label = { Text(stringResource(item.titleResId)) },
                 selected = item.route == currentItemRoute,
                 onClick = {
                     onItemClick(item)
