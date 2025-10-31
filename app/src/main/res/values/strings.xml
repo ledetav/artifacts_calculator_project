@@ -1,3 +1,23 @@
 <resources>
-    <string name="app_name">GenshinAIBuilder</string>
+    <string name="app_name" translatable="false">Genshin AI Builder</string>
+    <string name="apply">Применить</string>
+    <string name="reset">Сбросить</string>
+    <string name="artifact_search_placeholder">Поиск по артефактам</string>
+    <string name="nav_artifacts">Артефакты</string>
+    <string name="nav_weapons">Оружие</string>
+    <string name="nav_characters">Персонажи</string>
+    <string name="nav_builds">Билды</string>
+    <string name="nav_settings">Настройки</string>
+    <string name="filter_dialog_title">Фильтры</string>
+    <string name="filter_artifact_set">Сет артефакта</string>
+    <string name="filter_level">Уровень</string>
+    <string name="filter_artifact_slot">Слот</string>
+    <string name="filter_artifact_main_stat">Главный стат</string>
+    <string name="filter_level_from">От</string>
+    <string name="filter_level_to">До</string>
+    <string name="artifact_slot_flower">Цветок жизни</string>
+    <string name="artifact_slot_plume">Перо смерти</string>
+    <string name="artifact_slot_sands">Пески времени</string>
+    <string name="artifact_slot_goblet">Кубок пространства</string>
+    <string name="artifact_slot_circlet">Корона разума</string>
 </resources>
