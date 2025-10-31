@@ -15,7 +15,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.SearchableExposedDropdown
 import kotlin.collections.forEach
@@ -34,14 +36,14 @@ fun ArtifactSetFilter(
 ) {
     Column {
         Text(
-            text = "Сет артефакта",
+            text = stringResource(R.string.filter_artifact_set),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
         SearchableExposedDropdown(
             modifier = Modifier.fillMaxWidth(),
-            label = "Выберите сет артефакта",
+            label = stringResource(R.string.filter_artifact_set_choose),
             searchQuery = artifactSetSearchQuery,
             onSearchQueryChange = onArtifactSetSearchQueryChanged,
             isExpanded = isArtifactSetDropdownExpanded,
@@ -52,7 +54,7 @@ fun ArtifactSetFilter(
         ) {
             if (filteredArtifactSets.isEmpty()) {
                 DropdownMenuItem(
-                    text = { Text("Ничего не найдено") },
+                    text = { Text(stringResource(R.string.search_nothing)) },
                     onClick = {},
                     enabled = false
                 )

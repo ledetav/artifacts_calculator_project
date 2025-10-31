@@ -19,9 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.nokaori.genshinaibuilder.R
 
 @Composable
 fun BaseDialog(
@@ -59,7 +61,7 @@ fun BaseDialog(
                     IconButton(onClick = onDismissRequest) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Закрыть фильтры"
+                            contentDescription = stringResource(R.string.filter_dialog_close)
                         )
                     }
                 }

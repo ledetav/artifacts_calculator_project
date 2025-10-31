@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Genshin AI Builder</string>
+    <string name="app_name">Genshin AI Builder</string>
     <string name="apply">Apply</string>
     <string name="reset">Reset</string>
     <string name="artifact_search_placeholder">Search artifacts</string>
@@ -20,4 +20,13 @@
     <string name="artifact_slot_sands">Sands of Eon</string>
     <string name="artifact_slot_goblet">Goblet of Eonothem</string>
     <string name="artifact_slot_circlet">Circlet of Logos</string>
+    <string name="filter_artifact_main_stat_choose">Choose main stat</string>
+    <string name="selection_clear">Clear selection</string>
+    <string name="list_open">Open list</string>
+    <string name="filter_artifact_set_choose">Choose artifact set</string>
+    <string name="search_nothing">Nothing was found</string>
+    <string name="nav_open">Open menu</string>
+    <string name="filter_dialog_close">Close filters</string>
+    <string name="theme_switch">Switch theme</string>
+    <string name="artifact_add_button">Add artifact</string>
 </resources>
