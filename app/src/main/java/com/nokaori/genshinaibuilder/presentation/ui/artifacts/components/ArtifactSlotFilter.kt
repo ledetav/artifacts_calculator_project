@@ -13,6 +13,7 @@ import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.presentation.ui.common.Orientation
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.IconToggleButton
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MultiSelectToggleButtonGroup
+import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
 
 @Composable
 fun ArtifactSlotFilter(
@@ -39,7 +40,7 @@ fun ArtifactSlotFilter(
             onClick = { onArtifactSlotClicked(slot) },
             isSelected = isSelected,
             icon = getIconForSlot(slot),
-            contentDescription = slot.displayName
+            contentDescription = slot.toDisplayName()
         )
     }
 }

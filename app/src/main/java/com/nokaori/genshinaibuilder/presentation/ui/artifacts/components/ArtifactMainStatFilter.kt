@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.StatType
+import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,7 +75,7 @@ fun ArtifactMainStatFilter(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = selectedArtifactMainStat?.displayName ?: stringResource(R.string.filter_artifact_main_stat_choose),
+                    text = selectedArtifactMainStat?.toDisplayName() ?: stringResource(R.string.filter_artifact_main_stat_choose),
                     color = if (selectedArtifactMainStat != null) MaterialTheme.colorScheme.onSurface else
                         MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -105,7 +106,7 @@ fun ArtifactMainStatFilter(
             ) {
                 allArtifactStats.forEach { artifactStat ->
                     DropdownMenuItem(
-                        text = { Text(text = artifactStat.displayName) },
+                        text = { Text(text = artifactStat.toDisplayName()) },
                         onClick = {
                             onArtifactMainStatSelected(artifactStat)
                             isExpanded = false
