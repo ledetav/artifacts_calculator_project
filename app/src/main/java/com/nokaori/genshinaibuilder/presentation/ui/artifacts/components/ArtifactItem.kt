@@ -15,6 +15,8 @@ import com.nokaori.genshinaibuilder.domain.model.Artifact
 import com.nokaori.genshinaibuilder.domain.model.ArtifactStat
 import com.nokaori.genshinaibuilder.domain.model.StatValue
 import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
+import com.nokaori.genshinaibuilder.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun ArtifactItem(artifact: Artifact){
@@ -29,7 +31,11 @@ fun ArtifactItem(artifact: Artifact){
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
-                text = "${artifact.setName} (+${artifact.level})",
+                text = stringResource(
+                    id = R.string.artifact_set_and_level,
+                    artifact.setName,
+                    artifact.level
+                ),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
