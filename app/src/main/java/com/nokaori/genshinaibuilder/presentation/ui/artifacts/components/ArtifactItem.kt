@@ -14,6 +14,9 @@ import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.domain.model.Artifact
 import com.nokaori.genshinaibuilder.domain.model.ArtifactStat
 import com.nokaori.genshinaibuilder.domain.model.StatValue
+import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
+import com.nokaori.genshinaibuilder.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun ArtifactItem(artifact: Artifact){
@@ -28,7 +31,11 @@ fun ArtifactItem(artifact: Artifact){
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
-                text = "${artifact.setName} (+${artifact.level})",
+                text = stringResource(
+                    id = R.string.artifact_set_and_level,
+                    artifact.setName,
+                    artifact.level
+                ),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
@@ -39,7 +46,7 @@ fun ArtifactItem(artifact: Artifact){
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = artifact.slot.displayName,
+                text = artifact.slot.toDisplayName(),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
@@ -58,9 +65,9 @@ private fun formatStat(stat: ArtifactStat): String {
     }
 
     return if (stat.type.isPercentage) {
-        val cleanName = stat.type.displayName.replace(" %", "")
+        val cleanName = stat.type.toDisplayName().replace(" %", "")
         "$cleanName ${valueString}%"
     } else {
-        "${stat.type.displayName} $valueString"
+        "${stat.type.toDisplayName()} $valueString"
     }
 }

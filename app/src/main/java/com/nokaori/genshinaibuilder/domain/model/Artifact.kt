@@ -26,43 +26,43 @@ enum class ArtifactRarity(val stars: Int) {
     FIVE_STARS(5)
 }
 
-enum class ArtifactSlot(val displayName: String){
-    FLOWER_OF_LIFE("Цветок жизни"),
-    PLUME_OF_DEATH("Перо смерти"),
-    SANDS_OF_EON("Пески времени"),
-    GOBLET_OF_EONOTHEM("Кубок пространства"),
-    CIRCLET_OF_LOGOS("Корона разума")
+enum class ArtifactSlot(){
+    FLOWER_OF_LIFE,
+    PLUME_OF_DEATH,
+    SANDS_OF_EON,
+    GOBLET_OF_EONOTHEM,
+    CIRCLET_OF_LOGOS
 }
 
-enum class StatType(val displayName: String, val isPercentage: Boolean){
+enum class StatType(val isPercentage: Boolean){
     // Плоские
-    HP("HP", false),
-    ATK("Сила атаки", false),
-    DEF("Защита", false),
+    HP(false),
+    ATK(false),
+    DEF(false),
 
     // Проценты
-    HP_PERCENT("HP %", true),
-    ATK_PERCENT("Сила атаки %", true),
-    DEF_PERCENT("Защита %", true),
+    HP_PERCENT(true),
+    ATK_PERCENT(true),
+    DEF_PERCENT(true),
 
     // Крит
-    CRIT_RATE("Шанс крит. попадания %", true),
-    CRIT_DMG("Крит. урон %", true),
+    CRIT_RATE(true),
+    CRIT_DMG(true),
 
     // ВЭ, МС
-    ENERGY_RECHARGE("Восст. энергии %", true),
-    ELEMENTAL_MASTERY("Мастерство стихий", false),
+    ENERGY_RECHARGE(true),
+    ELEMENTAL_MASTERY(false),
 
     // Урон
-    PYRO_DAMAGE_BONUS("Бонус Пиро урона %", true),
-    HYDRO_DAMAGE_BONUS("Бонус Гидро урона %", true),
-    DENDRO_DAMAGE_BONUS("Бонус Дендро урона %", true),
-    ELECTRO_DAMAGE_BONUS("Бонус Электро урона %", true),
-    ANEMO_DAMAGE_BONUS("Бонус Анемо урона %", true),
-    CRYO_DAMAGE_BONUS("Бонус Крио урона %", true),
-    GEO_DAMAGE_BONUS("Бонус Гео урона %", true),
-    PHYSICAL_DAMAGE_BONUS("Бонус физ. урона %", true),
+    PYRO_DAMAGE_BONUS(true),
+    HYDRO_DAMAGE_BONUS(true),
+    DENDRO_DAMAGE_BONUS(true),
+    ELECTRO_DAMAGE_BONUS(true),
+    ANEMO_DAMAGE_BONUS(true),
+    CRYO_DAMAGE_BONUS(true),
+    GEO_DAMAGE_BONUS(true),
+    PHYSICAL_DAMAGE_BONUS(true),
 
     // Лечение
-    HEALING_BONUS("Бонус лечения %", true)
+    HEALING_BONUS(true)
 }
