@@ -12,6 +12,7 @@ data class Artifact(
 )
 
 enum class ArtifactRarity(val stars: Int) {
+    THREE_STARS(3),
     FOUR_STARS(4),
     FIVE_STARS(5)
 }
