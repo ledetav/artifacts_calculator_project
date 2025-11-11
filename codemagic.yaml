@@ -1,0 +1,26 @@
+workflows:
+  android-build:
+    name: Android Build & Test
+
+    instance_type: linux_x2
+
+    environment:
+      groups:
+        - android
+      java_version: 21
+
+    scripts:
+      - name: Create local.properties file
+        script: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+      
+      - name: Make gradlew executable
+        script: |
+          chmod +x ./gradlew
+
+      - name: Run Tests and Build Debug APK
+        script: |
+          ./gradlew testDebugUnitTest assembleDebug
+
+    artifacts:
+      - app/build/outputs/apk/debug/*.apk
