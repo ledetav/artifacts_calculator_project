@@ -26,12 +26,14 @@ fun WeaponScreen(
     val searchQuery by weaponViewModel.searchQuery.collectAsState()
     val searchedWeapons by weaponViewModel.searchedWeapons.collectAsState()
     val isFilterDialogShown by weaponViewModel.isFilterDialogShown.collectAsState()
+    val areWeaponFiltersChanged by weaponViewModel.areWeaponFiltersChanged.collectAsState()
 
     if (isFilterDialogShown) {
         val draftWeaponFilterState by weaponViewModel.draftWeaponFilterState.collectAsState()
 
         WeaponFilterDialog(
             weaponFilterState = draftWeaponFilterState,
+            areWeaponFiltersChanged = areWeaponFiltersChanged,
             onDismiss = weaponViewModel::onFilterDialogDismiss,
             onApply = weaponViewModel::onApplyFilters,
             onReset = weaponViewModel::onResetFilters,
