@@ -49,4 +49,9 @@
     <string name="weapon_search_placeholder">Search weapons</string>
     <string name="weapon_level">Level: %1$d/90</string>
     <string name="weapon_add_button">Add weapon</string>
+    <string name="weapon_type_sword">Sword</string>
+    <string name="weapon_type_claymore">Claymore</string>
+    <string name="weapon_type_polearm">Polearm</string>
+    <string name="weapon_type_bow">Bow</string>
+    <string name="weapon_type_catalyst">Catalyst</string>
 </resources>

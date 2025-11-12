@@ -49,4 +49,9 @@
     <string name="weapon_search_placeholder">Поиск по оружию</string>
     <string name="weapon_level">Уровень: %1$d/90</string>
     <string name="weapon_add_button">Добавить оружие</string>
+    <string name="weapon_type_sword">Одноручное</string>
+    <string name="weapon_type_claymore">Двуручное</string>
+    <string name="weapon_type_polearm">Древковое</string>
+    <string name="weapon_type_bow">Стрелковое</string>
+    <string name="weapon_type_catalyst">Катализатор</string>
 </resources>
