@@ -37,7 +37,7 @@ class WeaponRepositoryImpl : WeaponRepository {
                 rarity = Rarity.FIVE_STARS,
                 baseAttackLvl1 = 46,
                 scalingCurveId = "5_star_high",
-                mainStat = Stat(StatType.ATK_PERCENT, Stat.DoubleValue(49.6))
+                mainStat = Stat(StatType.ATK_PERCENT, StatValue.DoubleValue(49.6))
             ),
             Weapon(
                 name = "Боевой лук Фавония",
@@ -45,7 +45,7 @@ class WeaponRepositoryImpl : WeaponRepository {
                 rarity = Rarity.FOUR_STARS,
                 baseAttackLvl1 = 41,
                 scalingCurveId = "4_star_er",
-                mainStat = Stat(StatType.ENERGY_RECHARGE, Stat.DoubleValue(61.3))
+                mainStat = Stat(StatType.ENERGY_RECHARGE, StatValue.DoubleValue(61.3))
             )
         )
     }

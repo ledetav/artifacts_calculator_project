@@ -3,6 +3,7 @@ package com.nokaori.genshinaibuilder.domain.usecase
 import com.nokaori.genshinaibuilder.domain.model.Stat
 import com.nokaori.genshinaibuilder.domain.model.UserWeapon
 import com.nokaori.genshinaibuilder.domain.model.Weapon
+import com.nokaori.genshinaibuilder.domain.model.StatValue
 
 class CalculateWeaponStatsUseCase {
     data class CalculatedStats(
@@ -22,8 +23,8 @@ class CalculateWeaponStatsUseCase {
         val calculatedMainStat = weapon.mainStat?.let {
             // Очень примитивно-грубенький рассчет стата в качестве заглушки.
             val calculatedValue = when(val value = it.value) {
-                is Stat.StatValue.DoubleValue -> Stat.StatValue.DoubleValue(value.value * (level / 90.0))
-                is Stat.StatValue.IntValue -> Stat.StatValue.IntValue((value.value * (level / 90.0)).toInt())
+                is StatValue.DoubleValue -> StatValue.DoubleValue(value.value * (level / 90.0))
+                is StatValue.IntValue -> StatValue.IntValue((value.value * (level / 90.0)).toInt())
             }
             it.copy(value = calculatedValue)
         }

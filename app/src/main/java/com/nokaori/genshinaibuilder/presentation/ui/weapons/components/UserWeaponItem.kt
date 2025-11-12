@@ -36,7 +36,7 @@ fun UserWeaponItem(userWeapon: UserWeapon){
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "⭐".repeat(userWeapon.weapon.rarity),
+                text = "⭐".repeat(userWeapon.weapon.rarity.stars),
                 style = MaterialTheme.typography.bodyMedium
             )
 
