@@ -13,7 +13,6 @@ import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.BaseDialog
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.data.WeaponFilterState
-import androidx.compose.material3.TextButton
 
 @Composable
 fun WeaponFilterDialog(
@@ -25,25 +24,19 @@ fun WeaponFilterDialog(
     modifier: Modifier = Modifier
 ) {
     BaseDialog(
-        onDismissRequest = onDismiss,
         title = stringResource(R.string.filter_dialog_title),
-        content = {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = stringResource(R.string.filter_weapon_type))
-                Spacer(modifier = Modifier.height(8.dp))
-                WeaponTypeFilter(
-                    selectedWeaponTypes = weaponFilterState.selectedWeaponTypes,
-                    onWeaponTypeSelected = onWeaponTypeSelected
-                )
-            }
-        },
-        actions = {
-            TextButton(onClick = onReset) {
-                Text(stringResource(R.string.reset))
-            }
-            TextButton(onClick = onApply) {
-                Text(stringResource(R.string.apply))
-            }
+        onDismiss = onDismiss,
+        onApply = onApply,
+        onReset = onReset,
+        modifier = modifier
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = stringResource(R.string.filter_weapon_type))
+            Spacer(modifier = Modifier.height(8.dp))
+            WeaponTypeFilter(
+                selectedWeaponTypes = weaponFilterState.selectedWeaponTypes,
+                onWeaponTypeSelected = onWeaponTypeSelected
+            )
         }
-    )
+    }
 }
