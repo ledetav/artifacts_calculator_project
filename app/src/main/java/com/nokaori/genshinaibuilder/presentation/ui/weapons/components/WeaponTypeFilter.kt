@@ -13,8 +13,16 @@ import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
 fun WeaponTypeFilter(
     selectedWeaponTypes: Set<WeaponType>,
     onWeaponTypeSelected: (WeaponType) -> Unit,
-    modifier: Modifier = Modifier
+    orientation: Orientation = Orientation.HORIZONTAL
 ) {
+    fun getIconForType(type: WeaponType) = when (type) {
+        WeaponType.BOW -> Icons.Default.NorthEast
+        WeaponType.CLAYMORE -> Icons.Default.SportsKabaddi
+        WeaponType.POLEARM -> Icons.Default.SportsKabaddi
+        WeaponType.SWORD -> Icons.Default.Remove
+        WeaponType.CATALYST -> Icons.Default.Book
+    }
+    
     MultiSelectToggleButtonGroup(
         title = stringResource(R.string.filter_weapon_type),
         items = WeaponType.entries.toList(),
@@ -22,8 +30,11 @@ fun WeaponTypeFilter(
         onItemClick = onWeaponTypeSelected,
         modifier = modifier
     ) { weaponType, isSelected ->
-        Text(
-            text = weaponType.toDisplayName()
+        IconToggleButton(
+            onClick = { onWeaponTypeSelected(weaponType) },
+            isSelected = isSelected,
+            icon = getIconForType(weaponType),
+            contentDescription = weaponType.toDisplayName()
         )
     }
 }
