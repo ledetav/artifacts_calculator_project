@@ -25,16 +25,16 @@ fun WeaponScreen(
 ) {
     val searchQuery by weaponViewModel.searchQuery.collectAsState()
     val searchedWeapons by weaponViewModel.searchedWeapons.collectAsState()
-    val weaponFilterState by weaponViewModel.weaponFilterState.collectAsState()
-
-    val isFilterDialogShown = false // TODO: Implement state for showing filter dialog
+    val isFilterDialogShown by weaponViewModel.isFilterDialogShown.collectAsState()
 
     if (isFilterDialogShown) {
+        val draftWeaponFilterState by weaponViewModel.draftWeaponFilterState.collectAsState()
+
         WeaponFilterDialog(
-            weaponFilterState = weaponFilterState,
-            onDismiss = { /* TODO: Implement dismiss */ },
-            onApply = { /* TODO: Implement apply */ },
-            onReset = { /* TODO: Implement reset */ },
+            weaponFilterState = draftWeaponFilterState,
+            onDismiss = weaponViewModel::onFilterDialogDismiss,
+            onApply = weaponViewModel::onApplyFilters,
+            onReset = weaponViewModel::onResetFilters,
             onWeaponTypeSelected = weaponViewModel::onWeaponTypeSelected
         )
     }
@@ -52,7 +52,7 @@ fun WeaponScreen(
             singleLine = true,
             trailingIcon = {
                 IconButton(
-                    onClick = { /* TODO: Implement filter functionality */ }
+                    onClick = { weaponViewModel.onFilterIconClicked() }
                 ) {
                     Icon(
                         imageVector = Icons.Default.FilterList,
