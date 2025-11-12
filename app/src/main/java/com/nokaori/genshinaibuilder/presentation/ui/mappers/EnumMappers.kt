@@ -5,6 +5,7 @@ import androidx.compose.ui.res.stringResource
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.StatType
+import com.nokaori.genshinaibuilder.domain.model.WeaponType
 
 @Composable
 fun ArtifactSlot.toDisplayName(): String {
@@ -14,6 +15,17 @@ fun ArtifactSlot.toDisplayName(): String {
         ArtifactSlot.SANDS_OF_EON -> stringResource(R.string.artifact_slot_sands)
         ArtifactSlot.GOBLET_OF_EONOTHEM -> stringResource(R.string.artifact_slot_goblet)
         ArtifactSlot.CIRCLET_OF_LOGOS -> stringResource(R.string.artifact_slot_circlet)
+    }
+}
+
+@Composable
+fun WeaponType.toDisplayName(): String {
+    return when (this) {
+        WeaponType.SWORD -> stringResource(R.string.weapon_type_sword)
+        WeaponType.CLAYMORE -> stringResource(R.string.weapon_type_claymore)
+        WeaponType.POLEARM -> stringResource(R.string.weapon_type_polearm)
+        WeaponType.BOW -> stringResource(R.string.weapon_type_bow)
+        WeaponType.CATALYST -> stringResource(R.string.weapon_type_catalyst)
     }
 }
 
