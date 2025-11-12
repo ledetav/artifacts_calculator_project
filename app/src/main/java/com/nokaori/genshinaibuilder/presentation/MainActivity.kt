@@ -167,6 +167,14 @@ fun AppContent() {
                                         )
                                     }
                                 }
+                                if (currentRoute == NavigationItem.Weapons.route) {
+                                    IconButton(onClick = { weaponViewModel.addDefaultWeapon() }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = stringResource(R.string.weapon_add_button)
+                                        )
+                                    }
+                                }
                             }
                         )
                     }
@@ -183,6 +191,7 @@ fun AppContent() {
                         composable(NavigationItem.Weapons.route) {
                             WeaponScreen(weaponViewModel = weaponViewModel)
                         }
+
 
                         composable(NavigationItem.Characters.route) {
                             Text("Characters")
