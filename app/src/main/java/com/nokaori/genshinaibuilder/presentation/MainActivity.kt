@@ -50,8 +50,10 @@ import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MainTopAppBar
 import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
 import com.nokaori.genshinaibuilder.presentation.ui.theme.GenshinAIBuilderTheme
+import com.nokaori.genshinaibuilder.presentation.ui.weapons.WeaponScreen
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
+import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -86,6 +88,8 @@ fun AppContent() {
 
     val currentNavItem = navigationItems.find { it.route == currentRoute }
     val artifactViewModel: ArtifactViewModel = viewModel()
+    val weaponViewModel: WeaponViewModel = viewModel()
+
     GenshinAIBuilderTheme(darkTheme = isDarkTheme) {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -177,7 +181,7 @@ fun AppContent() {
                         }
 
                         composable(NavigationItem.Weapons.route) {
-                            Text("Weapons")
+                            WeaponScreen(weaponViewModel = weaponViewModel)
                         }
 
                         composable(NavigationItem.Characters.route) {
