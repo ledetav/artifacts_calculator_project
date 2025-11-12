@@ -26,4 +26,22 @@ class WeaponViewModel(
     fun onSearchQueryChange(newQuery: String) {
         _searchQuery.value = newQuery
     }
+
+    fun addDefaultWeapon() {
+        viewModelScope.launch {
+            val allWeapons = weaponRepository.getAllWeapons().first()
+
+            if (allWeapons.isNotEmpty()) {
+                val randomBaseWeapon = allWeapons.random()
+                val newUserWeapon = UserWeapon(
+                    id = 0,
+                    weapon = randomBaseWeapon,
+                    level = 90,
+                    ascension = 6,
+                    refinement = 1
+                )
+                weaponRepository.addUserWeapon(newUserWeapon)
+            }
+        }
+    }
 }
