@@ -54,4 +54,5 @@
     <string name="weapon_type_polearm">Древковое</string>
     <string name="weapon_type_bow">Стрелковое</string>
     <string name="weapon_type_catalyst">Катализатор</string>
+    <string name="filter_weapon_type">Тип оружия</string>
 </resources>

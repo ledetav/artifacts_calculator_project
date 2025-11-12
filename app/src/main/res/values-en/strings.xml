@@ -54,4 +54,5 @@
     <string name="weapon_type_polearm">Polearm</string>
     <string name="weapon_type_bow">Bow</string>
     <string name="weapon_type_catalyst">Catalyst</string>
+    <string name="filter_weapon_type">Weapon Type</string>
 </resources>
