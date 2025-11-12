@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.components.UserWeaponItem
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
+import com.nokaori.genshinaibuilder.presentation.ui.weapons.components.WeaponFilterDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,6 +25,19 @@ fun WeaponScreen(
 ) {
     val searchQuery by weaponViewModel.searchQuery.collectAsState()
     val searchedWeapons by weaponViewModel.searchedWeapons.collectAsState()
+    val weaponFilterState by weaponViewModel.weaponFilterState.collectAsState()
+
+    val isFilterDialogShown = false // TODO: Implement state for showing filter dialog
+
+    if (isFilterDialogShown) {
+        WeaponFilterDialog(
+            weaponFilterState = weaponFilterState,
+            onDismiss = { /* TODO: Implement dismiss */ },
+            onApply = { /* TODO: Implement apply */ },
+            onReset = { /* TODO: Implement reset */ },
+            onWeaponTypeSelected = weaponViewModel::onWeaponTypeSelected
+        )
+    }
 
     Column(modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
         OutlinedTextField(
