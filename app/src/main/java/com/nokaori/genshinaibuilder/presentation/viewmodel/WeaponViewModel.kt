@@ -3,9 +3,17 @@ package com.nokaori.genshinaibuilder.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nokaori.genshinaibuilder.domain.model.UserWeapon
+import com.nokaori.genshinaibuilder.domain.model.WeaponType
 import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.data.WeaponFilterState
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class WeaponViewModel(
@@ -23,6 +31,12 @@ class WeaponViewModel(
 
     private val _draftWeaponFilterState = MutableStateFlow(_weaponFilterState.value)
     val draftWeaponFilterState: StateFlow<WeaponFilterState> = _draftWeaponFilterState.asStateFlow()
+
+    val areWeaponFiltersChanged: StateFlow<Boolean> =
+        combine(draftWeaponFilterState, weaponFilterState) { draft, current ->
+            draft != current
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
+
 
     val searchedWeapons: StateFlow<List<UserWeapon>> = weaponRepository.getUserWeapons()
         .combine(searchQuery) { weapons, query ->
@@ -60,7 +74,7 @@ class WeaponViewModel(
         _draftWeaponFilterState.value = WeaponFilterState()
     }
 
-    fun onWeaponTypeSelected(weaponType: com.nokaori.genshinaibuilder.domain.model.WeaponType) {
+    fun onWeaponTypeSelected(weaponType: WeaponType) {
         _draftWeaponFilterState.update { current ->
             val newSelectedTypes = if (current.selectedWeaponTypes.contains(weaponType)) {
                 current.selectedWeaponTypes - weaponType
