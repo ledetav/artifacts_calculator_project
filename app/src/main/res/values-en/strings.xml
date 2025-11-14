@@ -55,4 +55,6 @@
     <string name="weapon_type_bow">Bow</string>
     <string name="weapon_type_catalyst">Catalyst</string>
     <string name="filter_weapon_type">Weapon Type</string>
+    <string name="filter_weapon_main_stat">Main Stat</string>
+    <string name="filter_weapon_main_stat_choose">Choose main stat</string>
 </resources>

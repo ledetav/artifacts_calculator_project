@@ -55,4 +55,6 @@
     <string name="weapon_type_bow">Стрелковое</string>
     <string name="weapon_type_catalyst">Катализатор</string>
     <string name="filter_weapon_type">Тип оружия</string>
+    <string name="filter_weapon_main_stat">Дополнительный стат</string>
+    <string name="filter_weapon_main_stat_choose">Выбрать дополнительный стат</string>
 </resources>
