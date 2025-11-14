@@ -30,7 +30,7 @@ fun WeaponType.toDisplayName(): String {
 }
 
 @Composable
-fun StatType.toDisplayName(): String {
+fun StatType.toDisplayName(showPercentSign: Boolean = true): String {
     val stringId = when (this) {
         StatType.ATK -> R.string.stat_type_atk
         StatType.DEF -> R.string.stat_type_def
@@ -54,5 +54,5 @@ fun StatType.toDisplayName(): String {
     }
 
     val baseName = stringResource(stringId)
-    return if (isPercentage) "$baseName %" else baseName
+    return if (showPercentSign && isPercentage) "$baseName %" else baseName
 }

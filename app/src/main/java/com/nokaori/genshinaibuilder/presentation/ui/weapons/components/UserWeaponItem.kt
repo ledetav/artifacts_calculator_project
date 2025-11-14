@@ -46,6 +46,25 @@ fun UserWeaponItem(userWeapon: UserWeapon){
                 text = userWeapon.weapon.type.toDisplayName(),
                 style = MaterialTheme.typography.bodyMedium
             )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "${stringResource(R.string.stat_type_atk)}: ${userWeapon.weapon.baseAttackLvl1}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            userWeapon.weapon.mainStat?.let { stat ->
+                val valueText = when (val v = stat.value) {
+                    is com.nokaori.genshinaibuilder.domain.model.StatValue.IntValue -> v.value.toString()
+                    is com.nokaori.genshinaibuilder.domain.model.StatValue.DoubleValue -> "%.1f".format(v.value)
+                }
+                val percentSign = if (stat.type.isPercentage) "%" else ""
+                Text(
+                    text = "${stat.type.toDisplayName(showPercentSign = false)}: $valueText$percentSign",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }
