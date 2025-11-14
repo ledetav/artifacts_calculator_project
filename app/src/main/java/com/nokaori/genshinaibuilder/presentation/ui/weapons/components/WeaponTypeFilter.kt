@@ -18,7 +18,7 @@ import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
 fun WeaponTypeFilter(
     selectedWeaponTypes: Set<WeaponType>,
     onWeaponTypeSelected: (WeaponType) -> Unit,
-    modifier: Modifier = Modifier
+    orientation: Orientation = Orientation.HORIZONTAL
 ) {
     fun getIconForType(type: WeaponType) = when (type) {
         WeaponType.BOW -> Icons.Filled.NorthEast
@@ -33,7 +33,7 @@ fun WeaponTypeFilter(
         items = WeaponType.entries.toList(),
         selectedItems = selectedWeaponTypes,
         onItemClick = onWeaponTypeSelected,
-        modifier = modifier
+        orientation = orientation
     ) { weaponType, isSelected ->
         IconToggleButton(
             onClick = { onWeaponTypeSelected(weaponType) },

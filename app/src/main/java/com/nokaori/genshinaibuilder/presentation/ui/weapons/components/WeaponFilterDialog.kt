@@ -29,9 +29,10 @@ fun WeaponFilterDialog(
         onDismissRequest = onDismiss,
         title = stringResource(R.string.filter_dialog_title),
         content = {
-            Column {
-                Text(text = stringResource(R.string.filter_weapon_type))
-                Spacer(modifier = Modifier.height(8.dp))
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+            ) {
                 WeaponTypeFilter(
                     selectedWeaponTypes = weaponFilterState.selectedWeaponTypes,
                     onWeaponTypeSelected = onWeaponTypeSelected
