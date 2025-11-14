@@ -14,10 +14,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.UserWeapon
+import com.nokaori.genshinaibuilder.domain.usecase.CalculateWeaponStatsUseCase
 import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
 
 @Composable
-fun UserWeaponItem(userWeapon: UserWeapon){
+fun UserWeaponItem(
+    userWeapon: UserWeapon,
+    calculateWeaponStats: CalculateWeaponStatsUseCase = CalculateWeaponStatsUseCase()
+){
+    val calculatedStats = calculateWeaponStats(userWeapon)
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,11 +56,11 @@ fun UserWeaponItem(userWeapon: UserWeapon){
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "${stringResource(R.string.stat_type_atk)}: ${userWeapon.weapon.baseAttackLvl1}",
+                text = "${stringResource(R.string.stat_type_atk)}: ${calculatedStats.baseAttack}",
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            userWeapon.weapon.mainStat?.let { stat ->
+            calculatedStats.mainStat?.let { stat ->
                 val valueText = when (val v = stat.value) {
                     is com.nokaori.genshinaibuilder.domain.model.StatValue.IntValue -> v.value.toString()
                     is com.nokaori.genshinaibuilder.domain.model.StatValue.DoubleValue -> "%.1f".format(v.value)
