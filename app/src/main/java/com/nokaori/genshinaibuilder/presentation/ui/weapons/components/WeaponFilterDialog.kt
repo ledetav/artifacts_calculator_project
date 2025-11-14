@@ -27,7 +27,9 @@ fun WeaponFilterDialog(
     onReset: () -> Unit,
     onWeaponTypeSelected: (WeaponType) -> Unit,
     onWeaponLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
-    onLevelManualInput: (String, String) -> Unit
+    onLevelManualInput: (String, String) -> Unit,
+    onMainStatSelected: (com.nokaori.genshinaibuilder.domain.model.StatType) -> Unit,
+    onClearMainStat: () -> Unit
 ) {
     BaseDialog(
         onDismissRequest = onDismiss,
@@ -48,6 +50,14 @@ fun WeaponFilterDialog(
                     weaponLevelRange = weaponFilterState.levelRange,
                     onWeaponLevelRangeChanged = onWeaponLevelRangeChanged,
                     onLevelManualInput = onLevelManualInput
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                WeaponMainStatFilter(
+                    selectedMainStat = weaponFilterState.selectedMainStat,
+                    onMainStatSelected = onMainStatSelected,
+                    onClearSelection = onClearMainStat
                 )
             }
         },

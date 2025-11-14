@@ -39,7 +39,9 @@ fun WeaponScreen(
             onReset = weaponViewModel::onResetFilters,
             onWeaponTypeSelected = weaponViewModel::onWeaponTypeSelected,
             onWeaponLevelRangeChanged = weaponViewModel::onWeaponLevelRangeChanged,
-            onLevelManualInput = weaponViewModel::onWeaponLevelManualInput
+            onLevelManualInput = weaponViewModel::onWeaponLevelManualInput,
+            onMainStatSelected = weaponViewModel::onWeaponMainStatSelected,
+            onClearMainStat = weaponViewModel::onClearWeaponMainStat
         )
     }
 

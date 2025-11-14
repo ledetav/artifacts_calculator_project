@@ -49,7 +49,8 @@ class WeaponViewModel(
         .combine(weaponFilterState) { weapons, filterState ->
             weapons.filter { userWeapon ->
                 (filterState.selectedWeaponTypes.isEmpty() || userWeapon.weapon.type in filterState.selectedWeaponTypes) &&
-                userWeapon.level in filterState.levelRange.start.toInt()..filterState.levelRange.endInclusive.toInt()
+                userWeapon.level in filterState.levelRange.start.toInt()..filterState.levelRange.endInclusive.toInt() &&
+                (filterState.selectedMainStat == null || userWeapon.weapon.mainStat?.type == filterState.selectedMainStat)
             }
         }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
@@ -88,6 +89,14 @@ class WeaponViewModel(
 
     fun onWeaponLevelRangeChanged(range: ClosedFloatingPointRange<Float>) {
         _draftWeaponFilterState.update { it.copy(levelRange = range) }
+    }
+
+    fun onWeaponMainStatSelected(statType: com.nokaori.genshinaibuilder.domain.model.StatType) {
+        _draftWeaponFilterState.update { it.copy(selectedMainStat = statType) }
+    }
+
+    fun onClearWeaponMainStat() {
+        _draftWeaponFilterState.update { it.copy(selectedMainStat = null) }
     }
 
     fun onWeaponLevelManualInput(fromText: String, toText: String) {
