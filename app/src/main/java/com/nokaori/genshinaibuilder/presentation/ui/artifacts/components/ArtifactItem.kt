@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.domain.model.Artifact
-import com.nokaori.genshinaibuilder.domain.model.ArtifactStat
+import com.nokaori.genshinaibuilder.domain.model.Stat
 import com.nokaori.genshinaibuilder.domain.model.StatValue
 import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
 import com.nokaori.genshinaibuilder.R
@@ -58,7 +58,7 @@ fun ArtifactItem(artifact: Artifact){
 }
 
 @Composable
-private fun formatStat(stat: ArtifactStat): String {
+private fun formatStat(stat: Stat): String {
     val valueString = when (val statValue = stat.value) {
         is StatValue.IntValue -> statValue.value.toString()
         is StatValue.DoubleValue -> statValue.value.toString()

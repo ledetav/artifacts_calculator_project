@@ -7,7 +7,7 @@ import com.nokaori.genshinaibuilder.domain.model.Artifact
 import com.nokaori.genshinaibuilder.domain.model.ArtifactRarity
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
-import com.nokaori.genshinaibuilder.domain.model.ArtifactStat
+import com.nokaori.genshinaibuilder.domain.model.Stat
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.StatValue
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
@@ -211,12 +211,12 @@ class ArtifactViewModel(
                 artifactName = "Солнечная реликвия",
                 setName = "Киноварное загробье",
                 level = 0,
-                mainStat = ArtifactStat(StatType.DEF_PERCENT, StatValue.DoubleValue(8.7)),
+                mainStat = Stat(StatType.DEF_PERCENT, StatValue.DoubleValue(8.7)),
                 subStats = listOf(
-                    ArtifactStat(StatType.ENERGY_RECHARGE, StatValue.DoubleValue(6.5)),
-                    ArtifactStat(StatType.HP, StatValue.IntValue(239)),
-                    ArtifactStat(StatType.ELEMENTAL_MASTERY, StatValue.IntValue(19)),
-                    ArtifactStat(StatType.ATK, StatValue.IntValue(18))
+                    Stat(StatType.ENERGY_RECHARGE, StatValue.DoubleValue(6.5)),
+                    Stat(StatType.HP, StatValue.IntValue(239)),
+                    Stat(StatType.ELEMENTAL_MASTERY, StatValue.IntValue(19)),
+                    Stat(StatType.ATK, StatValue.IntValue(18))
                 )
             )
         } else {
@@ -226,12 +226,12 @@ class ArtifactViewModel(
                 artifactName = "Цветок жажды познания",
                 setName = "Ночь открытого неба",
                 level = 20,
-                mainStat = ArtifactStat(StatType.HP, StatValue.IntValue(4780)),
+                mainStat = Stat(StatType.HP, StatValue.IntValue(4780)),
                 subStats = listOf(
-                    ArtifactStat(StatType.CRIT_RATE, StatValue.DoubleValue(8.6)),
-                    ArtifactStat(StatType.CRIT_DMG, StatValue.DoubleValue(5.4)),
-                    ArtifactStat(StatType.ENERGY_RECHARGE, StatValue.DoubleValue(11.0)),
-                    ArtifactStat(StatType.HP_PERCENT, StatValue.DoubleValue(8.7))
+                    Stat(StatType.CRIT_RATE, StatValue.DoubleValue(8.6)),
+                    Stat(StatType.CRIT_DMG, StatValue.DoubleValue(5.4)),
+                    Stat(StatType.ENERGY_RECHARGE, StatValue.DoubleValue(11.0)),
+                    Stat(StatType.HP_PERCENT, StatValue.DoubleValue(8.7))
                 )
             )
         }

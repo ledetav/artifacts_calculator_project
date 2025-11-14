@@ -5,6 +5,7 @@ import androidx.compose.ui.res.stringResource
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.StatType
+import com.nokaori.genshinaibuilder.domain.model.WeaponType
 
 @Composable
 fun ArtifactSlot.toDisplayName(): String {
@@ -18,7 +19,18 @@ fun ArtifactSlot.toDisplayName(): String {
 }
 
 @Composable
-fun StatType.toDisplayName(): String {
+fun WeaponType.toDisplayName(): String {
+    return when (this) {
+        WeaponType.SWORD -> stringResource(R.string.weapon_type_sword)
+        WeaponType.CLAYMORE -> stringResource(R.string.weapon_type_claymore)
+        WeaponType.POLEARM -> stringResource(R.string.weapon_type_polearm)
+        WeaponType.BOW -> stringResource(R.string.weapon_type_bow)
+        WeaponType.CATALYST -> stringResource(R.string.weapon_type_catalyst)
+    }
+}
+
+@Composable
+fun StatType.toDisplayName(showPercentSign: Boolean = true): String {
     val stringId = when (this) {
         StatType.ATK -> R.string.stat_type_atk
         StatType.DEF -> R.string.stat_type_def
@@ -41,5 +53,6 @@ fun StatType.toDisplayName(): String {
         StatType.HEALING_BONUS -> R.string.stat_type_healing_bonus
     }
 
-    return stringResource(stringId)
+    val baseName = stringResource(stringId)
+    return if (showPercentSign && isPercentage) "$baseName %" else baseName
 }
