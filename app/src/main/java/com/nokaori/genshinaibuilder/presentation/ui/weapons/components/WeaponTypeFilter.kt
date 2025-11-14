@@ -13,6 +13,7 @@ import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MultiSelectToggleButtonGroup
 import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
+import com.nokaori.genshinaibuilder.presentation.ui.common.Orientation
 
 @Composable
 fun WeaponTypeFilter(
