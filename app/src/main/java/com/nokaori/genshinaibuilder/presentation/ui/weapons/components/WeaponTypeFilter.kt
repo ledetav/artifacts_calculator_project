@@ -1,10 +1,14 @@
 package com.nokaori.genshinaibuilder.presentation.ui.weapons.components
 
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.NorthEast
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.SportsKabaddi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.material.icons.Icons
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.IconToggleButton
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MultiSelectToggleButtonGroup
@@ -14,14 +18,14 @@ import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
 fun WeaponTypeFilter(
     selectedWeaponTypes: Set<WeaponType>,
     onWeaponTypeSelected: (WeaponType) -> Unit,
-    orientation: Orientation = Orientation.HORIZONTAL
+    modifier: Modifier = Modifier
 ) {
     fun getIconForType(type: WeaponType) = when (type) {
-        WeaponType.BOW -> Icons.Default.NorthEast
-        WeaponType.CLAYMORE -> Icons.Default.SportsKabaddi
-        WeaponType.POLEARM -> Icons.Default.SportsKabaddi
-        WeaponType.SWORD -> Icons.Default.Remove
-        WeaponType.CATALYST -> Icons.Default.Book
+        WeaponType.BOW -> Icons.Filled.NorthEast
+        WeaponType.CLAYMORE -> Icons.Filled.SportsKabaddi
+        WeaponType.POLEARM -> Icons.Filled.SportsKabaddi
+        WeaponType.SWORD -> Icons.Filled.Remove
+        WeaponType.CATALYST -> Icons.Filled.Book
     }
     
     MultiSelectToggleButtonGroup(
