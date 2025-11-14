@@ -1,52 +1,25 @@
 package com.nokaori.genshinaibuilder.presentation.ui.artifacts.components
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.StatType
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.SimpleDropdown
 import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtifactMainStatFilter(
     selectedArtifactMainStat: StatType?,
     onArtifactMainStatSelected: (StatType) -> Unit,
     onClearSelectedArtifactMainStat: () -> Unit
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
-
-    val allArtifactStats = remember { StatType.entries.toTypedArray() }
-
     Column {
         Text(
             text = stringResource(R.string.filter_artifact_main_stat),
@@ -54,66 +27,13 @@ fun ArtifactMainStatFilter(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        Box {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outline,
-                        shape = MaterialTheme.shapes.extraLarge
-                    )
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = { isExpanded = true}
-                    )
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = selectedArtifactMainStat?.toDisplayName() ?: stringResource(R.string.filter_artifact_main_stat_choose),
-                    color = if (selectedArtifactMainStat != null) MaterialTheme.colorScheme.onSurface else
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                if (selectedArtifactMainStat != null) {
-                    IconButton(
-                        onClick = onClearSelectedArtifactMainStat,
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = stringResource(R.string.selection_clear)
-                        )
-                    }
-                } else {
-                    Icon(
-                        imageVector = if (isExpanded) Icons.Default.ArrowDropUp else
-                            Icons.Default.ArrowDropDown,
-                        contentDescription = stringResource(R.string.list_open)
-                    )
-                }
-            }
-
-            DropdownMenu(
-                expanded = isExpanded,
-                onDismissRequest = { isExpanded = false },
-                modifier = Modifier.fillMaxWidth(0.7f)
-            ) {
-                allArtifactStats.forEach { artifactStat ->
-                    DropdownMenuItem(
-                        text = { Text(text = artifactStat.toDisplayName()) },
-                        onClick = {
-                            onArtifactMainStatSelected(artifactStat)
-                            isExpanded = false
-                        }
-                    )
-                }
-            }
-        }
+        SimpleDropdown(
+            items = StatType.entries,
+            selectedItem = selectedArtifactMainStat,
+            onItemSelected = onArtifactMainStatSelected,
+            onClearSelection = onClearSelectedArtifactMainStat,
+            placeholderText = stringResource(R.string.filter_artifact_main_stat_choose),
+            itemText = @Composable { it.toDisplayName() }
+        )
     }
 }
