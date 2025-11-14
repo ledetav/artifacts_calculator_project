@@ -3,7 +3,7 @@ package com.nokaori.genshinaibuilder.presentation.ui.artifacts.components
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.nokaori.genshinaibuilder.R
-import com.nokaori.genshinaibuilder.presentation.ui.common.components.RangeFilter
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.RangeSelector
 
 @Composable
 fun ArtifactLevelFilter(
@@ -11,7 +11,7 @@ fun ArtifactLevelFilter(
     onArtifactLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
     onLevelManualInput: (String, String) -> Unit
 ) {
-    RangeFilter(
+    RangeSelector(
         title = stringResource(R.string.filter_level),
         range = artifactLevelRange,
         valueRange = 0f..20f,
