@@ -53,5 +53,6 @@ fun StatType.toDisplayName(): String {
         StatType.HEALING_BONUS -> R.string.stat_type_healing_bonus
     }
 
-    return stringResource(stringId)
+    val baseName = stringResource(stringId)
+    return if (isPercentage) "$baseName %" else baseName
 }
