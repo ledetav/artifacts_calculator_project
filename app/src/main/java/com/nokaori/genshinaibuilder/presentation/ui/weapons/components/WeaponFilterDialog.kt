@@ -26,6 +26,8 @@ fun WeaponFilterDialog(
     onApply: () -> Unit,
     onReset: () -> Unit,
     onWeaponTypeSelected: (WeaponType) -> Unit,
+    onWeaponLevelRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
+    onLevelManualInput: (String, String) -> Unit
 ) {
     BaseDialog(
         onDismissRequest = onDismiss,
@@ -38,6 +40,14 @@ fun WeaponFilterDialog(
                 WeaponTypeFilter(
                     selectedWeaponTypes = weaponFilterState.selectedWeaponTypes,
                     onWeaponTypeSelected = onWeaponTypeSelected
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                WeaponLevelFilter(
+                    weaponLevelRange = weaponFilterState.levelRange,
+                    onWeaponLevelRangeChanged = onWeaponLevelRangeChanged,
+                    onLevelManualInput = onLevelManualInput
                 )
             }
         },

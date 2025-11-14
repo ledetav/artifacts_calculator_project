@@ -48,7 +48,8 @@ class WeaponViewModel(
         }
         .combine(weaponFilterState) { weapons, filterState ->
             weapons.filter { userWeapon ->
-                (filterState.selectedWeaponTypes.isEmpty() || userWeapon.weapon.type in filterState.selectedWeaponTypes)
+                (filterState.selectedWeaponTypes.isEmpty() || userWeapon.weapon.type in filterState.selectedWeaponTypes) &&
+                userWeapon.level in filterState.levelRange.start.toInt()..filterState.levelRange.endInclusive.toInt()
             }
         }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
@@ -82,6 +83,18 @@ class WeaponViewModel(
                 current.selectedWeaponTypes + weaponType
             }
             current.copy(selectedWeaponTypes = newSelectedTypes)
+        }
+    }
+
+    fun onWeaponLevelRangeChanged(range: ClosedFloatingPointRange<Float>) {
+        _draftWeaponFilterState.update { it.copy(levelRange = range) }
+    }
+
+    fun onWeaponLevelManualInput(fromText: String, toText: String) {
+        val from = fromText.toIntOrNull()?.coerceIn(0, 90) ?: 0
+        val to = toText.toIntOrNull()?.coerceIn(0, 90) ?: 90
+        if (from <= to) {
+            _draftWeaponFilterState.update { it.copy(levelRange = from.toFloat()..to.toFloat()) }
         }
     }
 
