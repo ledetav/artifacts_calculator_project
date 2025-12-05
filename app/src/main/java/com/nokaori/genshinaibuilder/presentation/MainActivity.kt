@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,14 +43,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.nokaori.genshinaibuilder.R
+import com.nokaori.genshinaibuilder.data.repository.ArtifactRepositoryImpl
 import com.nokaori.genshinaibuilder.data.repository.ThemeRepositoryImpl
+import com.nokaori.genshinaibuilder.data.repository.WeaponRepositoryImpl
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.ArtifactScreen
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MainTopAppBar
 import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
 import com.nokaori.genshinaibuilder.presentation.ui.theme.GenshinAIBuilderTheme
+import com.nokaori.genshinaibuilder.presentation.ui.weapons.WeaponScreen
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
+import com.nokaori.genshinaibuilder.presentation.viewmodel.ViewModelFactory
+import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -83,7 +90,14 @@ fun AppContent() {
     )
 
     val currentNavItem = navigationItems.find { it.route == currentRoute }
-    val artifactViewModel: ArtifactViewModel = viewModel()
+
+    val artifactRepository = remember { ArtifactRepositoryImpl() }
+    val weaponRepository = remember { WeaponRepositoryImpl() }
+    val factory = remember { ViewModelFactory(artifactRepository, weaponRepository) }
+
+    val artifactViewModel: ArtifactViewModel = viewModel(factory = factory)
+    val weaponViewModel: WeaponViewModel = viewModel(factory = factory)
+
     GenshinAIBuilderTheme(darkTheme = isDarkTheme) {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -113,7 +127,7 @@ fun AppContent() {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Genshin AI Builder",
+                                text = stringResource(R.string.app_name),
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.weight(1f)
                             )
@@ -124,7 +138,7 @@ fun AppContent() {
                                 Icon(
                                     imageVector = if (isDarkTheme) Icons.Default.Brightness7
                                     else Icons.Default.Brightness4,
-                                    contentDescription = "Переключить тему"
+                                    contentDescription = stringResource(R.string.theme_switch)
                                 )
                             }
                         }
@@ -148,7 +162,7 @@ fun AppContent() {
                 Scaffold(
                     topBar = {
                         MainTopAppBar(
-                            title = currentNavItem?.title ?: "Genshin AI Builder",
+                            title = stringResource(id = currentNavItem?.titleResId ?: R.string.app_name),
                             onNavigationIconClick = {
                                 scope.launch { drawerState.open() }
                             },
@@ -157,7 +171,15 @@ fun AppContent() {
                                     IconButton(onClick = { artifactViewModel.addDefaultArtifact() }) {
                                         Icon(
                                             imageVector = Icons.Default.Add,
-                                            contentDescription = "Add artifact"
+                                            contentDescription = stringResource(R.string.artifact_add_button)
+                                        )
+                                    }
+                                }
+                                if (currentRoute == NavigationItem.Weapons.route) {
+                                    IconButton(onClick = { weaponViewModel.addDefaultWeapon() }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = stringResource(R.string.weapon_add_button)
                                         )
                                     }
                                 }
@@ -175,8 +197,9 @@ fun AppContent() {
                         }
 
                         composable(NavigationItem.Weapons.route) {
-                            Text("Weapons")
+                            WeaponScreen(weaponViewModel = weaponViewModel)
                         }
+
 
                         composable(NavigationItem.Characters.route) {
                             Text("Characters")

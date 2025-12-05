@@ -7,10 +7,13 @@ import androidx.compose.material.icons.filled.LocalFlorist
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.WineBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.presentation.ui.common.Orientation
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.IconToggleButton
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MultiSelectToggleButtonGroup
+import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
 
 @Composable
 fun ArtifactSlotFilter(
@@ -27,7 +30,7 @@ fun ArtifactSlotFilter(
     }
 
     MultiSelectToggleButtonGroup(
-        title = "Слот",
+        title = stringResource(R.string.filter_artifact_slot),
         items = ArtifactSlot.entries,
         selectedItems = selectedArtifactSlots,
         onItemClick = onArtifactSlotClicked,
@@ -37,7 +40,7 @@ fun ArtifactSlotFilter(
             onClick = { onArtifactSlotClicked(slot) },
             isSelected = isSelected,
             icon = getIconForSlot(slot),
-            contentDescription = slot.displayName
+            contentDescription = slot.toDisplayName()
         )
     }
 }

@@ -12,7 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.StatType
@@ -40,7 +42,7 @@ fun ArtifactFilterDialog(
 ) {
     BaseDialog(
         onDismissRequest = onDismiss,
-        title = "Фильтры",
+        title = stringResource(R.string.filter_dialog_title),
         content = {
             Column(
                 modifier = Modifier
@@ -86,7 +88,7 @@ fun ArtifactFilterDialog(
         },
         actions = {
             TextButton(onClick = onReset) {
-                Text("Сбросить")
+                Text(stringResource(R.string.reset))
             }
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -95,7 +97,7 @@ fun ArtifactFilterDialog(
                 onClick = onApply,
                 enabled = areArtifactFiltersChanged
             ) {
-                Text("Применить")
+                Text(stringResource(R.string.apply))
             }
         }
     )
