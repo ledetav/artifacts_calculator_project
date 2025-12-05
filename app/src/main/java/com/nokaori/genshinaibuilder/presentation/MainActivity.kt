@@ -56,6 +56,7 @@ import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ViewModelFactory
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
 import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 class MainActivity : ComponentActivity() {
 
@@ -93,8 +94,8 @@ fun AppContent(factory: ViewModelFactory) {
     val themeViewModel: ThemeViewModel = viewModel(factory = factory)
     val artifactViewModel: ArtifactViewModel = viewModel(factory = factory)
     val weaponViewModel: WeaponViewModel = viewModel(factory = factory)
-
-    val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
+    
+    val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
 
     val navigationItems = listOf(
         NavigationItem.Artifacts,

@@ -50,6 +50,7 @@ dependencies {
     // Основные зависимости для работы приложения
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Jetpack Compose
     implementation(libs.androidx.activity.compose)
