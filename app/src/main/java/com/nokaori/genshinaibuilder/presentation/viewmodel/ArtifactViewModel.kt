@@ -27,7 +27,7 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 
 class ArtifactViewModel(
-    private val artifactRepository: ArtifactRepository
+    private val artifactRepository: ArtifactRepository,
     private val filterArtifactsUseCase: FilterArtifactsUseCase
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")

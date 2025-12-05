@@ -21,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
@@ -29,11 +28,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -60,25 +58,42 @@ import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+    // синглтоны в рамках Activity
+    private val artifactRepository by lazy { ArtifactRepositoryImpl() }
+    private val weaponRepository by lazy { WeaponRepositoryImpl() }
+    
+    // Используем applicationContext, чтобы избежать утечек памяти
+    private val themeRepository by lazy { ThemeRepositoryImpl(applicationContext) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val factory = ViewModelFactory(
+            artifactRepository, 
+            weaponRepository, 
+            themeRepository
+        )
+
         setContent {
-            AppContent()
+            AppContent(factory = factory)
         }
     }
 }
 
 @Composable
-fun AppContent() {
+fun AppContent(factory: ViewModelFactory) { 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val context = LocalContext.current
-    val themeManager = remember { ThemeRepositoryImpl(context) }
-    val themeViewModel = remember { ThemeViewModel(themeManager) }
+
+    val themeViewModel: ThemeViewModel = viewModel(factory = factory)
+    val artifactViewModel: ArtifactViewModel = viewModel(factory = factory)
+    val weaponViewModel: WeaponViewModel = viewModel(factory = factory)
+
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
 
     val navigationItems = listOf(
@@ -91,28 +106,17 @@ fun AppContent() {
 
     val currentNavItem = navigationItems.find { it.route == currentRoute }
 
-    val artifactRepository = remember { ArtifactRepositoryImpl() }
-    val weaponRepository = remember { WeaponRepositoryImpl() }
-    val factory = remember { ViewModelFactory(artifactRepository, weaponRepository) }
-
-    val artifactViewModel: ArtifactViewModel = viewModel(factory = factory)
-    val weaponViewModel: WeaponViewModel = viewModel(factory = factory)
-
     GenshinAIBuilderTheme(darkTheme = isDarkTheme) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
             val view = LocalView.current
-
             if (!view.isInEditMode) {
                 SideEffect {
                     val window = (view.context as Activity).window
-
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
-                        !isDarkTheme
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars =
-                        !isDarkTheme
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDarkTheme
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !isDarkTheme
                 }
             }
 
@@ -200,17 +204,16 @@ fun AppContent() {
                             WeaponScreen(weaponViewModel = weaponViewModel)
                         }
 
-
                         composable(NavigationItem.Characters.route) {
-                            Text("Characters")
+                            Text("Characters", modifier = Modifier.padding(16.dp))
                         }
 
                         composable(NavigationItem.Builds.route) {
-                            Text("Builds")
+                            Text("Builds", modifier = Modifier.padding(16.dp))
                         }
 
                         composable(NavigationItem.Settings.route) {
-                            Text("Settings")
+                            Text("Settings", modifier = Modifier.padding(16.dp))
                         }
                     }
                 }
