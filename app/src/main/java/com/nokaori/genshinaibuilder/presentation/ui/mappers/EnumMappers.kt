@@ -2,6 +2,9 @@ package com.nokaori.genshinaibuilder.presentation.ui.mappers
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Style
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.StatType
@@ -55,4 +58,9 @@ fun StatType.toDisplayName(showPercentSign: Boolean = true): String {
 
     val baseName = stringResource(stringId)
     return if (showPercentSign && isPercentage) "$baseName %" else baseName
+}
+
+@Composable
+fun getArtifactSetIcon(setName: String): ImageVector {
+    return Icons.Default.Style
 }

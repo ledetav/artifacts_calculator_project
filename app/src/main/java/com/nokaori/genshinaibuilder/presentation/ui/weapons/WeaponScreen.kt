@@ -16,6 +16,7 @@ import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.components.UserWeaponItem
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.components.WeaponFilterDialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,13 +24,13 @@ fun WeaponScreen(
     modifier: Modifier = Modifier,
     weaponViewModel: WeaponViewModel
 ) {
-    val searchQuery by weaponViewModel.searchQuery.collectAsState()
-    val searchedWeapons by weaponViewModel.searchedWeapons.collectAsState()
-    val isFilterDialogShown by weaponViewModel.isFilterDialogShown.collectAsState()
-    val areWeaponFiltersChanged by weaponViewModel.areWeaponFiltersChanged.collectAsState()
+    val searchQuery by weaponViewModel.searchQuery.collectAsStateWithLifecycle()
+    val searchedWeapons by weaponViewModel.searchedWeapons.collectAsStateWithLifecycle()
+    val isFilterDialogShown by weaponViewModel.isFilterDialogShown.collectAsStateWithLifecycle()
+    val areWeaponFiltersChanged by weaponViewModel.areWeaponFiltersChanged.collectAsStateWithLifecycle()
 
     if (isFilterDialogShown) {
-        val draftWeaponFilterState by weaponViewModel.draftWeaponFilterState.collectAsState()
+        val draftWeaponFilterState by weaponViewModel.draftWeaponFilterState.collectAsStateWithLifecycle()
 
         WeaponFilterDialog(
             weaponFilterState = draftWeaponFilterState,

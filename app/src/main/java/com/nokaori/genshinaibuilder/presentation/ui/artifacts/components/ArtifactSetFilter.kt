@@ -21,6 +21,7 @@ import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.SearchableExposedDropdown
 import kotlin.collections.forEach
+import com.nokaori.genshinaibuilder.presentation.ui.mappers.getArtifactSetIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +65,7 @@ fun ArtifactSetFilter(
                         text = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    imageVector = artifactSet.icon,
+                                    imageVector = getArtifactSetIcon(artifactSet.name),
                                     contentDescription = null,
                                     modifier = Modifier.size(24.dp)
                                 )
