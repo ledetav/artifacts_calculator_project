@@ -1,9 +1,5 @@
 package com.nokaori.genshinaibuilder.domain.model
 
-enum class WeaponType {
-    SWORD, CLAYMORE, POLEARM, CATALYST, BOW
-}
-
 enum class Rarity(val stars: Int) {
     THREE_STARS(3),
     FOUR_STARS(4),
