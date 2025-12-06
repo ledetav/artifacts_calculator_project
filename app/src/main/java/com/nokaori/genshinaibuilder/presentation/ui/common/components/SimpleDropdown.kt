@@ -40,10 +40,10 @@ fun <T> SimpleDropdown(
     onClearSelection: () -> Unit,
     placeholderText: String,
     itemText: @Composable (T) -> String,
+    isExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
-
     Box(modifier = modifier) {
         Row(
             modifier = Modifier
@@ -58,7 +58,7 @@ fun <T> SimpleDropdown(
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = { isExpanded = true }
+                    onClick = { onExpandedChange(!isExpanded) }
                 )
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -91,7 +91,7 @@ fun <T> SimpleDropdown(
 
         DropdownMenu(
             expanded = isExpanded,
-            onDismissRequest = { isExpanded = false },
+            onDismissRequest = { onExpandedChange(false) },
             modifier = Modifier.fillMaxWidth(0.7f)
         ) {
             items.forEach { item ->
@@ -99,7 +99,7 @@ fun <T> SimpleDropdown(
                     text = { Text(text = itemText(item)) },
                     onClick = {
                         onItemSelected(item)
-                        isExpanded = false
+                        onExpandedChange(false)
                     }
                 )
             }

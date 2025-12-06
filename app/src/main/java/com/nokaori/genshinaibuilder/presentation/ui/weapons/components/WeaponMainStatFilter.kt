@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -19,6 +23,8 @@ fun WeaponMainStatFilter(
     onMainStatSelected: (StatType) -> Unit,
     onClearSelection: () -> Unit
 ) {
+    var isExpanded by remember { mutableStateOf(false) }
+
     Column {
         Text(
             text = stringResource(R.string.filter_weapon_main_stat),
@@ -32,7 +38,9 @@ fun WeaponMainStatFilter(
             onItemSelected = onMainStatSelected,
             onClearSelection = onClearSelection,
             placeholderText = stringResource(R.string.filter_weapon_main_stat_choose),
-            itemText = @Composable { it.toDisplayName() }
+            itemText = @Composable { it.toDisplayName() },
+            isExpanded = isExpanded,
+            onExpandedChange = { isExpanded = it }
         )
     }
 }

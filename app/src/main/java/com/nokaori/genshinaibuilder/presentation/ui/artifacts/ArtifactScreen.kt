@@ -11,8 +11,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.components.ArtifactFilterDialog
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
@@ -24,14 +24,14 @@ fun ArtifactScreen(
     modifier: Modifier = Modifier,
     artifactViewModel: ArtifactViewModel
 ) {
-    val searchQuery by artifactViewModel.searchQuery.collectAsState()
-    val searchedArtifacts by artifactViewModel.searchedArtifacts.collectAsState()
-    val isFilterDialogShown by artifactViewModel.isFilterDialogShown.collectAsState()
+    val searchQuery by artifactViewModel.searchQuery.collectAsStateWithLifecycle()
+    val searchedArtifacts by artifactViewModel.searchedArtifacts.collectAsStateWithLifecycle()
+    val isFilterDialogShown by artifactViewModel.isFilterDialogShown.collectAsStateWithLifecycle()
 
     if(isFilterDialogShown){
-        val draftArtifactFilterState by artifactViewModel.draftArtifactFilterState.collectAsState()
-        val areArtifactFiltersChanged by artifactViewModel.areArtifactFiltersChanged.collectAsState()
-        val filteredArtifactSets by artifactViewModel.filteredArtifactSets.collectAsState()
+        val draftArtifactFilterState by artifactViewModel.draftArtifactFilterState.collectAsStateWithLifecycle()
+        val areArtifactFiltersChanged by artifactViewModel.areArtifactFiltersChanged.collectAsStateWithLifecycle()
+        val filteredArtifactSets by artifactViewModel.filteredArtifactSets.collectAsStateWithLifecycle()
 
         ArtifactFilterDialog(
             artifactFilterState = draftArtifactFilterState,
@@ -78,8 +78,8 @@ fun ArtifactScreen(
         LazyColumn(
             contentPadding = PaddingValues(horizontal = 8.dp)
         ) {
-            items(searchedArtifacts) {
-                artifact -> ArtifactItem(artifact = artifact)
+            items(searchedArtifacts) { artifact ->
+                ArtifactItem(artifact = artifact)
             }
         }
     }
