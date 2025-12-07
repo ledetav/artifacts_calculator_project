@@ -61,6 +61,28 @@ class Converters {
         val type = object : TypeToken<List<StatType>>() {}.type
         return gson.fromJson(json, type) ?: emptyList()
     }
+
+    @TypeConverter
+    fun fromTalentType(type: com.nokaori.genshinaibuilder.domain.model.TalentType?): String? {
+        return type?.name
+    }
+
+    @TypeConverter
+    fun toTalentType(name: String?): com.nokaori.genshinaibuilder.domain.model.TalentType? {
+        return name?.let { com.nokaori.genshinaibuilder.domain.model.TalentType.valueOf(it) }
+    }
+
+    // Конвертеры для списков TalentAttribute
+    @TypeConverter
+    fun fromTalentAttributeList(list: List<com.nokaori.genshinaibuilder.domain.model.TalentAttribute>?): String {
+        return gson.toJson(list)
+    }
+
+    @TypeConverter
+    fun toTalentAttributeList(json: String): List<com.nokaori.genshinaibuilder.domain.model.TalentAttribute> {
+        val type = object : TypeToken<List<com.nokaori.genshinaibuilder.domain.model.TalentAttribute>>() {}.type
+        return gson.fromJson(json, type) ?: emptyList()
+    }
     
     // Одиночные Enums Room умеет конвертировать сам (в String или Int), но пусть будут заданы явно.
     @TypeConverter
