@@ -57,12 +57,14 @@ import com.nokaori.genshinaibuilder.presentation.viewmodel.ViewModelFactory
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
 import kotlinx.coroutines.launch
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nokaori.genshinaibuilder.data.repository.CharacterRepositoryImpl
 
 class MainActivity : ComponentActivity() {
 
     // синглтоны в рамках Activity
     private val artifactRepository by lazy { ArtifactRepositoryImpl() }
     private val weaponRepository by lazy { WeaponRepositoryImpl() }
+    private val characterRepository by lazy { CharacterRepositoryImpl() }
     
     // Используем applicationContext, чтобы избежать утечек памяти
     private val themeRepository by lazy { ThemeRepositoryImpl(applicationContext) }
@@ -74,7 +76,8 @@ class MainActivity : ComponentActivity() {
         val factory = ViewModelFactory(
             artifactRepository, 
             weaponRepository, 
-            themeRepository
+            themeRepository,
+            characterRepository
         )
 
         setContent {
