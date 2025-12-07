@@ -7,6 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -17,13 +18,18 @@ fun IconToggleButton(
     icon: ImageVector,
     contentDescription: String,
     modifier: Modifier = Modifier,
-    shape: Shape = CircleShape
+    shape: Shape = CircleShape,
+    activeColor: Color = MaterialTheme.colorScheme.primary, 
+    activeContentColor: Color = MaterialTheme.colorScheme.onPrimary,
+    inactiveContainerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    // Если null, то будет использоваться onSurfaceVariant (серый), если передадим цвет, то иконка будет цветной даже в неактивном состоянии.
+    inactiveContentColor: Color? = null 
 ) {
-    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary
-    else MaterialTheme.colorScheme.surfaceVariant
+    val backgroundColor = if (isSelected) activeColor 
+                          else inactiveContainerColor
 
-    val iconColor = if (isSelected) MaterialTheme.colorScheme.onPrimary
-    else MaterialTheme.colorScheme.onSurfaceVariant
+    val iconTint = if (isSelected) activeContentColor 
+                   else inactiveContentColor ?: MaterialTheme.colorScheme.onSurfaceVariant
 
     Surface(
         modifier = modifier,
@@ -34,7 +40,7 @@ fun IconToggleButton(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = iconColor
+                tint = iconTint
             )
         }
     }
