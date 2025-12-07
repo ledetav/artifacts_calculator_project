@@ -1,6 +1,7 @@
 package com.nokaori.genshinaibuilder.presentation.ui.artifacts.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
@@ -32,7 +33,9 @@ fun ArtifactSlotFilter(
             onClick = { onArtifactSlotClicked(slot) },
             isSelected = isSelected,
             painter = painter,
-            contentDescription = slot.toDisplayName()
+            contentDescription = slot.toDisplayName(),
+            activeContentColor = Color.Unspecified,
+            inactiveContentColor = Color.Unspecified
         )
     }
 }

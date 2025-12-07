@@ -20,17 +20,13 @@ fun IconToggleButton(
     contentDescription: String,
     modifier: Modifier = Modifier,
     shape: Shape = CircleShape,
-    activeColor: Color = MaterialTheme.colorScheme.primary, 
-    activeContentColor: Color = MaterialTheme.colorScheme.onPrimary,
+    activeColor: Color = MaterialTheme.colorScheme.primary,
     inactiveContainerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
-    // Если null, то будет использоваться onSurfaceVariant (серый), если передадим цвет, то иконка будет цветной даже в неактивном состоянии.
-    inactiveContentColor: Color? = null 
+    activeContentColor: Color = MaterialTheme.colorScheme.onPrimary,
+    inactiveContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
-    val backgroundColor = if (isSelected) activeColor 
-                          else inactiveContainerColor
-
-    val iconTint = if (isSelected) activeContentColor 
-                   else inactiveContentColor ?: MaterialTheme.colorScheme.onSurfaceVariant
+    val backgroundColor = if (isSelected) activeColor else inactiveContainerColor
+    val iconTint = if (isSelected) activeContentColor else inactiveContentColor
 
     Surface(
         modifier = modifier,
