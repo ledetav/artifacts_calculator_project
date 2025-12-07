@@ -59,5 +59,8 @@
     <string name="filter_weapon_main_stat_choose">Выбрать дополнительный стат</string>
     <string name="character_search_placeholder">Поиск по персонажам</string>
     <string name="filter_element">Элемент</string>
-    <string name="filter_ownership">Владение</string>
+    <string name="filter_ownership">Наличие</string>
+    <string name="filter_ownership_all">Все</string>
+    <string name="filter_ownership_owned">Мои</string>
+    <string name="filter_ownership_missing">Нет</string>
 </resources>
