@@ -6,6 +6,7 @@ import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
 import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
 import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
 import com.nokaori.genshinaibuilder.domain.usecase.FilterArtifactsUseCase
+import com.nokaori.genshinaibuilder.domain.usecase.FilterWeaponsUseCase
 
 class ViewModelFactory(
     private val artifactRepository: ArtifactRepository,
@@ -23,7 +24,10 @@ class ViewModelFactory(
                 ) as T
             }
             modelClass.isAssignableFrom(WeaponViewModel::class.java) -> {
-                WeaponViewModel(weaponRepository) as T
+                WeaponViewModel(
+                    weaponRepository = weaponRepository,
+                    filterWeaponsUseCase = FilterWeaponsUseCase()
+                ) as T
             }
             modelClass.isAssignableFrom(ThemeViewModel::class.java) -> {
                 ThemeViewModel(themeRepository) as T
