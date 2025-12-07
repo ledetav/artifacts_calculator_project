@@ -9,6 +9,7 @@ import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
+import com.nokaori.genshinaibuilder.domain.usecase.FilterCharactersUseCase
 
 @Composable
 fun ArtifactSlot.toDisplayName(): String {
@@ -63,4 +64,13 @@ fun StatType.toDisplayName(showPercentSign: Boolean = true): String {
 @Composable
 fun getArtifactSetIcon(setName: String): ImageVector {
     return Icons.Default.Style
+}
+
+@Composable
+fun FilterCharactersUseCase.OwnershipFilter.toDisplayName(): String {
+    return when (this) {
+        FilterCharactersUseCase.OwnershipFilter.ALL -> stringResource(R.string.filter_ownership_all)
+        FilterCharactersUseCase.OwnershipFilter.ONLY_OWNED -> stringResource(R.string.filter_ownership_owned)
+        FilterCharactersUseCase.OwnershipFilter.ONLY_MISSING -> stringResource(R.string.filter_ownership_missing)
+    }
 }
