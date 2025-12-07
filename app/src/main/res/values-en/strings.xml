@@ -57,4 +57,7 @@
     <string name="filter_weapon_type">Weapon Type</string>
     <string name="filter_weapon_main_stat">Main Stat</string>
     <string name="filter_weapon_main_stat_choose">Choose main stat</string>
+    <string name="character_search_placeholder">Search characters</string>
+    <string name="filter_element">Element</string>
+    <string name="filter_ownership">Ownership</string>
 </resources>
