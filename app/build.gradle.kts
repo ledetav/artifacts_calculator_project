@@ -73,6 +73,10 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.ui)
 
+    // Coil для загрузки изображений
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
     // Тестовые зависимости
     testImplementation(libs.junit5.api)
     testRuntimeOnly(libs.junit5.engine)

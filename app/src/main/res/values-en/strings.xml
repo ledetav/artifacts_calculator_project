@@ -12,7 +12,7 @@
     <string name="filter_artifact_set">Artifact Set</string>
     <string name="filter_level">Level</string>
     <string name="filter_artifact_slot">Slot</string>
-    <string name="filter_artifact_main_stat">Main stat</string>
+    <string name="filter_artifact_main_stat">Main Stat</string>
     <string name="filter_level_from">From</string>
     <string name="filter_level_to">To</string>
     <string name="artifact_slot_flower">Flower of Life</string>
@@ -35,7 +35,7 @@
     <string name="stat_type_crit_rate">CRIT Rate</string>
     <string name="stat_type_crit_dmg">CRIT DMG</string>
     <string name="stat_type_energy_recharge">Energy Recharge</string>
-    <string name="stat_type_elemental_mastery">Elemental Mactery</string>
+    <string name="stat_type_elemental_mastery">Elemental Mastery</string>
     <string name="stat_type_anemo_damage_bonus">Anemo DMG Bonus</string>
     <string name="stat_type_geo_damage_bonus">Geo DMG Bonus</string>
     <string name="stat_type_electro_damage_bonus">Electro DMG Bonus</string>
@@ -55,6 +55,12 @@
     <string name="weapon_type_bow">Bow</string>
     <string name="weapon_type_catalyst">Catalyst</string>
     <string name="filter_weapon_type">Weapon Type</string>
-    <string name="filter_weapon_main_stat">Main Stat</string>
-    <string name="filter_weapon_main_stat_choose">Choose main stat</string>
+    <string name="filter_weapon_main_stat">Secondary Stat</string>
+    <string name="filter_weapon_main_stat_choose">Choose secondary stat</string>
+    <string name="character_search_placeholder">Search characters</string>
+    <string name="filter_element">Element</string>
+    <string name="filter_ownership">Ownership</string>
+    <string name="filter_ownership_all">All</string>
+    <string name="filter_ownership_owned">Owned</string>
+    <string name="filter_ownership_missing">Missing</string>
 </resources>

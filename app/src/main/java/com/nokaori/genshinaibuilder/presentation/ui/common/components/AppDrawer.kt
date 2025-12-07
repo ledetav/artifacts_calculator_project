@@ -1,6 +1,5 @@
 package com.nokaori.genshinaibuilder.presentation.ui.common.components
 
-import android.content.ClipData
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
