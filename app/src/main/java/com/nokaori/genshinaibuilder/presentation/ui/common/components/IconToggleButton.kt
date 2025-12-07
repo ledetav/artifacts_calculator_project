@@ -10,12 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 
 @Composable
 fun IconToggleButton(
     onClick: () -> Unit,
     isSelected: Boolean,
-    icon: ImageVector,
+    painter: Painter,
     contentDescription: String,
     modifier: Modifier = Modifier,
     shape: Shape = CircleShape,
@@ -38,7 +39,7 @@ fun IconToggleButton(
     ) {
         IconButton(onClick = onClick) {
             Icon(
-                imageVector = icon,
+                painter = painter,
                 contentDescription = contentDescription,
                 tint = iconTint
             )
