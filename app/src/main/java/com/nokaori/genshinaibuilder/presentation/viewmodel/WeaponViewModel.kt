@@ -15,9 +15,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.nokaori.genshinaibuilder.domain.usecase.FilterWeaponsUseCase
 
 class WeaponViewModel(
-    private val weaponRepository: WeaponRepository
+    private val weaponRepository: WeaponRepository,
+    private val filterWeaponsUseCase: FilterWeaponsUseCase
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -37,22 +39,23 @@ class WeaponViewModel(
             draft != current
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
-
-    val searchedWeapons: StateFlow<List<UserWeapon>> = weaponRepository.getUserWeapons()
-        .combine(searchQuery) { weapons, query ->
-            if (query.isBlank()) {
-                weapons
-            } else {
-                weapons.filter { it.weapon.name.contains(query, ignoreCase = true) }
-            }
-        }
-        .combine(weaponFilterState) { weapons, filterState ->
-            weapons.filter { userWeapon ->
-                (filterState.selectedWeaponTypes.isEmpty() || userWeapon.weapon.type in filterState.selectedWeaponTypes) &&
-                userWeapon.level in filterState.levelRange.start.toInt()..filterState.levelRange.endInclusive.toInt() &&
-                (filterState.selectedMainStat == null || userWeapon.weapon.mainStat?.type == filterState.selectedMainStat)
-            }
-        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+   val searchedWeapons: StateFlow<List<UserWeapon>> = combine(
+        weaponRepository.getUserWeapons(),
+        _searchQuery,
+        _weaponFilterState
+    ) { weapons, query, filterState ->
+        filterWeaponsUseCase(
+            weapons = weapons,
+            searchQuery = query,
+            selectedWeaponTypes = filterState.selectedWeaponTypes,
+            levelRange = filterState.levelRange,
+            selectedMainStat = filterState.selectedMainStat
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = emptyList()
+    )
 
     fun onSearchQueryChange(newQuery: String) {
         _searchQuery.value = newQuery
