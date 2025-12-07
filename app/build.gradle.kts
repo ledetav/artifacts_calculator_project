@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.kotlinCompose)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -76,6 +77,14 @@ dependencies {
     // Coil для загрузки изображений
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    // Room Database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    // Gson
+    implementation(libs.gson)
 
     // Тестовые зависимости
     testImplementation(libs.junit5.api)

@@ -1,8 +1,11 @@
 [versions]
 agp = "8.13.0"
 kotlin = "2.2.20"
+ksp = "2.2.20-2.0.4"
 
 coreKtx = "1.17.0"
+room = "2.7.2"
+gson = "2.11.0"
 lifecycle = "2.9.4"
 activityCompose = "1.11.0"
 composeBom = "2025.10.00"
@@ -53,6 +56,14 @@ coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp"
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 
+# Room Database
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
+# Gson
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+
 # Тестирование
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" } # Runner
 junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
@@ -65,3 +76,4 @@ androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinCompose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
