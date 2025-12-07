@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
+import com.nokaori.genshinaibuilder.domain.model.TalentType
 
 @Entity(
     tableName = "character_constellations",
@@ -28,7 +29,8 @@ data class CharacterConstellationEntity(
     val description: String,
     
     @ColumnInfo(name = "icon_url")
-    val iconUrl: String
+    val iconUrl: String,
     
-    // skill_level_bonus добавить позже, решить, как кодировать.
+    @ColumnInfo(name = "talent_level_up_target")
+    val talentLevelUpTarget: TalentType?
 )
