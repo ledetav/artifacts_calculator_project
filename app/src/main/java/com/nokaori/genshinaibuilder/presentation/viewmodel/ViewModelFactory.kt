@@ -37,7 +37,7 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(CharacterViewModel::class.java) -> {
                 CharacterViewModel(
-                    characteRepository = characterRepository,
+                    characterRepository = characterRepository,
                     filterCharactersUseCase = FilterCharactersUseCase()
                 ) as T
             }
