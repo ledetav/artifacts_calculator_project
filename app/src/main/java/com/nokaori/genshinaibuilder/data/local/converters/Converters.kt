@@ -102,4 +102,46 @@ class Converters {
 
     @TypeConverter
     fun toArtifactSlot(name: String): ArtifactSlot = ArtifactSlot.valueOf(name)
+
+    // --- БИЛДЫ: Enum Roles ---
+    @TypeConverter
+    fun fromBuildRoleList(roles: List<BuildRole>?): String {
+        return gson.toJson(roles)
+    }
+
+    @TypeConverter
+    fun toBuildRoleList(json: String): List<BuildRole> {
+        val type = object : TypeToken<List<BuildRole>>() {}.type
+        return gson.fromJson(json, type) ?: emptyList()
+    }
+
+    // --- БИЛДЫ: Alert Level ---
+    @TypeConverter
+    fun fromBuildAlertLevel(level: BuildAlertLevel): String = level.name
+
+    @TypeConverter
+    fun toBuildAlertLevel(name: String): BuildAlertLevel = BuildAlertLevel.valueOf(name)
+
+    // --- БИЛДЫ: Weapon Snapshot ---
+    @TypeConverter
+    fun fromWeaponSnapshot(snapshot: WeaponSnapshot?): String? {
+        return snapshot?.let { gson.toJson(it) }
+    }
+
+    @TypeConverter
+    fun toWeaponSnapshot(json: String?): WeaponSnapshot? {
+        return json?.let { gson.fromJson(it, WeaponSnapshot::class.java) }
+    }
+
+    // --- БИЛДЫ: Artifacts Snapshot List ---
+    @TypeConverter
+    fun fromArtifactSnapshotList(list: List<ArtifactSnapshot>?): String {
+        return gson.toJson(list)
+    }
+
+    @TypeConverter
+    fun toArtifactSnapshotList(json: String): List<ArtifactSnapshot> {
+        val type = object : TypeToken<List<ArtifactSnapshot>>() {}.type
+        return gson.fromJson(json, type) ?: emptyList()
+    }
 }
