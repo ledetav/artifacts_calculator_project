@@ -63,6 +63,17 @@ class Converters {
     }
 
     @TypeConverter
+    fun fromStatList(list: List<com.nokaori.genshinaibuilder.domain.model.Stat>?): String {
+        return gson.toJson(list)
+    }
+
+    @TypeConverter
+    fun toStatList(json: String): List<com.nokaori.genshinaibuilder.domain.model.Stat> {
+        val type = object : TypeToken<List<com.nokaori.genshinaibuilder.domain.model.Stat>>() {}.type
+        return gson.fromJson(json, type) ?: emptyList()
+    }
+
+    @TypeConverter
     fun fromTalentType(type: com.nokaori.genshinaibuilder.domain.model.TalentType?): String? {
         return type?.name
     }
