@@ -3,10 +3,7 @@ package com.nokaori.genshinaibuilder.data.local.converters
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
-import com.nokaori.genshinaibuilder.domain.model.Element
-import com.nokaori.genshinaibuilder.domain.model.StatType
-import com.nokaori.genshinaibuilder.domain.model.WeaponType
+import com.nokaori.genshinaibuilder.domain.model.*
 
 class Converters {
     private val gson = Gson()
