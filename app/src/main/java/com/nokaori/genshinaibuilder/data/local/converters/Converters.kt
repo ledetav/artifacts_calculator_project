@@ -144,4 +144,15 @@ class Converters {
         val type = object : TypeToken<List<ArtifactSnapshot>>() {}.type
         return gson.fromJson(json, type) ?: emptyList()
     }
+
+    // --- РЕЙТИНГ СИНЕРГИИ ---
+    @TypeConverter
+    fun fromSynergyRating(rating: com.nokaori.genshinaibuilder.domain.model.SynergyRating): String {
+        return rating.name
+    }
+
+    @TypeConverter
+    fun toSynergyRating(name: String): com.nokaori.genshinaibuilder.domain.model.SynergyRating {
+        return com.nokaori.genshinaibuilder.domain.model.SynergyRating.valueOf(name)
+    }
 }
