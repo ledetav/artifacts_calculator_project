@@ -26,19 +26,19 @@ import com.nokaori.genshinaibuilder.data.local.entity.*
         CharacterTalentEntity::class,
 
         // 4. Common Math
-        StatCurveEntity::class
+        StatCurveEntity::class,
 
         // 5. User Inventory
-        // UserCharacterEntity::class,
-        // UserWeaponEntity::class,
-        // UserArtifactEntity::class,
+        UserCharacterEntity::class,
+        UserWeaponEntity::class,
+        UserArtifactEntity::class,
 
         // 6. Builds
-        // CharacterBuildEntity::class,
-        // TeamBuildEntity::class
+        CharacterBuildEntity::class,
+        TeamBuildEntity::class
     ],
     version = 1,
-    exportSchema = true // для экспорта БД.
+    exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
