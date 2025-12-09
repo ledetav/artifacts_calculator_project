@@ -18,6 +18,8 @@
 .DS_Store
 /build
 /captures
+/schemas
+genshin_debug.db
 .externalNativeBuild
 .cxx
 .env
