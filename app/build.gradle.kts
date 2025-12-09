@@ -27,6 +27,13 @@ android {
         }
     }
 
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            isReturnDefaultValues = true
+        }
+    }
+
     buildFeatures {
         compose = true
     }
@@ -88,17 +95,14 @@ dependencies {
     implementation(libs.gson)
 
     // Тестирование
-    testImplementation(libs.junit5.api)
-    testRuntimeOnly(libs.junit5.engine)
-    testRuntimeOnly(libs.junit5.vintage.engine)
     testImplementation(libs.junit4)
 
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.room.runtime)
     testImplementation(libs.kotlinx.coroutines.test)
 
     androidTestImplementation(libs.junit4)
-    androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.kotlinx.coroutines.test)
