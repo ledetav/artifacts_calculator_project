@@ -9,6 +9,8 @@ import com.nokaori.genshinaibuilder.domain.model.Element
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.IconToggleButton
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MultiSelectToggleButtonGroup
 import com.nokaori.genshinaibuilder.presentation.ui.theme.getElementColor
+import com.nokaori.genshinaibuilder.presentation.util.YattaAssets
+import coil3.compose.rememberAsyncImagePainter
 
 @Composable
 fun ElementFilter(
@@ -23,12 +25,14 @@ fun ElementFilter(
     ) { element, isSelected ->
         val elementColor = getElementColor(element)
 
+        val iconUrl = YattaAssets.getElementIconUrl(element)
+        val painter = rememberAsyncImagePainter(iconUrl)
+
         IconToggleButton(
             onClick = { onElementSelected(element) },
             isSelected = isSelected,
-            icon = Icons.Default.Circle,
+            painter = painter,
             contentDescription = element.name,
-            
             activeColor = elementColor,
             inactiveContentColor = elementColor
         )
