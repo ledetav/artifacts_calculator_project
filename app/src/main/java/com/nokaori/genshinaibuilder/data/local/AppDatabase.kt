@@ -47,6 +47,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun weaponDao(): WeaponDao
     abstract fun characterDao(): CharacterDao
     abstract fun statCurveDao(): StatCurveDao
-    // abstract fun userDao(): UserDao
-    // abstract fun buildDao(): BuildDao
+
+    abstract fun userDao(): UserDao
+    abstract fun buildDao(): BuildDao
 }
