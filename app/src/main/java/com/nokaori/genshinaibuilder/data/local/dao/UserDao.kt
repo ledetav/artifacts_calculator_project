@@ -5,10 +5,14 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.nokaori.genshinaibuilder.data.local.entity.UserArtifactEntity
 import com.nokaori.genshinaibuilder.data.local.entity.UserCharacterEntity
 import com.nokaori.genshinaibuilder.data.local.entity.UserWeaponEntity
+import com.nokaori.genshinaibuilder.data.local.model.UserArtifactComplete
+import com.nokaori.genshinaibuilder.data.local.model.UserArtifactWithSet
+import com.nokaori.genshinaibuilder.data.local.model.UserWeaponComplete
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -99,9 +103,9 @@ interface UserDao {
     @Delete
     suspend fun deleteUserArtifact(artifact: UserArtifactEntity)
 
-    @androidx.room.Transaction // Обязательно для @Relation
+    @Transaction // Обязательно для @Relation
     @Query("SELECT * FROM user_artifacts")
-    fun getUserArtifactsWithSets(): Flow<List<com.nokaori.genshinaibuilder.data.local.model.UserArtifactWithSet>>
+    fun getUserArtifactsWithSets(): Flow<List<UserArtifactWithSet>>
 
     /**
      * Получить полные данные об артефактах пользователя:
@@ -129,5 +133,10 @@ interface UserDao {
 
         INNER JOIN artifact_pieces_data AS p ON ua.set_id = p.set_id AND ua.slot = p.slot
     """)
-    fun getUserArtifactsComplete(): Flow<List<com.nokaori.genshinaibuilder.data.local.model.UserArtifactComplete>>
+    fun getUserArtifactsComplete(): Flow<List<UserArtifactComplete>>
+
+    // Добавляем Transaction, так как @Relation делает два запроса под капотом
+    @Transaction
+    @Query("SELECT * FROM user_weapons")
+    fun getUserWeaponsComplete(): Flow<List<UserWeaponComplete>>
 }
