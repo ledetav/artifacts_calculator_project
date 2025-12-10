@@ -9,6 +9,7 @@ import com.nokaori.genshinaibuilder.data.local.entity.CharacterConstellationEnti
 import com.nokaori.genshinaibuilder.data.local.entity.CharacterEntity
 import com.nokaori.genshinaibuilder.data.local.entity.CharacterPromotionEntity
 import com.nokaori.genshinaibuilder.data.local.entity.CharacterTalentEntity
+import com.nokaori.genshinaibuilder.data.local.model.CharacterWithOwnership
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -79,4 +80,19 @@ interface CharacterDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTalents(talents: List<CharacterTalentEntity>)
+
+    /**
+     * Возвращает всех персонажей + статус владения.
+     * Используем LEFT JOIN: берем все из characters_data и пытаемся найти совпадение в user_characters.
+     * Если совпадение есть (u.id IS NOT NULL), значит персонаж  пользователя есть.
+     */
+    @Query("""
+        SELECT 
+            c.*, 
+            CASE WHEN u.id IS NULL THEN 0 ELSE 1 END as isOwned
+        FROM characters_data AS c
+        LEFT JOIN user_characters AS u ON c.id = u.character_encyclopedia_id
+        ORDER BY c.rarity DESC, c.name ASC
+    """)
+    fun getCharactersWithOwnership(): Flow<List<CharacterWithOwnership>>
 }
