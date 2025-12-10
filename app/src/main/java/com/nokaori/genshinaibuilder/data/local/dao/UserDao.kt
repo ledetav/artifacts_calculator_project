@@ -51,6 +51,12 @@ interface UserDao {
     @Delete
     suspend fun deleteUserCharacter(character: UserCharacterEntity)
 
+    /**
+     * Быстрая проверка: есть ли у нас этот персонаж?
+     * Возвращает true/false.
+     */
+    @Query("SELECT EXISTS(SELECT 1 FROM user_characters WHERE character_encyclopedia_id = :encyclopediaId)")
+    suspend fun isCharacterOwned(encyclopediaId: Int): Boolean
 
     // ========================================================================
     // 2. МОЕ ОРУЖИЕ

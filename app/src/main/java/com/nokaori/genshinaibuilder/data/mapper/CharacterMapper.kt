@@ -7,15 +7,15 @@ import com.nokaori.genshinaibuilder.domain.model.Character
 import com.nokaori.genshinaibuilder.domain.model.UserCharacter
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
 
-fun CharacterWithOwnership.toDomain(): Character {
+fun CharacterEntity.toDomain(isOwned: Boolean): Character {
     return Character(
-        id = this.character.id,
-        name = this.character.name,
-        element = this.character.element,
-        weaponType = this.character.weaponType,
-        rarity = this.character.rarity,
-        iconUrl = this.character.iconUrl,
-        isOwned = this.isOwned
+        id = this.id,
+        name = this.name,
+        element = this.element,
+        weaponType = this.weaponType,
+        rarity = this.rarity,
+        iconUrl = this.iconUrl,
+        isOwned = isOwned
     )
 }
 

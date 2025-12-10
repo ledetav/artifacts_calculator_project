@@ -16,25 +16,18 @@ class CharacterRepositoryImpl(
 ) : CharacterRepository {
 
     override fun getCharacters(): Flow<List<Character>> {
-        return characterDao.getCharactersWithOwnership().map { list ->
-            list.map { it.toDomain() }
+        return characterDao.getAllCharacters().map { entities ->
+            entities.map { entity ->
+                val isOwned = userDao.isCharacterOwned(entity.id)
+                entity.toDomain(isOwned)
+            }
         }
     }
 
     override suspend fun getCharacterById(id: Int): Character? {
-        // Для детального просмотра пока просто берем из энциклопедии
-        // ЗАМЕТКА: можно тоже сделать join, чтобы узнать уровень прокачки
         val entity = characterDao.getCharacterById(id) ?: return null
-
-        // Проверяем владение отдельно (ЗАМЕТКА: написать еще один метод в DAO)
-        val userChar = userDao.getUserCharacterByEncyclopediaId(id)
-
-        // Создаем временную структуру для маппера
-        val withOwnership = com.nokaori.genshinaibuilder.data.local.model.CharacterWithOwnership(
-            character = entity,
-            isOwned = userChar != null
-        )
-        return withOwnership.toDomain()
+        val isOwned = userDao.isCharacterOwned(id)
+        return entity.toDomain(isOwned)
     }
 
     override suspend fun toggleCharacterOwnership(characterId: Int) {
