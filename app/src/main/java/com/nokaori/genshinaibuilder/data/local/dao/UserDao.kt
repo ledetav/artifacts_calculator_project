@@ -98,4 +98,36 @@ interface UserDao {
 
     @Delete
     suspend fun deleteUserArtifact(artifact: UserArtifactEntity)
+
+    @androidx.room.Transaction // Обязательно для @Relation
+    @Query("SELECT * FROM user_artifacts")
+    fun getUserArtifactsWithSets(): Flow<List<com.nokaori.genshinaibuilder.data.local.model.UserArtifactWithSet>>
+
+    /**
+     * Получить полные данные об артефактах пользователя:
+     * Инвентарь + Инфо о Сете + Инфо о конкретном Куске (Имя, иконка).
+     */
+    @Query("""
+        SELECT 
+            ua.*,
+            s.id AS set_id,
+            s.name AS set_name,
+            s.rarities AS set_rarities,
+            s.bonus_2pc AS set_bonus_2pc,
+            s.bonus_4pc AS set_bonus_4pc,
+            s.icon_url AS set_icon_url,
+
+            p.id AS piece_id,
+            p.set_id AS piece_set_id,
+            p.slot AS piece_slot,
+            p.name AS piece_name,
+            p.icon_url AS piece_icon_url
+            
+        FROM user_artifacts AS ua
+
+        INNER JOIN artifact_sets_data AS s ON ua.set_id = s.id
+
+        INNER JOIN artifact_pieces_data AS p ON ua.set_id = p.set_id AND ua.slot = p.slot
+    """)
+    fun getUserArtifactsComplete(): Flow<List<com.nokaori.genshinaibuilder.data.local.model.UserArtifactComplete>>
 }

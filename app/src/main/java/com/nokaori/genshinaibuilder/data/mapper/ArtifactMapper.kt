@@ -1,34 +1,34 @@
 package com.nokaori.genshinaibuilder.data.mapper
 
 import com.nokaori.genshinaibuilder.data.local.entity.ArtifactSetEntity
-import com.nokaori.genshinaibuilder.data.local.entity.UserArtifactEntity
+import com.nokaori.genshinaibuilder.data.local.model.UserArtifactComplete
 import com.nokaori.genshinaibuilder.domain.model.Artifact
 import com.nokaori.genshinaibuilder.domain.model.ArtifactRarity
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
+import com.nokaori.genshinaibuilder.domain.model.Stat
+import com.nokaori.genshinaibuilder.domain.model.StatValue
 
-// Превращаем пару Entity (Артефакт + Сет) в Domain модель
-fun UserArtifactEntity.toDomain(setEntity: ArtifactSetEntity): Artifact {
+fun UserArtifactComplete.toDomain(): Artifact {
     return Artifact(
-        id = this.id,
-        slot = this.slot,
-        rarity = when (this.rarity) {
+        id = this.userArtifact.id,
+        slot = this.userArtifact.slot,
+        rarity = when (this.userArtifact.rarity) {
             5 -> ArtifactRarity.FIVE_STARS
             4 -> ArtifactRarity.FOUR_STARS
-            else -> ArtifactRarity.THREE_STARS // Заглушка, если будут 3*
+            else -> ArtifactRarity.THREE_STARS
         },
-        setName = setEntity.name, // Имя берем из сета
-        artifactName = "Unknown Piece", // не храним имя куска (только слот).
-        // Если нужно реальное имя ("Часы пламени..."), нужно джойнить таблицу ArtifactPieceEntity.
-        // Пока заглушка.
-        level = this.level,
-        mainStat = com.nokaori.genshinaibuilder.domain.model.Stat(
-            type = this.mainStatType,
-            value = if (this.mainStatType.isPercentage)
-                com.nokaori.genshinaibuilder.domain.model.StatValue.DoubleValue(this.mainStatValue.toDouble())
+        setName = this.setEntity.name,
+        artifactName = this.pieceEntity.name,
+        level = this.userArtifact.level,
+        isLocked = this.userArtifact.isLocked,
+        mainStat = Stat(
+            type = this.userArtifact.mainStatType,
+            value = if (this.userArtifact.mainStatType.isPercentage)
+                StatValue.DoubleValue(this.userArtifact.mainStatValue.toDouble())
             else
-                com.nokaori.genshinaibuilder.domain.model.StatValue.IntValue(this.mainStatValue.toInt())
+                StatValue.IntValue(this.userArtifact.mainStatValue.toInt())
         ),
-        subStats = this.subStats
+        subStats = this.userArtifact.subStats
     )
 }
 

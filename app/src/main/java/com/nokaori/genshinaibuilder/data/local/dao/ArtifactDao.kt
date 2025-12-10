@@ -75,4 +75,10 @@ interface ArtifactDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSlotRules(rules: List<ArtifactSlotRuleEntity>)
+
+    /**
+     * Получить ID сета по его точному названию.
+     */
+    @Query("SELECT * FROM artifact_sets_data WHERE name = :name LIMIT 1")
+    suspend fun getSetByName(name: String): ArtifactSetEntity?
 }
