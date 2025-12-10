@@ -3,6 +3,7 @@ package com.nokaori.genshinaibuilder.data.repository
 import com.nokaori.genshinaibuilder.data.local.dao.CharacterDao
 import com.nokaori.genshinaibuilder.data.local.dao.UserDao
 import com.nokaori.genshinaibuilder.data.local.entity.UserCharacterEntity
+import com.nokaori.genshinaibuilder.domain.model.UserCharacter
 import com.nokaori.genshinaibuilder.data.mapper.toDomain
 import com.nokaori.genshinaibuilder.domain.model.Character
 import com.nokaori.genshinaibuilder.domain.repository.CharacterRepository
@@ -56,6 +57,12 @@ class CharacterRepositoryImpl(
                 talentBurstLevel = 1
             )
             userDao.insertUserCharacter(newUserChar)
+        }
+    }
+
+    override fun getUserCharacter(encyclopediaId: Int): Flow<UserCharacter?> {
+        return userDao.getUserCharacterCompleteByEncyclopediaId(encyclopediaId).map { completeEntity ->
+            completeEntity?.toDomain()
         }
     }
 }

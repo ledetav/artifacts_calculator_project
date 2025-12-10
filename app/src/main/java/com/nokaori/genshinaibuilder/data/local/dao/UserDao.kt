@@ -12,6 +12,7 @@ import com.nokaori.genshinaibuilder.data.local.entity.UserCharacterEntity
 import com.nokaori.genshinaibuilder.data.local.entity.UserWeaponEntity
 import com.nokaori.genshinaibuilder.data.local.model.UserArtifactComplete
 import com.nokaori.genshinaibuilder.data.local.model.UserArtifactWithSet
+import com.nokaori.genshinaibuilder.data.local.model.UserCharacterComplete
 import com.nokaori.genshinaibuilder.data.local.model.UserWeaponComplete
 import kotlinx.coroutines.flow.Flow
 
@@ -139,4 +140,14 @@ interface UserDao {
     @Transaction
     @Query("SELECT * FROM user_weapons")
     fun getUserWeaponsComplete(): Flow<List<UserWeaponComplete>>
+
+    // Получить всех персонажей пользователя с полной инфой (для списка)
+    @Transaction
+    @Query("SELECT * FROM user_characters")
+    fun getAllUserCharactersComplete(): Flow<List<UserCharacterComplete>>
+
+    // Получить конкретного персонажа по ID энциклопедии (для экрана деталей)
+    @Transaction
+    @Query("SELECT * FROM user_characters WHERE character_encyclopedia_id = :encyclopediaId")
+    fun getUserCharacterCompleteByEncyclopediaId(encyclopediaId: Int): Flow<UserCharacterComplete?>
 }
