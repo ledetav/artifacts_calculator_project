@@ -21,10 +21,6 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
-        }
     }
 
     testOptions {
@@ -93,6 +89,12 @@ dependencies {
 
     // Gson
     implementation(libs.gson)
+
+    // Retrophit & OKhttp3
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp3)
+    implementation(libs.okhttp3.logging.interceptor)
 
     // Тестирование
     testImplementation(libs.junit4)
