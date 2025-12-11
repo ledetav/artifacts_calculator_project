@@ -8,6 +8,7 @@ import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.Stat
 import com.nokaori.genshinaibuilder.domain.model.StatValue
 
+// Превращаем сложный объект из БД (Инвентарь + Сет + Кусок) в Domain
 fun UserArtifactComplete.toDomain(): Artifact {
     return Artifact(
         id = this.userArtifact.id,
@@ -18,9 +19,13 @@ fun UserArtifactComplete.toDomain(): Artifact {
             else -> ArtifactRarity.THREE_STARS
         },
         setName = this.setEntity.name,
+
+        // Берем имя конкретного куска ("Солнечная реликвия")
         artifactName = this.pieceEntity.name,
+
         level = this.userArtifact.level,
         isLocked = this.userArtifact.isLocked,
+
         mainStat = Stat(
             type = this.userArtifact.mainStatType,
             value = if (this.userArtifact.mainStatType.isPercentage)
@@ -28,14 +33,15 @@ fun UserArtifactComplete.toDomain(): Artifact {
             else
                 StatValue.IntValue(this.userArtifact.mainStatValue.toInt())
         ),
+
+        // Подстаты уже хранятся как List<Stat> благодаря конвертеру
         subStats = this.userArtifact.subStats
     )
 }
 
-// Превращаем Entity сета в Domain модель сета (для фильтров)
+// Маппер для списка сетов (для фильтров)
 fun ArtifactSetEntity.toDomain(): ArtifactSet {
     return ArtifactSet(
         name = this.name
-        // иконку UI подтягивает сам через YattaAssets по имени
     )
 }
