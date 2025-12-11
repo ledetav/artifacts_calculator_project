@@ -9,30 +9,31 @@ import com.nokaori.genshinaibuilder.domain.model.WeaponType
 private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI"
 
 fun YattaAvatarDto.toEntity(): CharacterEntity {
-    // Логика формирования ссылки на Сплэш-арт
-    // iconName: "UI_AvatarIcon_Ayaka"
-    // Нужен: "UI_Gacha_AvatarImg_Ayaka"
-    val splashName = this.iconName.replace("AvatarIcon", "Gacha_AvatarImg")
+    val safeIcon = this.iconName ?: "UI_AvatarIcon_Ayaka"
+    val safeElement = this.element ?: ""
+    val safeWeapon = this.weaponType ?: ""
+    val safeName = this.name ?: "Unknown"
+    val safeId = this.id ?: "0"
+    val safeRank = this.rank ?: 4
+
+    val splashName = safeIcon.replace("AvatarIcon", "Gacha_AvatarImg")
+    val elementEnum = parseElement(safeElement)
+
+    val finalId = parseId(safeId, elementEnum)
 
     return CharacterEntity(
-        id = this.id,
-        name = this.name,
-        rarity = this.rank,
-        element = parseElement(this.element),
-        weaponType = parseWeaponType(this.weaponType),
-
-        // --- ЗАГЛУШКИ ДЛЯ БАЗОВЫХ СТАТОВ ---
-        // Общий endpoint не возвращает цифры HP/ATK.
-        // Мы заполним их 0, а позже сделаем отдельный запрос деталей (api/v2/en/avatar/{id}).
-        baseHpLvl1 = 0f,
-        baseAtkLvl1 = 0f,
-        baseDefLvl1 = 0f,
-        ascensionStatType = StatType.ATK_PERCENT, // Заглушка
-        curveId = "GROWTH_INFO_NOT_LOADED",       // Заглушка
-
-        // Формируем ссылки
-        iconUrl = "$ASSETS_URL/${this.iconName}.png",
-        splashUrl = "$ASSETS_URL/$splashName.png"
+            id = finalId,
+            name = safeName,
+            rarity = safeRank,
+            element = elementEnum,
+            weaponType = parseWeaponType(safeWeapon),
+            baseHpLvl1 = 0f,
+            baseAtkLvl1 = 0f,
+            baseDefLvl1 = 0f,
+            ascensionStatType = StatType.ATK_PERCENT,
+            curveId = "GROWTH_INFO_NOT_LOADED",
+            iconUrl = "$ASSETS_URL/$safeIcon.png",
+            splashUrl = "$ASSETS_URL/$splashName.png"
     )
 }
 
@@ -45,7 +46,7 @@ private fun parseElement(raw: String): Element {
         "Grass" -> Element.DENDRO
         "Ice" -> Element.CRYO
         "Rock" -> Element.GEO
-        else -> Element.ANEMO // Fallback, чтобы не крашить
+        else -> Element.ANEMO // Дефолтное значение для неизвестных/пустых
     }
 }
 
@@ -56,6 +57,21 @@ private fun parseWeaponType(raw: String): WeaponType {
         "WEAPON_POLE" -> WeaponType.POLEARM
         "WEAPON_BOW" -> WeaponType.BOW
         "WEAPON_CATALYST" -> WeaponType.CATALYST
-        else -> WeaponType.SWORD // Fallback
+        else -> WeaponType.SWORD // Дефолтное значение
+    }
+}
+
+private fun parseId(rawId: String, element: Element): Int {
+    val simpleId = rawId.toIntOrNull()
+    if (simpleId != null) return simpleId
+
+    val baseIdString = rawId.split("-")[0]
+    val baseId = baseIdString.toIntOrNull() ?: 0
+
+    return if (baseId > 0) {
+        baseId * 100 + element.ordinal
+    } else {
+        // Если ID пришел null или совсем кривой, используем хэш-код, чтобы хоть как-то сохранить
+        rawId.hashCode()
     }
 }
