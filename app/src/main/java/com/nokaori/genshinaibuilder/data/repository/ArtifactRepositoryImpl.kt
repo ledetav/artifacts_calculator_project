@@ -11,21 +11,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class ArtifactRepositoryImpl(
-    private val artifactDao: ArtifactDao, // Энциклопедия
-    private val userDao: UserDao          // Инвентарь
+    private val artifactDao: ArtifactDao,
+    private val userDao: UserDao
 ) : ArtifactRepository {
 
-    // Получаем артефакты пользователя + данные об их сетах
     override fun getArtifacts(): Flow<List<Artifact>> {
         return userDao.getUserArtifactsComplete().map { list ->
-            list.map { item ->
-                // Используем маппер
-                item.toDomain()
-            }
+            list.map { it.toDomain() }
         }
     }
 
-    // Список доступных сетов (из энциклопедии)
     override fun getAvailableArtifactSets(): Flow<List<ArtifactSet>> {
         return artifactDao.getAllArtifactSets().map { list ->
             list.map { it.toDomain() }
@@ -33,30 +28,30 @@ class ArtifactRepositoryImpl(
     }
 
     override suspend fun addArtifact(artifact: Artifact) {
-        // 1. Ищем ID сета по названию
-        // Если сет не найден (например, ошибка OCR или бага), кидаем ошибку или игнорируем
+        // Ищем ID сета по имени
         val setEntity = artifactDao.getSetByName(artifact.setName)
-            ?: throw IllegalArgumentException("Set with name '${artifact.setName}' not found in database")
+            ?: throw IllegalArgumentException("Set '${artifact.setName}' not found")
 
-        // 2. Извлекаем числовое значение главного стата
-        val mainStatValueFloat = when (val v = artifact.mainStat.value) {
+        // Приводим значение стата к Float для БД
+        val mainStatVal = when (val v = artifact.mainStat.value) {
             is com.nokaori.genshinaibuilder.domain.model.StatValue.IntValue -> v.value.toFloat()
             is com.nokaori.genshinaibuilder.domain.model.StatValue.DoubleValue -> v.value.toFloat()
         }
 
-        // 3. Создаем Entity для сохранения
-        val newEntity = UserArtifactEntity(
-            id = 0, // 0 означает, что Room сам сгенерирует новый ID
-            setId = setEntity.id, // Используем найденный ID
+        // Создаем Entity
+        val entity = UserArtifactEntity(
+            id = 0,
+            setId = setEntity.id,
             slot = artifact.slot,
             rarity = artifact.rarity.stars,
             level = artifact.level,
             isLocked = artifact.isLocked,
             mainStatType = artifact.mainStat.type,
-            mainStatValue = mainStatValueFloat,
-            subStats = artifact.subStats, // Конвертер Gson сделает из этого JSON строку
-            equippedCharacterId = null // Свежесозданный артефакт никому не принадлежит
+            mainStatValue = mainStatVal,
+            subStats = artifact.subStats, // Конвертер сделает JSON
+            equippedCharacterId = null
         )
-        userDao.insertUserArtifact(newEntity)
+
+        userDao.insertUserArtifact(entity)
     }
 }

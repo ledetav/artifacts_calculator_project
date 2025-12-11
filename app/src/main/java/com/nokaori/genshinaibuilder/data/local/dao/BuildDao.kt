@@ -12,34 +12,16 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BuildDao {
-
-    // ========================================================================
-    // 1. БИЛДЫ ПЕРСОНАЖЕЙ
-    // ========================================================================
-
-    /**
-     * Получить все сохраненные билды персонажей.
-     * Сортируем от новых к старым (DESC по ID).
-     */
+    // --- CHARACTER BUILDS ---
     @Query("SELECT * FROM character_builds ORDER BY id DESC")
     fun getAllCharacterBuilds(): Flow<List<CharacterBuildEntity>>
 
-    /**
-     * Получить все билды для КОНКРЕТНОГО персонажа.
-     */
     @Query("SELECT * FROM character_builds WHERE character_encyclopedia_id = :charId ORDER BY id DESC")
     fun getBuildsForCharacter(charId: Int): Flow<List<CharacterBuildEntity>>
 
-    /**
-     * Получить конкретный билд по ID.
-     */
     @Query("SELECT * FROM character_builds WHERE id = :buildId")
     suspend fun getCharacterBuildById(buildId: Int): CharacterBuildEntity?
 
-    /**
-     * Сохранить новый билд (результат от ИИ).
-     * Возвращает ID вставленной записи (Long), это важно, чтобы потом вставить этот ID в TeamBuild.
-     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCharacterBuild(build: CharacterBuildEntity): Long
 
@@ -49,14 +31,7 @@ interface BuildDao {
     @Delete
     suspend fun deleteCharacterBuild(build: CharacterBuildEntity)
 
-
-    // ========================================================================
-    // 2. БИЛДЫ КОМАНД
-    // ========================================================================
-
-    /**
-     * Получить все сохраненные команды.
-     */
+    // --- TEAM BUILDS ---
     @Query("SELECT * FROM team_builds ORDER BY id DESC")
     fun getAllTeamBuilds(): Flow<List<TeamBuildEntity>>
 

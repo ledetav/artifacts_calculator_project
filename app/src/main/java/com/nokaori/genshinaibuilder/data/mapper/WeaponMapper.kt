@@ -8,20 +8,20 @@ import com.nokaori.genshinaibuilder.domain.model.StatValue
 import com.nokaori.genshinaibuilder.domain.model.UserWeapon
 import com.nokaori.genshinaibuilder.domain.model.Weapon
 
+// Энциклопедия -> Domain
 fun WeaponEntity.toDomain(): Weapon {
     return Weapon(
         id = this.id,
         name = this.name,
         type = this.type,
-        rarity = when (this.rarity) {
+        rarity = when(this.rarity) {
             5 -> Rarity.FIVE_STARS
             4 -> Rarity.FOUR_STARS
             else -> Rarity.THREE_STARS
         },
         baseAttackLvl1 = this.baseAtkLvl1.toInt(),
         scalingCurveId = this.atkCurveId,
-
-        // Собираем подстат, если он есть (у 1-2* оружия может не быть)
+        // Собираем стат (если он есть, у 1-2* может не быть)
         mainStat = if (this.subStatType != null && this.subStatBaseValue != null) {
             Stat(
                 type = this.subStatType,
@@ -34,7 +34,7 @@ fun WeaponEntity.toDomain(): Weapon {
     )
 }
 
-// 2. Превращаем Join-модель в UserWeapon
+// Инвентарь -> Domain
 fun UserWeaponComplete.toDomain(): UserWeapon {
     return UserWeapon(
         id = this.userWeapon.id,

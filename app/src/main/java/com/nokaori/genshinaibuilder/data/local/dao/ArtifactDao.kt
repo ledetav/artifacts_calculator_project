@@ -12,73 +12,37 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ArtifactDao {
-
-    // ========================================================================
-    // ТАБЛИЦА СЕТОВ
-    // ========================================================================
-
-    /**
-     * Получить все сеты. 
-     * Возвращает Flow, чтобы UI обновлялся автоматически при загрузке новых данных.
-     */
+    // --- SETS ---
     @Query("SELECT * FROM artifact_sets_data ORDER BY name ASC")
     fun getAllArtifactSets(): Flow<List<ArtifactSetEntity>>
 
-    /**
-     * Поиск сетов по названию (для автодополнения или фильтрации).
-     * || - это конкатенация строк в SQL.
-     */
     @Query("SELECT * FROM artifact_sets_data WHERE name LIKE '%' || :query || '%' ORDER BY name ASC")
     fun searchArtifactSets(query: String): Flow<List<ArtifactSetEntity>>
 
-    /**
-     * Получить конкретный сет по ID.
-     */
     @Query("SELECT * FROM artifact_sets_data WHERE id = :setId")
     suspend fun getArtifactSetById(setId: Int): ArtifactSetEntity?
 
-    /**
-     * Вставка списка сетов (из API).
-     * OnConflictStrategy.REPLACE означает: если такой ID уже есть, обновить данные. 
-     */
+    // Критически важно для добавления артефакта вручную (поиск ID по имени)
+    @Query("SELECT * FROM artifact_sets_data WHERE name = :name LIMIT 1")
+    suspend fun getSetByName(name: String): ArtifactSetEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertArtifactSets(sets: List<ArtifactSetEntity>)
 
-    // ========================================================================
-    // ТАБЛИЦА КУСКОВ
-    // ========================================================================
-
-    /**
-     * Получить все куски конкретного сета.
-     */
+    // --- PIECES ---
     @Query("SELECT * FROM artifact_pieces_data WHERE set_id = :setId")
     fun getPiecesBySetId(setId: Int): Flow<List<ArtifactPieceEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertArtifactPieces(pieces: List<ArtifactPieceEntity>)
 
-    // ========================================================================
-    // ТАБЛИЦА ПРАВИЛ
-    // ========================================================================
-
-    /**
-     * Получить правила для всех слотов.
-     */
+    // --- RULES ---
     @Query("SELECT * FROM artifact_slot_rules")
     suspend fun getAllSlotRules(): List<ArtifactSlotRuleEntity>
 
-    /**
-     * Получить правило для конкретного слота.
-     */
     @Query("SELECT * FROM artifact_slot_rules WHERE slot = :slot")
     suspend fun getRulesForSlot(slot: ArtifactSlot): ArtifactSlotRuleEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSlotRules(rules: List<ArtifactSlotRuleEntity>)
-
-    /**
-     * Получить ID сета по его точному названию.
-     */
-    @Query("SELECT * FROM artifact_sets_data WHERE name = :name LIMIT 1")
-    suspend fun getSetByName(name: String): ArtifactSetEntity?
 }
