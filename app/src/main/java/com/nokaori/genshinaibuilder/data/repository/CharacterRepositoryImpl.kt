@@ -3,43 +3,37 @@ package com.nokaori.genshinaibuilder.data.repository
 import com.nokaori.genshinaibuilder.data.local.dao.CharacterDao
 import com.nokaori.genshinaibuilder.data.local.dao.UserDao
 import com.nokaori.genshinaibuilder.data.local.entity.UserCharacterEntity
-import com.nokaori.genshinaibuilder.domain.model.UserCharacter
 import com.nokaori.genshinaibuilder.data.mapper.toDomain
 import com.nokaori.genshinaibuilder.domain.model.Character
+import com.nokaori.genshinaibuilder.domain.model.UserCharacter
 import com.nokaori.genshinaibuilder.domain.repository.CharacterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class CharacterRepositoryImpl(
-    private val characterDao: CharacterDao, // Энциклопедия
-    private val userDao: UserDao            // Инвентарь
+    private val characterDao: CharacterDao,
+    private val userDao: UserDao
 ) : CharacterRepository {
 
     override fun getCharacters(): Flow<List<Character>> {
-        return characterDao.getAllCharacters().map { entities ->
-            entities.map { entity ->
-                val isOwned = userDao.isCharacterOwned(entity.id)
-                entity.toDomain(isOwned)
-            }
+        return characterDao.getCharactersWithOwnership().map { list ->
+            list.map { it.toDomain() }
         }
     }
 
     override suspend fun getCharacterById(id: Int): Character? {
         val entity = characterDao.getCharacterById(id) ?: return null
         val isOwned = userDao.isCharacterOwned(id)
-        return entity.toDomain(isOwned)
+        return entity.toDomain(isOwned = isOwned)
     }
 
     override suspend fun toggleCharacterOwnership(characterId: Int) {
-        val existingUserChar = userDao.getUserCharacterByEncyclopediaId(characterId)
-
-        if (existingUserChar != null) {
-            // Если есть -> Удаляем
-            userDao.deleteUserCharacter(existingUserChar)
+        val existing = userDao.getUserCharacterByEncyclopediaId(characterId)
+        if (existing != null) {
+            userDao.deleteUserCharacter(existing)
         } else {
-            // Если нет -> Добавляем
-            // Создаем с дефолтными статами (1 уровень)
-            val newUserChar = UserCharacterEntity(
+            // Добавляем с дефолтными статами (1 уровень)
+            val newChar = UserCharacterEntity(
                 id = 0,
                 characterId = characterId,
                 level = 1,
@@ -49,13 +43,13 @@ class CharacterRepositoryImpl(
                 talentSkillLevel = 1,
                 talentBurstLevel = 1
             )
-            userDao.insertUserCharacter(newUserChar)
+            userDao.insertUserCharacter(newChar)
         }
     }
 
     override fun getUserCharacter(encyclopediaId: Int): Flow<UserCharacter?> {
-        return userDao.getUserCharacterCompleteByEncyclopediaId(encyclopediaId).map { completeEntity ->
-            completeEntity?.toDomain()
+        return userDao.getUserCharacterCompleteByEncyclopediaId(encyclopediaId).map {
+            it?.toDomain()
         }
     }
 }
