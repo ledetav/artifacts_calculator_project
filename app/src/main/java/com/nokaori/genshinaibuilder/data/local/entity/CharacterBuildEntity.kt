@@ -3,6 +3,7 @@ package com.nokaori.genshinaibuilder.data.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSnapshot
 import com.nokaori.genshinaibuilder.domain.model.BuildAlertLevel
@@ -11,7 +12,8 @@ import com.nokaori.genshinaibuilder.domain.model.WeaponSnapshot
 
 @Entity(
     tableName = "character_builds",
-    foreignKeys = [ForeignKey(entity = CharacterEntity::class, parentColumns = ["id"], childColumns = ["character_encyclopedia_id"], onDelete = ForeignKey.CASCADE)]
+    foreignKeys = [ForeignKey(entity = CharacterEntity::class, parentColumns = ["id"], childColumns = ["character_encyclopedia_id"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index(value = ["character_encyclopedia_id"])]
 )
 data class CharacterBuildEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
