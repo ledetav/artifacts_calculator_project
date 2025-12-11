@@ -9,18 +9,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class GameDataRepositoryImpl(
-    private val characterDao: CharacterDao
+    private val characterDao: CharacterDao,
+    private val api: YattaApi 
 ) : GameDataRepository {
-
-    // Для ручного DI создаем здесь lazy.
-    private val api: YattaApi by lazy {
-        Retrofit.Builder()
-            .baseUrl("https://gi.yatta.moe/api/v2/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(YattaApi::class.java)
-    }
-
+    
     override suspend fun updateCharacters(): Result<Unit> {
         return try {
             // Сетевой запрос
