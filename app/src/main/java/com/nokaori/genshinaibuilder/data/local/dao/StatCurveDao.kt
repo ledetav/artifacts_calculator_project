@@ -8,11 +8,6 @@ import com.nokaori.genshinaibuilder.data.local.entity.StatCurveEntity
 
 @Dao
 interface StatCurveDao {
-
-    /**
-     * Получить кривую по IВ.
-     * Возвращает Entity, внутри которого лежит Map<Level, Multiplier>.
-     */
     @Query("SELECT * FROM stat_curves WHERE id = :curveId")
     suspend fun getCurve(curveId: String): StatCurveEntity?
 
