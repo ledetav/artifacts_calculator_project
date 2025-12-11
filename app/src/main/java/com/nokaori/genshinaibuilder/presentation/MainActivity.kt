@@ -48,15 +48,18 @@ import com.nokaori.genshinaibuilder.data.repository.ArtifactRepositoryImpl
 import com.nokaori.genshinaibuilder.data.repository.CharacterRepositoryImpl
 import com.nokaori.genshinaibuilder.data.repository.ThemeRepositoryImpl
 import com.nokaori.genshinaibuilder.data.repository.WeaponRepositoryImpl
+import com.nokaori.genshinaibuilder.data.repository.GameDataRepositoryImpl
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.ArtifactScreen
 import com.nokaori.genshinaibuilder.presentation.ui.characters.CharacterScreen
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MainTopAppBar
 import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
+import com.nokaori.genshinaibuilder.presentation.ui.settings.SettingsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.theme.GenshinAIBuilderTheme
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.WeaponScreen
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.CharacterViewModel
+import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ViewModelFactory
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
@@ -97,12 +100,15 @@ class MainActivity : ComponentActivity() {
             userDao = db.userDao()
         )
 
+        val gameDataRepository = GameDataRepositoryImpl(characterDao = db.characterDao())
+
         // Создание Фабрики ViewModel
         val factory = ViewModelFactory(
             artifactRepository,
             weaponRepository,
             themeRepository,
-            characterRepository
+            characterRepository,
+            gameDataRepository
         )
 
         setContent {
@@ -235,7 +241,8 @@ fun AppContent(factory: ViewModelFactory) {
                         }
 
                         composable(NavigationItem.Settings.route) {
-                            Text("Settings Screen (Coming Soon)", modifier = Modifier.padding(16.dp))
+                            val settingsViewModel: SettingsViewModel = viewModel(factory = factory)
+                            SettingsScreen(settingsViewModel = settingsViewModel)
                         }
                     }
                 }
