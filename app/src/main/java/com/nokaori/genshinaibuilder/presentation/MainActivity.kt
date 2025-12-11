@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -40,43 +41,66 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
 import com.nokaori.genshinaibuilder.R
+import com.nokaori.genshinaibuilder.data.local.AppDatabase
 import com.nokaori.genshinaibuilder.data.repository.ArtifactRepositoryImpl
+import com.nokaori.genshinaibuilder.data.repository.CharacterRepositoryImpl
 import com.nokaori.genshinaibuilder.data.repository.ThemeRepositoryImpl
 import com.nokaori.genshinaibuilder.data.repository.WeaponRepositoryImpl
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.ArtifactScreen
+import com.nokaori.genshinaibuilder.presentation.ui.characters.CharacterScreen
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MainTopAppBar
 import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
 import com.nokaori.genshinaibuilder.presentation.ui.theme.GenshinAIBuilderTheme
-import com.nokaori.genshinaibuilder.presentation.ui.characters.CharacterScreen
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.WeaponScreen
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.CharacterViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ViewModelFactory
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nokaori.genshinaibuilder.data.repository.CharacterRepositoryImpl
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-
-    // синглтоны в рамках Activity
-    private val artifactRepository by lazy { ArtifactRepositoryImpl() }
-    private val weaponRepository by lazy { WeaponRepositoryImpl() }
-    private val characterRepository by lazy { CharacterRepositoryImpl() }
-    
-    // Используем applicationContext, чтобы избежать утечек памяти
-    private val themeRepository by lazy { ThemeRepositoryImpl(applicationContext) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Инициализация Базы Данных
+        // ЗАМЕТКА: Сделать класс Application
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "genshin_optimizer.db"
+        )
+            // .createFromAsset("database/start_data.db") // Раскомментировать, когда будет готовый файл базы
+            .fallbackToDestructiveMigration(true) // Если изменить схему БД, старая удалится (для разработки)
+            .build()
+
+        // Создание Репозиториев (Ручной Dependency Injection)
+        val themeRepository = ThemeRepositoryImpl(applicationContext)
+
+        val artifactRepository = ArtifactRepositoryImpl(
+            artifactDao = db.artifactDao(),
+            userDao = db.userDao()
+        )
+
+        val weaponRepository = WeaponRepositoryImpl(
+            weaponDao = db.weaponDao(),
+            userDao = db.userDao()
+        )
+
+        val characterRepository = CharacterRepositoryImpl(
+            characterDao = db.characterDao(),
+            userDao = db.userDao()
+        )
+
+        // Создание Фабрики ViewModel
         val factory = ViewModelFactory(
-            artifactRepository, 
-            weaponRepository, 
+            artifactRepository,
+            weaponRepository,
             themeRepository,
             characterRepository
         )
@@ -88,19 +112,16 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppContent(factory: ViewModelFactory) { 
+fun AppContent(factory: ViewModelFactory) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    // ViewModel инициализируются через factory
     val themeViewModel: ThemeViewModel = viewModel(factory = factory)
-    val artifactViewModel: ArtifactViewModel = viewModel(factory = factory)
-    val weaponViewModel: WeaponViewModel = viewModel(factory = factory)
-    val characterViewModel: CharacterViewModel = viewModel(factory = factory)
-
-    val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
+    val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
 
     val navigationItems = listOf(
         NavigationItem.Artifacts,
@@ -177,49 +198,44 @@ fun AppContent(factory: ViewModelFactory) {
                                 scope.launch { drawerState.open() }
                             },
                             actions = {
+                                // Временно закомментировать действия, пока нет парсера Wiki.
+                                /*
                                 if (currentRoute == NavigationItem.Artifacts.route) {
-                                    IconButton(onClick = { artifactViewModel.addDefaultArtifact() }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Add,
-                                            contentDescription = stringResource(R.string.artifact_add_button)
-                                        )
+                                    IconButton(onClick = {  }) {
+                                        Icon(Icons.Default.Add, contentDescription = null)
                                     }
                                 }
-                                if (currentRoute == NavigationItem.Weapons.route) {
-                                    IconButton(onClick = { weaponViewModel.addDefaultWeapon() }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Add,
-                                            contentDescription = stringResource(R.string.weapon_add_button)
-                                        )
-                                    }
-                                }
+                                */
                             }
                         )
                     }
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = NavigationItem.Artifacts.route,
+                        startDestination = NavigationItem.Characters.route,
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable(NavigationItem.Artifacts.route) {
+                            val artifactViewModel: ArtifactViewModel = viewModel(factory = factory)
                             ArtifactScreen(artifactViewModel = artifactViewModel)
                         }
 
                         composable(NavigationItem.Weapons.route) {
+                            val weaponViewModel: WeaponViewModel = viewModel(factory = factory)
                             WeaponScreen(weaponViewModel = weaponViewModel)
                         }
 
                         composable(NavigationItem.Characters.route) {
+                            val characterViewModel: CharacterViewModel = viewModel(factory = factory)
                             CharacterScreen(characterViewModel = characterViewModel)
                         }
 
                         composable(NavigationItem.Builds.route) {
-                            Text("Builds", modifier = Modifier.padding(16.dp))
+                            Text("Builds Screen (Coming Soon)", modifier = Modifier.padding(16.dp))
                         }
 
                         composable(NavigationItem.Settings.route) {
-                            Text("Settings", modifier = Modifier.padding(16.dp))
+                            Text("Settings Screen (Coming Soon)", modifier = Modifier.padding(16.dp))
                         }
                     }
                 }
