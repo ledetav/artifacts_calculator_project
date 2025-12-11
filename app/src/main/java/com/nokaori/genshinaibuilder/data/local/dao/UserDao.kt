@@ -73,8 +73,8 @@ interface UserDao {
     @Query("""
         SELECT 
             ua.*, 
-            s.id AS set_id, s.name AS set_name, s.rarities AS set_rarities, 
-            s.bonus_2pc AS set_bonus_2pc, s.bonus_4pc AS set_bonus_4pc, s.icon_url AS set_icon_url,
+            s.id AS user_set_id, s.name AS user_set_name, s.rarities AS user_set_rarities, 
+            s.bonus_2pc AS user_set_bonus_2pc, s.bonus_4pc AS user_set_bonus_4pc, s.icon_url AS user_set_icon_url,
             p.id AS piece_id, p.set_id AS piece_set_id, p.slot AS piece_slot, 
             p.name AS piece_name, p.icon_url AS piece_icon_url
         FROM user_artifacts AS ua

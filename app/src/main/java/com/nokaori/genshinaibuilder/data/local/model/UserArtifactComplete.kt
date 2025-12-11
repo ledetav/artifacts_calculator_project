@@ -11,7 +11,7 @@ data class UserArtifactComplete(
     val userArtifact: UserArtifactEntity,
 
     // Данные о Сете (префикс нужен, т.к. в SQL запросе мы делали "AS set_...")
-    @Embedded(prefix = "set_")
+    @Embedded(prefix = "user_set_")
     val setEntity: ArtifactSetEntity,
 
     // Данные о Куске (префикс "piece_")
