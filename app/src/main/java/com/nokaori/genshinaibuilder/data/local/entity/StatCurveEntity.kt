@@ -5,8 +5,6 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "stat_curves")
 data class StatCurveEntity(
-    @PrimaryKey
-    val id: String, // Составной ключ, например "5_CHARACTER_HP"
-
-    val points: Map<Int, Float> 
+    @PrimaryKey val id: String,
+    val points: Map<Int, Float> // Converter
 )
