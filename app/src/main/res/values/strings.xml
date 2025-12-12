@@ -3,10 +3,11 @@
     <string name="apply">Применить</string>
     <string name="reset">Сбросить</string>
     <string name="artifact_search_placeholder">Поиск по артефактам</string>
+    <string name="nav_group_encyclopedia">База знаний></string>
+    <string name="nav_group_inventory">Инвентарь</string>
+    <string name="nav_characters">Персонажи</string>
     <string name="nav_artifacts">Артефакты</string>
     <string name="nav_weapons">Оружие</string>
-    <string name="nav_characters">Персонажи</string>
-    <string name="nav_builds">Билды</string>
     <string name="nav_settings">Настройки</string>
     <string name="filter_dialog_title">Фильтры</string>
     <string name="filter_artifact_set">Сет артефакта</string>
