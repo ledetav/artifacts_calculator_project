@@ -16,7 +16,13 @@ data class YattaAvatarDetailDto(
 )
 
 data class YattaUpgradeDto(
-    @SerializedName("prop") val props: List<YattaPropDto>
+    @SerializedName("prop") val props: List<YattaPropDto>,
+    @SerializedName("promote") val promote: List<YattaPromoteDto>?
+)
+
+data class YattaPromoteDto(
+    @SerializedName("promoteLevel") val level: Int,
+    @SerializedName("addProps") val addProps: Map<String, Double>? 
 )
 
 data class YattaPropDto(

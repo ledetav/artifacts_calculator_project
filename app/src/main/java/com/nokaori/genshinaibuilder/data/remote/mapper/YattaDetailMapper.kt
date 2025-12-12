@@ -3,6 +3,7 @@ package com.nokaori.genshinaibuilder.data.remote.mapper
 import com.nokaori.genshinaibuilder.data.local.entity.CharacterConstellationEntity
 import com.nokaori.genshinaibuilder.data.local.entity.CharacterEntity
 import com.nokaori.genshinaibuilder.data.local.entity.CharacterTalentEntity
+import com.nokaori.genshinaibuilder.data.local.entity.CharacterPromotionEntity
 import com.nokaori.genshinaibuilder.data.remote.dto.YattaAvatarDetailDto
 import com.nokaori.genshinaibuilder.data.remote.dto.YattaTalentDto
 import com.nokaori.genshinaibuilder.domain.model.StatType
@@ -24,6 +25,27 @@ fun CharacterEntity.updateWithDetails(dto: YattaAvatarDetailDto): CharacterEntit
         ascensionStatType = mapYattaStatType(dto.specialProp),
         curveId = mainCurveId
     )
+}
+
+fun mapPromotions(charId: Int, dto: YattaAvatarDetailDto): List<CharacterPromotionEntity> {
+    val promoteList = dto.upgrade.promote ?: return emptyList()
+    
+    val specialPropKey = dto.specialProp
+
+    return promoteList.map { pDto ->
+        val propsMap = pDto.addProps ?: emptyMap()
+
+        CharacterPromotionEntity(
+            characterId = charId,
+            ascensionLevel = pDto.level,
+            
+            addHp = propsMap["FIGHT_PROP_BASE_HP"]?.toFloat() ?: 0f,
+            addAtk = propsMap["FIGHT_PROP_BASE_ATTACK"]?.toFloat() ?: 0f,
+            addDef = propsMap["FIGHT_PROP_BASE_DEFENSE"]?.toFloat() ?: 0f,
+            
+            ascensionStatValue = propsMap[specialPropKey]?.toFloat() ?: 0f
+        )
+    }
 }
 
 fun mapTalentsAndConstellations(
