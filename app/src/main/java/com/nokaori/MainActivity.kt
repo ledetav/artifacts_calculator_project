@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -89,15 +90,16 @@ fun AppContent() {
 
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
 
-    val navigationItems = listOf(
-        NavigationItem.Artifacts,
-        NavigationItem.Weapons,
+    val allNavItems = listOf(
         NavigationItem.Characters,
-        NavigationItem.Builds,
+        NavigationItem.EncyclopediaArtifacts,
+        NavigationItem.EncyclopediaWeapons,
+        NavigationItem.InventoryArtifacts,
+        NavigationItem.InventoryWeapons,
         NavigationItem.Settings
     )
 
-    val currentNavItem = navigationItems.find { it.route == currentRoute }
+    val currentNavItem = allNavItems.find { it.route == currentRoute }
 
     GenshinAIBuilderTheme(darkTheme = isDarkTheme) {
         Surface(
@@ -143,7 +145,6 @@ fun AppContent() {
                         HorizontalDivider()
 
                         AppDrawer(
-                            items = navigationItems,
                             currentItemRoute = currentRoute,
                             onItemClick = { item ->
                                 scope.launch { drawerState.close() }
@@ -185,25 +186,36 @@ fun AppContent() {
                         startDestination = NavigationItem.Characters.route,
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable(NavigationItem.Artifacts.route) {
-                            ArtifactScreen(artifactViewModel = artifactViewModel)
-                        }
-
-                        composable(NavigationItem.Weapons.route) {
-                            WeaponScreen(weaponViewModel = weaponViewModel)
-                        }
-
                         composable(NavigationItem.Characters.route) {
                             CharacterScreen(characterViewModel = characterViewModel)
                         }
-
-                        composable(NavigationItem.Builds.route) {
-                            // Заглушка, пока не сделаем экран билдов
+                        
+                        composable(NavigationItem.EncyclopediaArtifacts.route) {
+                            // TODO: Сделать экран Энциклопедии Артефактов (только чтение базы)
                             Surface(modifier = Modifier.fillMaxSize()) {
-                                Text("Builds Screen (Coming Soon)", modifier = Modifier.padding(16.dp))
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text("Энциклопедия Артефактов (В разработке)")
+                                }
                             }
                         }
+                        
+                        composable(NavigationItem.EncyclopediaWeapons.route) {
+                            // TODO: Сделать экран Энциклопедии Оружия
+                            Surface(modifier = Modifier.fillMaxSize()) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text("Энциклопедия Оружия (В разработке)")
+                                }
+                            }
+                        }
+                        
+                        composable(NavigationItem.InventoryArtifacts.route) {
+                            ArtifactScreen(artifactViewModel = artifactViewModel)
+                        }
 
+                        composable(NavigationItem.InventoryWeapons.route) {
+                            WeaponScreen(weaponViewModel = weaponViewModel)
+                        }
+                        
                         composable(NavigationItem.Settings.route) {
                             SettingsScreen(settingsViewModel = settingsViewModel)
                         }
