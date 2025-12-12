@@ -84,11 +84,12 @@ fun CharacterItem(
                 text = "${character.name}\n${"⭐".repeat(character.rarity)}",
                 color = Color.White,
                 style = MaterialTheme.typography.titleMedium,
+                lineHeight = MaterialTheme.typography.labelSmall.lineHeight * 1.2,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(8.dp)
+                    .padding(4.dp)
             )
 
             // Оверлей "Не в наличии"
