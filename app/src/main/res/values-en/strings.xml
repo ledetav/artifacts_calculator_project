@@ -6,6 +6,7 @@
     <string name="nav_group_encyclopedia">Encyclopedia</string>
     <string name="nav_group_inventory">Inventory</string>
     <string name="nav_characters">Characters</string>
+    <string name="nav_artifact_sets">Artifact Sets</string>
     <string name="nav_artifacts">Artifacts</string>
     <string name="nav_weapons">Weapons</string>
     <string name="nav_settings">Settings</string>
