@@ -62,7 +62,7 @@ fun CharacterScreen(
 
         // Плитка персонажей
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 150.dp), // Адаптивная ширина колонок
+            columns = GridCells.Adaptive(minSize = 105.dp), // Адаптивная ширина колонок
             contentPadding = PaddingValues(4.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
