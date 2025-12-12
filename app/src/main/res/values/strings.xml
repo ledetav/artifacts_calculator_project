@@ -9,6 +9,7 @@
     <string name="nav_artifact_sets">Сеты артефактов</string>
     <string name="nav_artifacts">Артефакты</string>
     <string name="nav_weapons">Оружие</string>
+    <string name="nav_builds">Билды</string>
     <string name="nav_settings">Настройки</string>
     <string name="filter_dialog_title">Фильтры</string>
     <string name="filter_artifact_set">Сет артефакта</string>

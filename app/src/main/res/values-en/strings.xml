@@ -9,6 +9,7 @@
     <string name="nav_artifact_sets">Artifact Sets</string>
     <string name="nav_artifacts">Artifacts</string>
     <string name="nav_weapons">Weapons</string>
+    <string name="nav_builds">Builds</string>
     <string name="nav_settings">Settings</string>
     <string name="filter_dialog_title">Filters</string>
     <string name="filter_artifact_set">Artifact Set</string>
