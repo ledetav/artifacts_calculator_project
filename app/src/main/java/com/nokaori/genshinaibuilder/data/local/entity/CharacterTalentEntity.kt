@@ -10,15 +10,21 @@ import com.nokaori.genshinaibuilder.domain.model.TalentType
 
 @Entity(
     tableName = "character_talents",
-    foreignKeys = [ForeignKey(entity = CharacterEntity::class, parentColumns = ["id"], childColumns = ["character_id"], onDelete = ForeignKey.CASCADE)],
+    foreignKeys = [
+        ForeignKey(
+            entity = CharacterEntity::class, parentColumns = ["id"],
+            childColumns = ["character_id"], onDelete = ForeignKey.CASCADE
+        )
+    ],
     indices = [Index(value = ["character_id"])]
 )
 data class CharacterTalentEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "character_id") val characterId: Int,
-    val type: TalentType, // Enum
+    @ColumnInfo(name = "order_index") val orderIndex: Int, 
+    @ColumnInfo(name = "type") val type: TalentType,
     val name: String,
     val description: String,
     @ColumnInfo(name = "icon_url") val iconUrl: String,
-    @ColumnInfo(name = "scaling_attributes") val scalingAttributes: List<TalentAttribute> // Converter
+    @ColumnInfo(name = "scaling_attributes") val scalingAttributes: List<TalentAttribute>
 )

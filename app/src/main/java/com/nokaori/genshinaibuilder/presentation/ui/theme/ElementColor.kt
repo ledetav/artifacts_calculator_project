@@ -12,5 +12,6 @@ fun getElementColor(element: Element): Color {
         Element.DENDRO -> Color(0xFF32CD32) // Lime Green
         Element.CRYO -> Color(0xFFA0E6FF) // Light Blue
         Element.GEO -> Color(0xFFDAA520) // Goldenrod
+        Element.UNKNOWN -> Color.Gray
     }
 }

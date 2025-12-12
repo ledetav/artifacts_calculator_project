@@ -30,6 +30,7 @@ fun WeaponType.toDisplayName(): String {
         WeaponType.POLEARM -> stringResource(R.string.weapon_type_polearm)
         WeaponType.BOW -> stringResource(R.string.weapon_type_bow)
         WeaponType.CATALYST -> stringResource(R.string.weapon_type_catalyst)
+        else -> stringResource(R.string.weapon_type_unknown)
     }
 }
 

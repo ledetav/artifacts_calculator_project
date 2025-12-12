@@ -1,32 +1,85 @@
 package com.nokaori.genshinaibuilder.data.remote.mapper
 
+import com.nokaori.genshinaibuilder.data.local.entity.CharacterConstellationEntity
 import com.nokaori.genshinaibuilder.data.local.entity.CharacterEntity
+import com.nokaori.genshinaibuilder.data.local.entity.CharacterTalentEntity
 import com.nokaori.genshinaibuilder.data.remote.dto.YattaAvatarDetailDto
+import com.nokaori.genshinaibuilder.data.remote.dto.YattaTalentDto
 import com.nokaori.genshinaibuilder.domain.model.StatType
+import com.nokaori.genshinaibuilder.domain.model.TalentAttribute
+import com.nokaori.genshinaibuilder.domain.model.TalentType
 
-// Функция расширения: берет старую Entity и обновляет поля из DTO
+private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI"
+
 fun CharacterEntity.updateWithDetails(dto: YattaAvatarDetailDto): CharacterEntity {
-    
-    // Ищем статы в списке props
     val hpProp = dto.upgrade.props.find { it.propType == "FIGHT_PROP_BASE_HP" }
     val atkProp = dto.upgrade.props.find { it.propType == "FIGHT_PROP_BASE_ATTACK" }
     val defProp = dto.upgrade.props.find { it.propType == "FIGHT_PROP_BASE_DEFENSE" }
-
-    // Определяем Curve ID (обычно берем от Атаки или ХП, они часто имеют один суффикс S5/S4)
     val mainCurveId = atkProp?.curveId ?: "GROW_CURVE_ATTACK_S4"
 
     return this.copy(
         baseHpLvl1 = hpProp?.initValue?.toFloat() ?: 0f,
         baseAtkLvl1 = atkProp?.initValue?.toFloat() ?: 0f,
         baseDefLvl1 = defProp?.initValue?.toFloat() ?: 0f,
-        
         ascensionStatType = mapYattaStatType(dto.specialProp),
-        
         curveId = mainCurveId
     )
 }
 
-// Маппер игровых названий статов в наш Enum
+fun mapTalentsAndConstellations(
+    charId: Int, 
+    dto: YattaAvatarDetailDto
+): Pair<List<CharacterTalentEntity>, List<CharacterConstellationEntity>> {
+
+    val constellationBonusMap = mutableMapOf<Int, TalentType>()
+
+    // --- ТАЛАНТЫ ---
+    val sortedTalents = dto.talents.entries.sortedBy { it.key.toIntOrNull() ?: 99 }
+    
+    // ИСПОЛЬЗУЕМ mapIndexed, чтобы получить порядковый номер (index)
+    val talentsList = sortedTalents.mapIndexed { index, (_, tDto) ->
+        val talentType = determineTalentTypeByIcon(tDto.icon, tDto.type)
+
+        tDto.linkedConstellations?.props?.forEach { prop ->
+            if (prop.type == "level") {
+                constellationBonusMap[prop.id] = talentType
+            }
+        }
+
+        CharacterTalentEntity(
+            characterId = charId,
+            orderIndex = index, // Передаем индекс
+            type = talentType,  // Передаем Enum
+            name = tDto.name,
+            description = cleanDescription(tDto.description),
+            iconUrl = "$ASSETS_URL/${tDto.icon}.png",
+            scalingAttributes = parseScaling(tDto)
+        )
+    }
+
+    // --- СОЗВЕЗДИЯ ---
+    val constsMap = dto.constellations ?: emptyMap() // Если null, берем пустую карту
+    
+    val sortedConsts = constsMap.entries.sortedBy { it.key.toIntOrNull() ?: 99 }
+
+    val constsList = sortedConsts.mapIndexed { index, (_, cDto) ->
+        val targetTalent = constellationBonusMap[index]
+
+        CharacterConstellationEntity(
+            characterId = charId,
+            order = index + 1,
+            name = cDto.name,
+            description = cleanDescription(cDto.description),
+            iconUrl = "$ASSETS_URL/${cDto.icon}.png",
+            talentLevelUpTarget = targetTalent
+        )
+    }
+
+    return Pair(talentsList, constsList)
+}
+
+// --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+
 private fun mapYattaStatType(raw: String): StatType {
     return when (raw) {
         "FIGHT_PROP_CRITICAL_HURT" -> StatType.CRIT_DMG
@@ -45,6 +98,59 @@ private fun mapYattaStatType(raw: String): StatType {
         "FIGHT_PROP_WIND_ADD_HURT" -> StatType.ANEMO_DAMAGE_BONUS
         "FIGHT_PROP_ICE_ADD_HURT" -> StatType.CRYO_DAMAGE_BONUS
         "FIGHT_PROP_ROCK_ADD_HURT" -> StatType.GEO_DAMAGE_BONUS
-        else -> StatType.ATK_PERCENT // Фолбэк
+        else -> StatType.ATK_PERCENT
     }
+}
+
+private fun determineTalentTypeByIcon(iconName: String, typeId: Int): TalentType {
+    return when {
+        iconName.contains("Skill_A_") -> TalentType.NORMAL_ATTACK
+        iconName.contains("Skill_S_") && !iconName.contains("UI_Talent_") -> TalentType.ELEMENTAL_SKILL
+        iconName.contains("Skill_E_") -> TalentType.ELEMENTAL_BURST
+        typeId == 2 -> {
+            if (iconName.contains("Combine") || iconName.contains("Cook") || iconName.contains("Sprint") || iconName.contains("Map")) 
+                TalentType.PASSIVE_UTILITY 
+            else if (iconName.contains("_05")) TalentType.PASSIVE_1
+            else if (iconName.contains("_06")) TalentType.PASSIVE_2
+            else TalentType.PASSIVE_1
+        }
+        else -> TalentType.ELEMENTAL_SKILL
+    }
+}
+
+private fun parseScaling(dto: YattaTalentDto): List<TalentAttribute> {
+    val promoteMap = dto.promote ?: return emptyList()
+    val level1Data = promoteMap["1"] ?: return emptyList()
+    val labels = level1Data.description
+
+    val resultAttributes = mutableListOf<TalentAttribute>()
+
+    labels.forEachIndexed { index, rawLabel ->
+        if (rawLabel.isBlank()) return@forEachIndexed
+        val cleanLabel = rawLabel.substringBefore("|")
+        val values = mutableListOf<Float>()
+        
+        for (lvl in 1..15) {
+            val levelData = promoteMap[lvl.toString()]
+            if (levelData != null && index < levelData.params.size) {
+                // Извлекаем индекс параметра из строки вида {param1:F1P} -> индекс 0
+                val paramIndexMatch = Regex("""param(\d+)""").find(rawLabel)
+                val paramIndex = paramIndexMatch?.groupValues?.get(1)?.toIntOrNull()?.minus(1)
+
+                if (paramIndex != null && paramIndex >= 0 && paramIndex < levelData.params.size) {
+                    values.add(levelData.params[paramIndex].toFloat())
+                } else {
+                    values.add(0f)
+                }
+            }
+        }
+        if (values.isNotEmpty() && values.any { it != 0f }) {
+            resultAttributes.add(TalentAttribute(cleanLabel, values))
+        }
+    }
+    return resultAttributes
+}
+
+private fun cleanDescription(raw: String): String {
+    return raw.replace(Regex("<[^>]*>"), "").replace("\\n", "\n")
 }
