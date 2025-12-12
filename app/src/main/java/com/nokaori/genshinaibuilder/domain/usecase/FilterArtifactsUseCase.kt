@@ -1,13 +1,18 @@
 package com.nokaori.genshinaibuilder.domain.usecase
 
-import com.nokaori.genshinaibuilder.data.Artifact
-import com.nokaori.genshinaibuilder.ui.artifacts.data.ArtifactFilterState
+import com.nokaori.genshinaibuilder.domain.model.Artifact
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
+import com.nokaori.genshinaibuilder.domain.model.StatType
 
 class FilterArtifactsUseCase {
     operator fun invoke(
         artifacts: List<Artifact>,
         searchQuery: String,
-        filterState: ArtifactFilterState
+        selectedSet: ArtifactSet?,
+        levelRange: ClosedFloatingPointRange<Float>,
+        selectedSlots: Set<ArtifactSlot>,
+        selectedMainStat: StatType?
     ): List<Artifact> {
         val searchedList = if (searchQuery.isBlank()) {
             artifacts
@@ -18,31 +23,31 @@ class FilterArtifactsUseCase {
             }
         }
 
-        val setFilteredList = if(filterState.selectedArtifactSet == null){
+        val setFilteredList = if(selectedSet == null){
             searchedList
         } else {
             searchedList.filter { artifact ->
-                artifact.setName == filterState.selectedArtifactSet.name
+                artifact.setName == selectedSet.name
             }
         }
 
         val levelFilteredList = setFilteredList.filter{ artifact ->
-            artifact.level.toFloat() in filterState.selectedArtifactLevelRange
+            artifact.level.toFloat() in levelRange
         }
 
-        val slotFilteredList = if (filterState.selectedArtifactSlots.isEmpty()) {
+        val slotFilteredList = if (selectedSlots.isEmpty()) {
             levelFilteredList
         } else {
             levelFilteredList.filter { artifact ->
-                artifact.slot in filterState.selectedArtifactSlots
+                artifact.slot in selectedSlots
             }
         }
 
-        val mainStatFilteredList = if (filterState.selectedArtifactMainStat == null) {
+        val mainStatFilteredList = if (selectedMainStat == null) {
             slotFilteredList
         } else {
             slotFilteredList.filter { artifact ->
-                artifact.mainStat.type == filterState.selectedArtifactMainStat
+                artifact.mainStat.type == selectedMainStat
             }
         }
 
