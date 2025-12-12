@@ -91,14 +91,13 @@ fun AppContent() {
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
 
     val allNavItems = listOf(
+        NavigationItem.Encyclopedia,
         NavigationItem.Characters,
-        NavigationItem.EncyclopediaArtifacts,
-        NavigationItem.EncyclopediaWeapons,
-        NavigationItem.InventoryArtifacts,
-        NavigationItem.InventoryWeapons,
+        NavigationItem.Artifacts,
+        NavigationItem.Weapons,
+        NavigationItem.Builds,
         NavigationItem.Settings
     )
-
     val currentNavItem = allNavItems.find { it.route == currentRoute }
 
     GenshinAIBuilderTheme(darkTheme = isDarkTheme) {
@@ -183,39 +182,41 @@ fun AppContent() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = NavigationItem.Characters.route,
+                        // Теперь стартуем с Энциклопедии (или с Персонажей, как тебе удобнее)
+                        startDestination = NavigationItem.Encyclopedia.route, 
                         modifier = Modifier.padding(innerPadding)
                     ) {
+                        // 1. Энциклопедия (Табы)
+                        composable(NavigationItem.Encyclopedia.route) {
+                            // Тут ViewModel пока не нужна, или создадим позже EncyclopediaViewModel
+                            com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.EncyclopediaScreen()
+                        }
+
+                        // 2. Персонажи (Список)
                         composable(NavigationItem.Characters.route) {
                             CharacterScreen(characterViewModel = characterViewModel)
                         }
-                        
-                        composable(NavigationItem.EncyclopediaArtifacts.route) {
-                            // TODO: Сделать экран Энциклопедии Артефактов (только чтение базы)
-                            Surface(modifier = Modifier.fillMaxSize()) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text("Энциклопедия Артефактов (В разработке)")
-                                }
-                            }
-                        }
-                        
-                        composable(NavigationItem.EncyclopediaWeapons.route) {
-                            // TODO: Сделать экран Энциклопедии Оружия
-                            Surface(modifier = Modifier.fillMaxSize()) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text("Энциклопедия Оружия (В разработке)")
-                                }
-                            }
-                        }
-                        
-                        composable(NavigationItem.InventoryArtifacts.route) {
+
+                        // 3. Инвентарь: Артефакты
+                        composable(NavigationItem.Artifacts.route) {
                             ArtifactScreen(artifactViewModel = artifactViewModel)
                         }
 
-                        composable(NavigationItem.InventoryWeapons.route) {
+                        // 4. Инвентарь: Оружие
+                        composable(NavigationItem.Weapons.route) {
                             WeaponScreen(weaponViewModel = weaponViewModel)
                         }
-                        
+
+                        // 5. Билды
+                        composable(NavigationItem.Builds.route) {
+                            Surface(modifier = Modifier.fillMaxSize()) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text("Builds Screen (Coming Soon)")
+                                }
+                            }
+                        }
+
+                        // 6. Настройки
                         composable(NavigationItem.Settings.route) {
                             SettingsScreen(settingsViewModel = settingsViewModel)
                         }
