@@ -2,9 +2,11 @@ package com.nokaori.genshinaibuilder.data.repository
 
 import android.util.Log
 import com.nokaori.genshinaibuilder.data.local.dao.CharacterDao
+import com.nokaori.genshinaibuilder.data.local.dao.StatCurveDao
 import com.nokaori.genshinaibuilder.data.remote.api.YattaApi
 import com.nokaori.genshinaibuilder.data.remote.mapper.mapTalentsAndConstellations
 import com.nokaori.genshinaibuilder.data.remote.mapper.toEntity
+import com.nokaori.genshinaibuilder.data.remote.mapper.toEntities
 import com.nokaori.genshinaibuilder.data.remote.mapper.updateWithDetails
 import com.nokaori.genshinaibuilder.data.remote.mapper.mapPromotions
 import com.nokaori.genshinaibuilder.domain.repository.GameDataRepository
@@ -12,11 +14,21 @@ import kotlinx.coroutines.delay
 
 class GameDataRepositoryImpl(
     private val characterDao: CharacterDao,
+    private val statCurveDao: StatCurveDao,
     private val api: YattaApi
 ) : GameDataRepository {
 
     override suspend fun updateCharacters(): Result<Unit> {
         return try {
+            Log.d("GameDataRepo", "Fetching stat curves...")
+            val curveResponse = api.getAvatarCurves()
+            val curveEntities = curveResponse.toEntities()
+            
+            if (curveEntities.isNotEmpty()) {
+                statCurveDao.insertCurves(curveEntities)
+                Log.d("GameDataRepo", "Saved ${curveEntities.size} stat curves.")
+            }
+
             Log.d("GameDataRepo", "Fetching character list...")
             val listResponse = api.getAvatarList()
             val dtoList = listResponse.data.items.values
@@ -26,7 +38,8 @@ class GameDataRepositoryImpl(
             val entityMap = dtoList.zip(basicEntities).associate { (dto, entity) -> dto.id to entity }
 
             characterDao.insertCharacters(basicEntities)
-            
+            Log.d("GameDataRepo", "Saved ${basicEntities.size} basic characters.")
+
             var processedCount = 0
             
             dtoList.forEach { dto ->
@@ -35,12 +48,11 @@ class GameDataRepositoryImpl(
                 try {
                     val detailResponse = api.getAvatarDetail(safeId)
                     val detailDto = detailResponse.data
-
+                    
                     val currentEntity = entityMap[safeId]
                     
                     if (currentEntity != null) {
                         val updatedEntity = currentEntity.updateWithDetails(detailDto)
-
                         characterDao.insertCharacters(listOf(updatedEntity))
                         
                         val charId = updatedEntity.id
@@ -54,12 +66,14 @@ class GameDataRepositoryImpl(
                     }
                     
                     processedCount++
-                    if (processedCount % 10 == 0) Log.d("GameDataRepo", "Updated $processedCount...")
+                    if (processedCount % 10 == 0) {
+                        Log.d("GameDataRepo", "Updated details for $processedCount characters...")
+                    }
                     
-                    delay(50) 
+                    delay(50)
 
                 } catch (e: Exception) {
-                    Log.e("GameDataRepo", "Failed to update detail for ${dto.name}", e)
+                    Log.e("GameDataRepo", "Failed to update detail for ${dto.name} ($safeId)", e)
                 }
             }
 

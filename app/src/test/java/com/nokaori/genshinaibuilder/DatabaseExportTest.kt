@@ -72,7 +72,7 @@ class DatabaseExportTest {
 
     @Test
     fun populateAndExport() = runTest {
-        val repository = GameDataRepositoryImpl(db.characterDao(), api)
+        val repository = GameDataRepositoryImpl(db.characterDao(), db.statCurveDao(), api)
         val result = repository.updateCharacters()
         
         if (result.isSuccess) {

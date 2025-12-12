@@ -71,6 +71,6 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
 
     override val gameDataRepository: GameDataRepository by lazy {
         // Передаем и DAO, и API
-        GameDataRepositoryImpl(database.characterDao(), yattaApi) 
+        GameDataRepositoryImpl(database.characterDao(), database.statCurveDao(), yattaApi) 
     }
 }
