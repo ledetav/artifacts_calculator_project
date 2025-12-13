@@ -12,7 +12,6 @@ import com.nokaori.genshinaibuilder.data.local.entity.*
         // 1. Encyclopedia: Artifacts
         ArtifactSetEntity::class,
         ArtifactPieceEntity::class,
-        ArtifactSlotRuleEntity::class,
 
         // 2. Encyclopedia: Weapons
         WeaponEntity::class,

@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.nokaori.genshinaibuilder.data.local.entity.ArtifactPieceEntity
 import com.nokaori.genshinaibuilder.data.local.entity.ArtifactSetEntity
-import com.nokaori.genshinaibuilder.data.local.entity.ArtifactSlotRuleEntity
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import kotlinx.coroutines.flow.Flow
 
@@ -35,14 +34,4 @@ interface ArtifactDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertArtifactPieces(pieces: List<ArtifactPieceEntity>)
-
-    // --- RULES ---
-    @Query("SELECT * FROM artifact_slot_rules")
-    suspend fun getAllSlotRules(): List<ArtifactSlotRuleEntity>
-
-    @Query("SELECT * FROM artifact_slot_rules WHERE slot = :slot")
-    suspend fun getRulesForSlot(slot: ArtifactSlot): ArtifactSlotRuleEntity?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSlotRules(rules: List<ArtifactSlotRuleEntity>)
 }
