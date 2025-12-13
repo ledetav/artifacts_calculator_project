@@ -120,7 +120,7 @@ private fun mapYattaStatType(raw: String): StatType {
         "FIGHT_PROP_WIND_ADD_HURT" -> StatType.ANEMO_DAMAGE_BONUS
         "FIGHT_PROP_ICE_ADD_HURT" -> StatType.CRYO_DAMAGE_BONUS
         "FIGHT_PROP_ROCK_ADD_HURT" -> StatType.GEO_DAMAGE_BONUS
-        else -> StatType.ATK_PERCENT
+        else -> StatType.UNKNOWN
     }
 }
 

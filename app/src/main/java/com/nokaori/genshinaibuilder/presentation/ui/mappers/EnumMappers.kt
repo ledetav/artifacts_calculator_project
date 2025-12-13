@@ -56,6 +56,7 @@ fun StatType.toDisplayName(showPercentSign: Boolean = true): String {
         StatType.PHYSICAL_DAMAGE_BONUS -> R.string.stat_type_physical_damage_bonus
         StatType.PYRO_DAMAGE_BONUS -> R.string.stat_type_pyro_damage_bonus
         StatType.HEALING_BONUS -> R.string.stat_type_healing_bonus
+        else -> R.string.stat_type_unknown
     }
 
     val baseName = stringResource(stringId)

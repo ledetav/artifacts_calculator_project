@@ -40,5 +40,7 @@ enum class StatType(val isPercentage: Boolean){
     PHYSICAL_DAMAGE_BONUS(true),
 
     // Лечение
-    HEALING_BONUS(true)
+    HEALING_BONUS(true),
+
+    UNKNOWN(false)
 }

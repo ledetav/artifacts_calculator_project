@@ -3,18 +3,22 @@ package com.nokaori.genshinaibuilder.data.repository
 import android.util.Log
 import com.nokaori.genshinaibuilder.data.local.dao.CharacterDao
 import com.nokaori.genshinaibuilder.data.local.dao.StatCurveDao
+import com.nokaori.genshinaibuilder.data.local.dao.WeaponDao
 import com.nokaori.genshinaibuilder.data.remote.api.YattaApi
 import com.nokaori.genshinaibuilder.data.remote.mapper.mapTalentsAndConstellations
 import com.nokaori.genshinaibuilder.data.remote.mapper.toEntity
 import com.nokaori.genshinaibuilder.data.remote.mapper.toEntities
 import com.nokaori.genshinaibuilder.data.remote.mapper.updateWithDetails
 import com.nokaori.genshinaibuilder.data.remote.mapper.mapPromotions
+import com.nokaori.genshinaibuilder.data.remote.mapper.mapWeaponPromotions
+import com.nokaori.genshinaibuilder.data.remote.mapper.mapWeaponRefinements
 import com.nokaori.genshinaibuilder.domain.repository.GameDataRepository
 import kotlinx.coroutines.delay
 
 class GameDataRepositoryImpl(
     private val characterDao: CharacterDao,
     private val statCurveDao: StatCurveDao,
+    private val weaponDao: WeaponDao,
     private val api: YattaApi
 ) : GameDataRepository {
 
@@ -35,7 +39,7 @@ class GameDataRepositoryImpl(
 
             Log.d("GameDataRepo", "Fetching character list...")
             val listResponse = api.getAvatarList()
-            val dtoList = listResponse.data.items.values
+            val dtoList = listResponse.data.items.values.toList()
             
             val basicEntities = dtoList.map { it.toEntity() }
             
@@ -82,6 +86,49 @@ class GameDataRepositoryImpl(
             }
 
             Log.d("GameDataRepo", "Update Complete!")
+
+            Log.d("GameDataRepo", "Fetching weapon list...")
+            val weaponListResponse = api.getWeaponList()
+            val weaponDtoList = weaponListResponse.data.items.values.toList()
+                .filter { it.isWeaponSkin != true }
+
+            val basicWeaponEntities = weaponDtoList.map { it.toEntity() }
+            val weaponEntityMap = weaponDtoList.zip(basicWeaponEntities).associate { (dto, entity) -> dto.id to entity }
+
+            weaponDao.insertWeapons(basicWeaponEntities)
+            Log.d("GameDataRepo", "Saved ${basicWeaponEntities.size} basic weapons.")
+
+            var processedWeaponCount = 0
+            weaponDtoList.forEach { dto ->
+                val safeId = dto.id ?: return@forEach
+                try {
+                    val detailResponse = api.getWeaponDetail(safeId)
+                    val detailDto = detailResponse.data
+                    
+                    val currentWeaponEntity = weaponEntityMap[safeId]
+                    if (currentWeaponEntity != null) {
+                        val updatedWeaponEntity = currentWeaponEntity.updateWithDetails(detailDto)
+                        weaponDao.insertWeapons(listOf(updatedWeaponEntity))
+
+                        val weaponId = updatedWeaponEntity.id
+
+                        val refinement = mapWeaponRefinements(weaponId, detailDto)
+                        if (refinement != null) {
+                            weaponDao.insertRefinements(listOf(refinement))
+                        }
+
+                        val promotions = mapWeaponPromotions(weaponId, detailDto)
+                        weaponDao.insertPromotions(promotions)
+                    }
+                    processedWeaponCount++
+                    if (processedWeaponCount % 20 == 0) Log.d("GameDataRepo", "Updated $processedWeaponCount weapons...")
+                    delay(50)
+                } catch (e: Exception) {
+                    Log.e("GameDataRepo", "Failed to update detail for weapon ${dto.name} ($safeId)", e)
+                }
+            }
+
+            Log.d("GameDataRepo", "Weapon Update Complete!")
             Result.success(Unit)
             
         } catch (e: Exception) {
