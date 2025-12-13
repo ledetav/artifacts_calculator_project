@@ -7,6 +7,8 @@ import com.nokaori.genshinaibuilder.data.remote.dto.YattaWeaponDetailDto
 import com.nokaori.genshinaibuilder.data.remote.dto.YattaWeaponItemDto
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
+import com.nokaori.genshinaibuilder.data.remote.mapper.parseYattaStatType
+import com.nokaori.genshinaibuilder.data.remote.mapper.parseYattaWeaponType
 
 private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI"
 
@@ -21,7 +23,7 @@ fun YattaWeaponItemDto.toEntity(): WeaponEntity {
     return WeaponEntity(
         id = safeId.toIntOrNull() ?: safeId.hashCode(),
         name = safeName,
-        type = parseWeaponType(safeType),
+        type = parseYattaWeaponType(safeType),
         rarity = safeRank,
         baseAtkLvl1 = 0f,
         subStatType = parseYattaStatType(safeSpecialProp),
@@ -79,43 +81,6 @@ fun mapWeaponPromotions(weaponId: Int, dto: YattaWeaponDetailDto): List<WeaponPr
             addAtk = addProps["FIGHT_PROP_BASE_ATTACK"]?.toFloat() ?: 0f,
             addSubStat = addProps[dto.specialProp]?.toFloat() 
         )
-    }
-}
-
-private fun parseWeaponType(yattaWeapon: String): WeaponType {
-    return when (yattaWeapon) {
-        "WEAPON_SWORD_ONE_HAND" -> WeaponType.SWORD
-        "WEAPON_CLAYMORE" -> WeaponType.CLAYMORE
-        "WEAPON_POLE" -> WeaponType.POLEARM
-        "WEAPON_BOW" -> WeaponType.BOW
-        "WEAPON_CATALYST" -> WeaponType.CATALYST
-        else -> WeaponType.UNKNOWN
-    }
-}
-
-// Этот метод уже был в YattaDetailMapper.kt, но нужен и здесь.
-// Лучше вынести в отдельный файл (например, StatTypeMapper.kt).
-// Пока дублируем для компиляции.
-fun parseYattaStatType(raw: String): StatType {
-    return when (raw) {
-        "FIGHT_PROP_CRITICAL_HURT" -> StatType.CRIT_DMG
-        "FIGHT_PROP_CRITICAL" -> StatType.CRIT_RATE
-        "FIGHT_PROP_CHARGE_EFFICIENCY" -> StatType.ENERGY_RECHARGE
-        "FIGHT_PROP_ELEMENT_MASTERY" -> StatType.ELEMENTAL_MASTERY
-        "FIGHT_PROP_HP_PERCENT" -> StatType.HP_PERCENT
-        "FIGHT_PROP_ATTACK_PERCENT" -> StatType.ATK_PERCENT
-        "FIGHT_PROP_DEFENSE_PERCENT" -> StatType.DEF_PERCENT
-        "FIGHT_PROP_HEAL_ADD" -> StatType.HEALING_BONUS
-        "FIGHT_PROP_PHYSICAL_ADD_HURT" -> StatType.PHYSICAL_DAMAGE_BONUS
-        "FIGHT_PROP_FIRE_ADD_HURT" -> StatType.PYRO_DAMAGE_BONUS
-        "FIGHT_PROP_WATER_ADD_HURT" -> StatType.HYDRO_DAMAGE_BONUS
-        "FIGHT_PROP_GRASS_ADD_HURT" -> StatType.DENDRO_DAMAGE_BONUS
-        "FIGHT_PROP_ELEC_ADD_HURT" -> StatType.ELECTRO_DAMAGE_BONUS
-        "FIGHT_PROP_WIND_ADD_HURT" -> StatType.ANEMO_DAMAGE_BONUS
-        "FIGHT_PROP_ICE_ADD_HURT" -> StatType.CRYO_DAMAGE_BONUS
-        "FIGHT_PROP_ROCK_ADD_HURT" -> StatType.GEO_DAMAGE_BONUS
-        "NONE" -> StatType.UNKNOWN 
-        else -> StatType.UNKNOWN 
     }
 }
 

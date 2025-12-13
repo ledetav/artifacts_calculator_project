@@ -9,6 +9,7 @@ import com.nokaori.genshinaibuilder.data.remote.dto.YattaTalentDto
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.TalentAttribute
 import com.nokaori.genshinaibuilder.domain.model.TalentType
+import com.nokaori.genshinaibuilder.data.remote.mapper.parseYattaStatType
 
 private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI"
 
@@ -22,7 +23,7 @@ fun CharacterEntity.updateWithDetails(dto: YattaAvatarDetailDto): CharacterEntit
         baseHpLvl1 = hpProp?.initValue?.toFloat() ?: 0f,
         baseAtkLvl1 = atkProp?.initValue?.toFloat() ?: 0f,
         baseDefLvl1 = defProp?.initValue?.toFloat() ?: 0f,
-        ascensionStatType = mapYattaStatType(dto.specialProp),
+        ascensionStatType = parseYattaStatType(dto.specialProp),
         curveId = mainCurveId
     )
 }
@@ -98,30 +99,6 @@ fun mapTalentsAndConstellations(
     }
 
     return Pair(talentsList, constsList)
-}
-
-// --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
-
-private fun mapYattaStatType(raw: String): StatType {
-    return when (raw) {
-        "FIGHT_PROP_CRITICAL_HURT" -> StatType.CRIT_DMG
-        "FIGHT_PROP_CRITICAL" -> StatType.CRIT_RATE
-        "FIGHT_PROP_CHARGE_EFFICIENCY" -> StatType.ENERGY_RECHARGE
-        "FIGHT_PROP_ELEMENT_MASTERY" -> StatType.ELEMENTAL_MASTERY
-        "FIGHT_PROP_HP_PERCENT" -> StatType.HP_PERCENT
-        "FIGHT_PROP_ATTACK_PERCENT" -> StatType.ATK_PERCENT
-        "FIGHT_PROP_DEFENSE_PERCENT" -> StatType.DEF_PERCENT
-        "FIGHT_PROP_HEAL_ADD" -> StatType.HEALING_BONUS
-        "FIGHT_PROP_PHYSICAL_ADD_HURT" -> StatType.PHYSICAL_DAMAGE_BONUS
-        "FIGHT_PROP_FIRE_ADD_HURT" -> StatType.PYRO_DAMAGE_BONUS
-        "FIGHT_PROP_WATER_ADD_HURT" -> StatType.HYDRO_DAMAGE_BONUS
-        "FIGHT_PROP_GRASS_ADD_HURT" -> StatType.DENDRO_DAMAGE_BONUS
-        "FIGHT_PROP_ELEC_ADD_HURT" -> StatType.ELECTRO_DAMAGE_BONUS
-        "FIGHT_PROP_WIND_ADD_HURT" -> StatType.ANEMO_DAMAGE_BONUS
-        "FIGHT_PROP_ICE_ADD_HURT" -> StatType.CRYO_DAMAGE_BONUS
-        "FIGHT_PROP_ROCK_ADD_HURT" -> StatType.GEO_DAMAGE_BONUS
-        else -> StatType.UNKNOWN
-    }
 }
 
 private fun determineTalentTypeByIcon(iconName: String, typeId: Int): TalentType {

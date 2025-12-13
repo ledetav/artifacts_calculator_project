@@ -5,6 +5,8 @@ import com.nokaori.genshinaibuilder.data.remote.dto.YattaAvatarDto
 import com.nokaori.genshinaibuilder.domain.model.Element
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
+import com.nokaori.genshinaibuilder.data.remote.mapper.parseYattaElement
+import com.nokaori.genshinaibuilder.data.remote.mapper.parseYattaWeaponType
 import java.util.Locale
 
 private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI"
@@ -15,9 +17,9 @@ fun YattaAvatarDto.toEntity(): CharacterEntity {
     val safeWeapon = this.weaponType ?: ""
     val safeName = this.name ?: "Unknown"
     val safeId = this.id ?: "0"
-    val safeRank = this.rank ?: 1 // Если ранк не пришел, пусть будет 1 звезда
+    val safeRank = this.rank ?: 1
 
-    val elementEnum = parseElement(safeElement)
+    val elementEnum = parseYattaElement(safeElement)
     val finalId = parseId(safeId, elementEnum)
 
     // --- ЛОГИКА ИМЕНИ ---
@@ -30,17 +32,12 @@ fun YattaAvatarDto.toEntity(): CharacterEntity {
     } else {
         safeName
     }
-
-    // --- ЛОГИКА СПЛЭШ-АРТА ---
-    // У Путешественников (PlayerBoy/Girl) и Манекена нет картинки Gacha_AvatarImg.
-    // Для них мы используем ту же картинку, что и для иконки (просто портрет).
     val isTraveler = safeIcon.contains("PlayerBoy") || safeIcon.contains("PlayerGirl")
-    val isDummy = safeId == "10000117" // ID Манекена (обычно)
+    val isDummy = safeId == "10000117"
 
     val splashUrl = if (isTraveler || isDummy) {
-        "$ASSETS_URL/$safeIcon.png" // Фолбэк на иконку
+        "$ASSETS_URL/$safeIcon.png"
     } else {
-        // Стандартная логика для остальных
         val splashName = safeIcon.replace("AvatarIcon", "Gacha_AvatarImg")
         "$ASSETS_URL/$splashName.png"
     }
@@ -50,39 +47,15 @@ fun YattaAvatarDto.toEntity(): CharacterEntity {
         name = displayName,
         rarity = safeRank,
         element = elementEnum,
-        weaponType = parseWeaponType(safeWeapon),
+        weaponType = parseYattaWeaponType(safeWeapon),
         baseHpLvl1 = 0f,
         baseAtkLvl1 = 0f,
         baseDefLvl1 = 0f,
         ascensionStatType = StatType.ATK_PERCENT,
         curveId = "GROWTH_INFO_NOT_LOADED",
         iconUrl = "$ASSETS_URL/$safeIcon.png",
-        splashUrl = splashUrl // <-- Используем вычисленный URL
+        splashUrl = splashUrl
     )
-}
-
-private fun parseElement(raw: String): Element {
-    return when (raw) {
-        "Fire" -> Element.PYRO
-        "Water" -> Element.HYDRO
-        "Wind" -> Element.ANEMO
-        "Electric" -> Element.ELECTRO
-        "Grass" -> Element.DENDRO
-        "Ice" -> Element.CRYO
-        "Rock" -> Element.GEO
-        else -> Element.UNKNOWN // <-- Теперь возвращаем честный UNKNOWN
-    }
-}
-
-private fun parseWeaponType(raw: String): WeaponType {
-    return when (raw) {
-        "WEAPON_SWORD_ONE_HAND" -> WeaponType.SWORD
-        "WEAPON_CLAYMORE" -> WeaponType.CLAYMORE
-        "WEAPON_POLE" -> WeaponType.POLEARM
-        "WEAPON_BOW" -> WeaponType.BOW
-        "WEAPON_CATALYST" -> WeaponType.CATALYST
-        else -> WeaponType.UNKNOWN
-    }
 }
 
 private fun parseId(rawId: String, element: Element): Int {
