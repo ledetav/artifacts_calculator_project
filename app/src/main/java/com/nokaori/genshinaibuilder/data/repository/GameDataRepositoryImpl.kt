@@ -20,14 +20,18 @@ class GameDataRepositoryImpl(
 
     override suspend fun updateCharacters(): Result<Unit> {
         return try {
-            Log.d("GameDataRepo", "Fetching stat curves...")
-            val curveResponse = api.getAvatarCurves()
-            val curveEntities = curveResponse.toEntities()
+            Log.d("GameDataRepo", "Fetching ALL stat curves...")
             
-            if (curveEntities.isNotEmpty()) {
-                statCurveDao.insertCurves(curveEntities)
-                Log.d("GameDataRepo", "Saved ${curveEntities.size} stat curves.")
-            }
+            val avatarCurves = api.getAvatarCurves().toEntities()
+            statCurveDao.insertCurves(avatarCurves)
+            
+            val weaponCurves = api.getWeaponCurves().toEntities()
+            statCurveDao.insertCurves(weaponCurves)
+            
+            val relicCurves = api.getRelicCurves().toEntities()
+            statCurveDao.insertCurves(relicCurves)
+            
+            Log.d("GameDataRepo", "Saved total curves: ${avatarCurves.size + weaponCurves.size + relicCurves.size}")
 
             Log.d("GameDataRepo", "Fetching character list...")
             val listResponse = api.getAvatarList()
