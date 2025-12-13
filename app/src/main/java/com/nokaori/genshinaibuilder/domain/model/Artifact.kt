@@ -6,9 +6,10 @@ data class Artifact(
     val rarity: ArtifactRarity,
     val setName: String, // название сета артефактов
     val artifactName: String,
-    val level: Int, // уроень прокачки
+    val level: Int, // уровень прокачки
     val mainStat: Stat,
-    val subStats: List<Stat>
+    val subStats: List<Stat>,
+    val isLocked: Boolean = false
 )
 
 enum class ArtifactRarity(val stars: Int) {

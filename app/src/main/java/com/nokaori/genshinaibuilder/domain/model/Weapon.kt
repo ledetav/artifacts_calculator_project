@@ -21,5 +21,6 @@ data class UserWeapon(
     val weapon: Weapon, // оружие
     val level: Int, // уровень оружия
     val ascension: Int, // уровень возвышения
-    val refinement: Int // ранг пробуждения
+    val refinement: Int, // ранг пробуждения
+    val isLocked: Boolean = false
 )

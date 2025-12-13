@@ -7,5 +7,6 @@ enum class Element {
     ELECTRO,
     DENDRO,
     CRYO,
-    GEO
+    GEO,
+    UNKNOWN
 }

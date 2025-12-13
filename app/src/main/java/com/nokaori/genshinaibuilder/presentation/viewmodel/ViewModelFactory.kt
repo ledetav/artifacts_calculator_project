@@ -2,46 +2,61 @@ package com.nokaori.genshinaibuilder.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
-import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
-import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
-import com.nokaori.genshinaibuilder.domain.repository.CharacterRepository
-import com.nokaori.genshinaibuilder.domain.usecase.FilterArtifactsUseCase
-import com.nokaori.genshinaibuilder.domain.usecase.FilterWeaponsUseCase
-import com.nokaori.genshinaibuilder.domain.usecase.FilterCharactersUseCase
+import androidx.lifecycle.viewmodel.CreationExtras
+import com.nokaori.genshinaibuilder.GenshinBuilderApplication
+import com.nokaori.genshinaibuilder.domain.usecase.*
 
 class ViewModelFactory(
-    private val artifactRepository: ArtifactRepository,
-    private val weaponRepository: WeaponRepository,
-    private val themeRepository: ThemeRepository,
-    private val characterRepository: CharacterRepository
+    private val application: GenshinBuilderApplication
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        // Достаем готовый контейнер из Application
+        val container = application.container
+        
         return when {
             modelClass.isAssignableFrom(ArtifactViewModel::class.java) -> {
                 ArtifactViewModel(
-                    artifactRepository = artifactRepository,
+                    artifactRepository = container.artifactRepository,
                     filterArtifactsUseCase = FilterArtifactsUseCase()
                 ) as T
             }
             modelClass.isAssignableFrom(WeaponViewModel::class.java) -> {
                 WeaponViewModel(
-                    weaponRepository = weaponRepository,
+                    weaponRepository = container.weaponRepository,
                     filterWeaponsUseCase = FilterWeaponsUseCase()
                 ) as T
             }
-            modelClass.isAssignableFrom(ThemeViewModel::class.java) -> {
-                ThemeViewModel(themeRepository) as T
-            }
             modelClass.isAssignableFrom(CharacterViewModel::class.java) -> {
                 CharacterViewModel(
-                    characterRepository = characterRepository,
+                    characterRepository = container.characterRepository,
                     filterCharactersUseCase = FilterCharactersUseCase()
                 ) as T
             }
+            modelClass.isAssignableFrom(ThemeViewModel::class.java) -> {
+                ThemeViewModel(container.themeRepository) as T
+            }
+            modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
+                SettingsViewModel(
+                    updateGameDataUseCase = UpdateGameDataUseCase(container.gameDataRepository)
+                ) as T
+            }
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(
+                modelClass: Class<T>,
+                extras: CreationExtras
+            ): T {
+                val application = checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]) 
+                
+                return ViewModelFactory(application as GenshinBuilderApplication).create(modelClass)
+            }
         }
     }
 }
