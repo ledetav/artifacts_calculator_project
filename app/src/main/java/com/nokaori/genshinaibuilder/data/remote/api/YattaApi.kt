@@ -8,6 +8,8 @@ import com.nokaori.genshinaibuilder.data.remote.dto.YattaRelicCurveResponse
 import com.nokaori.genshinaibuilder.data.remote.dto.YattaResponse
 import com.nokaori.genshinaibuilder.data.remote.dto.YattaWeaponCurveResponse
 import com.nokaori.genshinaibuilder.data.remote.dto.YattaWeaponDetailResponse
+import com.nokaori.genshinaibuilder.data.remote.dto.YattaRelicResponse
+import com.nokaori.genshinaibuilder.data.remote.dto.YattaRelicDetailResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 
@@ -32,4 +34,10 @@ interface YattaApi {
 
     @GET("en/weapon/{id}")
     suspend fun getWeaponDetail(@Path("id") id: String): YattaWeaponDetailResponse
+
+    @GET("en/reliquary")
+    suspend fun getRelicList(): YattaRelicResponse
+
+    @GET("en/reliquary/{id}")
+    suspend fun getRelicDetail(@Path("id") id: Int): YattaRelicDetailResponse
 }

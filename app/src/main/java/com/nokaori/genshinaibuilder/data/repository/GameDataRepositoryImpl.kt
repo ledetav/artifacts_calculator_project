@@ -4,6 +4,7 @@ import android.util.Log
 import com.nokaori.genshinaibuilder.data.local.dao.CharacterDao
 import com.nokaori.genshinaibuilder.data.local.dao.StatCurveDao
 import com.nokaori.genshinaibuilder.data.local.dao.WeaponDao
+import com.nokaori.genshinaibuilder.data.local.dao.ArtifactDao
 import com.nokaori.genshinaibuilder.data.remote.api.YattaApi
 import com.nokaori.genshinaibuilder.data.remote.mapper.mapTalentsAndConstellations
 import com.nokaori.genshinaibuilder.data.remote.mapper.toEntity
@@ -12,6 +13,8 @@ import com.nokaori.genshinaibuilder.data.remote.mapper.updateWithDetails
 import com.nokaori.genshinaibuilder.data.remote.mapper.mapPromotions
 import com.nokaori.genshinaibuilder.data.remote.mapper.mapWeaponPromotions
 import com.nokaori.genshinaibuilder.data.remote.mapper.mapWeaponRefinements
+import com.nokaori.genshinaibuilder.data.remote.mapper.toSetEntity
+import com.nokaori.genshinaibuilder.data.remote.mapper.mapRelicPieces
 import com.nokaori.genshinaibuilder.domain.repository.GameDataRepository
 import kotlinx.coroutines.delay
 
@@ -19,6 +22,7 @@ class GameDataRepositoryImpl(
     private val characterDao: CharacterDao,
     private val statCurveDao: StatCurveDao,
     private val weaponDao: WeaponDao,
+    private val artifactDao: ArtifactDao,
     private val api: YattaApi
 ) : GameDataRepository {
 
@@ -50,8 +54,8 @@ class GameDataRepositoryImpl(
 
             var processedCount = 0
             
-            dtoList.forEach { dto ->
-                val safeId = dto.id ?: return@forEach
+            for (dto in dtoList) {
+                val safeId = dto.id ?: continue
                 
                 try {
                     val detailResponse = api.getAvatarDetail(safeId)
@@ -99,8 +103,8 @@ class GameDataRepositoryImpl(
             Log.d("GameDataRepo", "Saved ${basicWeaponEntities.size} basic weapons.")
 
             var processedWeaponCount = 0
-            weaponDtoList.forEach { dto ->
-                val safeId = dto.id ?: return@forEach
+            for (dto in weaponDtoList) {
+                val safeId = dto.id ?: continue
                 try {
                     val detailResponse = api.getWeaponDetail(safeId)
                     val detailDto = detailResponse.data
@@ -129,6 +133,37 @@ class GameDataRepositoryImpl(
             }
 
             Log.d("GameDataRepo", "Weapon Update Complete!")
+
+            Log.d("GameDataRepo", "Fetching artifact list...")
+            val relicListResponse = api.getRelicList()
+            val relicDtoList = relicListResponse.data.items.values.toList()
+            
+            var processedRelicCount = 0
+            
+            for (listItem in relicDtoList) {
+                try {
+                    // Качаем детали для каждого сета, чтобы получить куски (suit)
+                    val detailResponse = api.getRelicDetail(listItem.id)
+                    val detailDto = detailResponse.data
+                    
+                    // 1. Сохраняем Сет
+                    val setEntity = detailDto.toSetEntity()
+                    artifactDao.insertArtifactSets(listOf(setEntity))
+                    
+                    // 2. Сохраняем Куски
+                    val pieces = mapRelicPieces(setEntity.id, detailDto)
+                    artifactDao.insertArtifactPieces(pieces)
+                    
+                    processedRelicCount++
+                    if (processedRelicCount % 20 == 0) Log.d("GameDataRepo", "Updated $processedRelicCount relic sets...")
+                    delay(50)
+                    
+                } catch (e: Exception) {
+                     Log.e("GameDataRepo", "Failed to update relic set ${listItem.name}", e)
+                }
+            }
+            Log.d("GameDataRepo", "Artifact Update Complete!")
+
             Result.success(Unit)
             
         } catch (e: Exception) {

@@ -3,6 +3,7 @@ package com.nokaori.genshinaibuilder.data.remote.mapper
 import com.nokaori.genshinaibuilder.domain.model.Element
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 
 /**
  * Парсинг строки Yatta (API) в StatType (Domain).
@@ -81,5 +82,19 @@ fun parseYattaWeaponType(raw: String?): WeaponType {
         "Catalyst" -> WeaponType.CATALYST
         "None" -> WeaponType.UNKNOWN
         else -> WeaponType.UNKNOWN
+    }
+}
+
+/**
+ * Парсинг кусков сета.
+ */
+fun parseYattaArtifactSlot(key: String): ArtifactSlot? {
+    return when(key) {
+        "EQUIP_BRACER" -> ArtifactSlot.FLOWER_OF_LIFE   
+        "EQUIP_NECKLACE" -> ArtifactSlot.PLUME_OF_DEATH 
+        "EQUIP_SHOES" -> ArtifactSlot.SANDS_OF_EON       
+        "EQUIP_RING" -> ArtifactSlot.GOBLET_OF_EONOTHEM  
+        "EQUIP_DRESS" -> ArtifactSlot.CIRCLET_OF_LOGOS   
+        else -> null
     }
 }

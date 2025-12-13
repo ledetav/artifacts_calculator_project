@@ -75,6 +75,7 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
             database.characterDao(), 
             database.statCurveDao(), 
             database.weaponDao(), 
+            database.artifactDao(),
             yattaApi
         ) 
     }
