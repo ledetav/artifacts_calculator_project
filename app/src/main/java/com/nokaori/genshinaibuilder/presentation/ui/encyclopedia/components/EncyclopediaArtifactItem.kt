@@ -26,6 +26,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.BaseItemCard
 import com.nokaori.genshinaibuilder.presentation.util.YattaAssets
 
 @Composable
@@ -33,53 +34,11 @@ fun EncyclopediaArtifactItem(
     artifactSet: ArtifactSet,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-            .aspectRatio(1f) // Квадратная карточка
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Иконка
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(artifactSet.iconUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = artifactSet.name,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                contentScale = ContentScale.Fit
-            )
-
-            // Название внизу
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))
-                        )
-                    )
-            ) {
-                Text(
-                    text = artifactSet.name,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(4.dp)
-                )
-            }
-        }
-    }
+    BaseItemCard(
+        name = artifactSet.name,
+        iconUrl = artifactSet.iconUrl,
+        rarity = null,
+        onClick = onClick,
+        aspectRatio = 1f
+    )
 }

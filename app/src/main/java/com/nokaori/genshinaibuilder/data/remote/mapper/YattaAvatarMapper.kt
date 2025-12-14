@@ -4,9 +4,6 @@ import com.nokaori.genshinaibuilder.data.local.entity.CharacterEntity
 import com.nokaori.genshinaibuilder.data.remote.dto.YattaAvatarDto
 import com.nokaori.genshinaibuilder.domain.model.Element
 import com.nokaori.genshinaibuilder.domain.model.StatType
-import com.nokaori.genshinaibuilder.domain.model.WeaponType
-import com.nokaori.genshinaibuilder.data.remote.mapper.parseYattaElement
-import com.nokaori.genshinaibuilder.data.remote.mapper.parseYattaWeaponType
 import java.util.Locale
 
 private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI"

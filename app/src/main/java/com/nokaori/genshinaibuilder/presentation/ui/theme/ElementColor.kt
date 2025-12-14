@@ -2,6 +2,7 @@ package com.nokaori.genshinaibuilder.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import com.nokaori.genshinaibuilder.domain.model.Element
+import com.nokaori.genshinaibuilder.domain.model.Rarity
 
 fun getElementColor(element: Element): Color {
     return when (element) {

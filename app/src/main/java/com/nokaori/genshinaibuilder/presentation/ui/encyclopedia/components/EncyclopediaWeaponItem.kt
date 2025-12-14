@@ -27,51 +27,18 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.nokaori.genshinaibuilder.domain.model.Rarity
 import com.nokaori.genshinaibuilder.domain.model.Weapon
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.BaseItemCard
 
 @Composable
 fun EncyclopediaWeaponItem(
     weapon: Weapon,
     onClick: () -> Unit
 ) {
-    val bgColor = when (weapon.rarity) {
-        Rarity.FIVE_STARS -> Color(0xFFEBC45D) // Gold
-        Rarity.FOUR_STARS -> Color(0xFF9E86C6) // Purple
-        else -> Color(0xFF708CA2) // Blue
-    }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-            .aspectRatio(0.8f)
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(bgColor.copy(alpha = 0.3f))
-            )
-
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(weapon.iconUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = weapon.name,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp),
-                contentScale = ContentScale.Fit
-            )
-
-            Text(
-                text = weapon.name,
-                style = MaterialTheme.typography.labelSmall,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.align(Alignment.BottomCenter).padding(4.dp)
-            )
-        }
-    }
+    BaseItemCard(
+        name = weapon.name,
+        iconUrl = weapon.iconUrl,
+        rarity = weapon.rarity,
+        onClick = onClick,
+        aspectRatio = 1f
+    )
 }

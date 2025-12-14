@@ -14,10 +14,10 @@ import com.nokaori.genshinaibuilder.domain.model.Weapon
 @Composable
 fun EncyclopediaWeaponsTab(weapons: List<Weapon>) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 100.dp),
+        columns = GridCells.Adaptive(minSize = 85.dp),
         contentPadding = PaddingValues(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         items(weapons) { weapon ->

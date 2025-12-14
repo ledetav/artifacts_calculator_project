@@ -30,6 +30,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.nokaori.genshinaibuilder.domain.model.Character
 import com.nokaori.genshinaibuilder.domain.model.Element
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.BaseItemCard
 import com.nokaori.genshinaibuilder.presentation.ui.theme.getElementColor
 
 @Composable
@@ -37,72 +38,13 @@ fun CharacterItem(
     character: Character,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-            .aspectRatio(0.7f)
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Фон цвета стихии
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(getElementColor(character.element).copy(alpha = 0.3f))
-            )
-
-            // Изображение персонажа (Coil 3)
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(character.iconUrl)
-                    .crossfade(true) // Включение анимации появления
-                    .build(),
-                contentDescription = character.name,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-
-            // Градиент
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.8f)
-                            )
-                        )
-                    )
-            )
-
-            // Текст
-            Text(
-                text = "${character.name}\n${"⭐".repeat(character.rarity)}",
-                color = Color.White,
-                style = MaterialTheme.typography.titleMedium,
-                lineHeight = MaterialTheme.typography.labelSmall.lineHeight * 1.2,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(4.dp)
-            )
-
-            // Оверлей "Не в наличии"
-            if (!character.isOwned) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.6f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White)
-                }
-            }
-        }
-    }
+    BaseItemCard(
+        name = character.name,
+        iconUrl = character.iconUrl,
+        rarity = character.rarity,
+        onClick = onClick,
+        backgroundColor = getElementColor(character.element).copy(alpha = 0.5f), 
+        isGrayscale = !character.isOwned,
+        modifier = Modifier.aspectRatio(0.7f)
+    )
 }

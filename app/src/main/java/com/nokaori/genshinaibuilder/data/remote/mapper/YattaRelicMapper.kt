@@ -3,7 +3,6 @@ package com.nokaori.genshinaibuilder.data.remote.mapper
 import com.nokaori.genshinaibuilder.data.local.entity.ArtifactPieceEntity
 import com.nokaori.genshinaibuilder.data.local.entity.ArtifactSetEntity
 import com.nokaori.genshinaibuilder.data.remote.dto.YattaRelicDetailDto
-import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 
 private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI/reliquary"
 
