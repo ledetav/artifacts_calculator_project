@@ -3,6 +3,7 @@ package com.nokaori.genshinaibuilder.presentation.ui.common.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -114,15 +115,29 @@ fun BaseItemCard(
 
 @Composable
 fun DefaultBottomText(name: String, rarity: Rarity) {
-    Text(
-        text = "${name}\n${"⭐".repeat(rarity.stars)}",
-        color = Color.White,
-        style = MaterialTheme.typography.labelSmall,
-        fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.Center,
-        maxLines = 2,
-        overflow = TextOverflow.Ellipsis
-    )
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = name,
+            color = Color.White,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            text = "⭐".repeat(rarity.stars),
+            color = Color(0xFFFFD700),
+            style = MaterialTheme.typography.labelSmall,
+            lineHeight = MaterialTheme.typography.labelSmall.fontSize, 
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 @Composable
