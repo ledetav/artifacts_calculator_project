@@ -6,6 +6,6 @@ class UpdateGameDataUseCase(
     private val repository: GameDataRepository
 ) {
     suspend operator fun invoke(): Result<Unit> {
-        return repository.updateCharacters()
+        return repository.updateGameData()
     }
 }
