@@ -16,7 +16,10 @@ fun UserArtifactComplete.toDomain(): Artifact {
         rarity = when (this.userArtifact.rarity) {
             5 -> ArtifactRarity.FIVE_STARS
             4 -> ArtifactRarity.FOUR_STARS
-            else -> ArtifactRarity.THREE_STARS
+            3 -> ArtifactRarity.THREE_STARS
+            2 -> ArtifactRarity.TWO_STARS
+            1 -> ArtifactRarity.ONE_STAR
+            else -> ArtifactRarity.UNKNOWN
         },
         setName = this.setEntity.name,
 
@@ -42,6 +45,7 @@ fun UserArtifactComplete.toDomain(): Artifact {
 // Маппер для списка сетов (для фильтров)
 fun ArtifactSetEntity.toDomain(): ArtifactSet {
     return ArtifactSet(
-        name = this.name
+        name = this.name,
+        iconUrl = this.iconUrl
     )
 }

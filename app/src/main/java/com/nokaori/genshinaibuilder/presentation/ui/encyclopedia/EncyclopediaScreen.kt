@@ -9,16 +9,22 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.components.EncyclopediaArtifactsTab
 import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.components.EncyclopediaWeaponsTab
+import com.nokaori.genshinaibuilder.presentation.viewmodel.EncyclopediaViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun EncyclopediaScreen() {
+fun EncyclopediaScreen(encyclopediaViewModel: EncyclopediaViewModel) {
+    val artifactSets by encyclopediaViewModel.artifactSets.collectAsStateWithLifecycle()
+    val weapons by encyclopediaViewModel.weapons.collectAsStateWithLifecycle()
+
     val tabs = listOf(
         R.string.nav_artifact_sets,
         R.string.nav_weapons
@@ -49,8 +55,8 @@ fun EncyclopediaScreen() {
             modifier = Modifier.fillMaxSize()
         ) { page ->
             when (page) {
-                0 -> EncyclopediaArtifactsTab()
-                1 -> EncyclopediaWeaponsTab()
+                0 -> EncyclopediaArtifactsTab(sets = artifactSets)
+                1 -> EncyclopediaWeaponsTab(weapons = weapons)
             }
         }
     }

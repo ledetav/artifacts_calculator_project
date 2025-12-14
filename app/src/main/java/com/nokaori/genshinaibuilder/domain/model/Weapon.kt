@@ -1,9 +1,12 @@
 package com.nokaori.genshinaibuilder.domain.model
 
 enum class Rarity(val stars: Int) {
+    ONE_STAR(1),
+    TWO_STARS(2),
     THREE_STARS(3),
     FOUR_STARS(4),
-    FIVE_STARS(5)
+    FIVE_STARS(5),
+    UNKNOWN(0)
 }
 
 data class Weapon(
@@ -13,7 +16,8 @@ data class Weapon(
     val rarity: Rarity, // редкость оружия
     val baseAttackLvl1: Int, // базовая атака на уровне 1
     val scalingCurveId: String, // id кривой атаки
-    val mainStat: Stat? // подстат 
+    val mainStat: Stat?, // подстат
+    val iconUrl: String 
 )
 
 data class UserWeapon(

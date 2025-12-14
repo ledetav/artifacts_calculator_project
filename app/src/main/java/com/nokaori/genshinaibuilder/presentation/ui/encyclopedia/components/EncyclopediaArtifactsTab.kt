@@ -1,16 +1,30 @@
 package com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.components
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 
 @Composable
-fun EncyclopediaArtifactsTab() {
-    // ЗАГЛУШКА: Сюда потом подключим список сетов из базы
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Список сетов артефактов")
+fun EncyclopediaArtifactsTab(sets: List<ArtifactSet>) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 100.dp),
+        contentPadding = PaddingValues(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(sets) { set ->
+            EncyclopediaArtifactItem(
+                artifactSet = set,
+                onClick = { /* TODO: Open Details */ }
+            )
+        }
     }
 }

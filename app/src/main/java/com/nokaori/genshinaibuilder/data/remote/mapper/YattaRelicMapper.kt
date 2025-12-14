@@ -5,7 +5,7 @@ import com.nokaori.genshinaibuilder.data.local.entity.ArtifactSetEntity
 import com.nokaori.genshinaibuilder.data.remote.dto.YattaRelicDetailDto
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 
-private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI"
+private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI/reliquary"
 
 fun YattaRelicDetailDto.toSetEntity(): ArtifactSetEntity {
     val bonuses = this.bonusMap?.entries?.sortedBy { it.key }?.map { it.value } ?: emptyList()

@@ -17,7 +17,10 @@ fun WeaponEntity.toDomain(): Weapon {
         rarity = when(this.rarity) {
             5 -> Rarity.FIVE_STARS
             4 -> Rarity.FOUR_STARS
-            else -> Rarity.THREE_STARS
+            3 -> Rarity.THREE_STARS
+            2 -> Rarity.TWO_STARS
+            1 -> Rarity.ONE_STAR
+            else -> Rarity.UNKNOWN
         },
         baseAttackLvl1 = this.baseAtkLvl1.toInt(),
         scalingCurveId = this.atkCurveId,
@@ -30,7 +33,8 @@ fun WeaponEntity.toDomain(): Weapon {
                 else
                     StatValue.IntValue(this.subStatBaseValue.toInt())
             )
-        } else null
+        } else null,
+        iconUrl = this.iconUrl
     )
 }
 

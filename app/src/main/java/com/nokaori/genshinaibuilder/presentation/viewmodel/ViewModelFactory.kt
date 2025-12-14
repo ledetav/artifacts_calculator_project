@@ -12,7 +12,6 @@ class ViewModelFactory(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        // Достаем готовый контейнер из Application
         val container = application.container
         
         return when {
@@ -40,6 +39,12 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
                 SettingsViewModel(
                     updateGameDataUseCase = UpdateGameDataUseCase(container.gameDataRepository)
+                ) as T
+            }
+            modelClass.isAssignableFrom(EncyclopediaViewModel::class.java) -> {
+                EncyclopediaViewModel(
+                    artifactRepository = container.artifactRepository,
+                    weaponRepository = container.weaponRepository
                 ) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
