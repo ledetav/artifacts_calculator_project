@@ -20,10 +20,14 @@ fun EncyclopediaWeaponsTab(weapons: List<Weapon>) {
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(weapons) { weapon ->
+        items(
+            items = weapons,
+            key = { it.id },
+            contentType = { "weapon" }
+        ) { weapon ->
             EncyclopediaWeaponItem(
                 weapon = weapon,
-                onClick = { /* TODO: Open Details */ }
+                onClick = { /* TODO */ }
             )
         }
     }

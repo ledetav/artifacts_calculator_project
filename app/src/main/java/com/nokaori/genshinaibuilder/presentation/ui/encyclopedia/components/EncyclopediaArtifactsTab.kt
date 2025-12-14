@@ -20,10 +20,14 @@ fun EncyclopediaArtifactsTab(sets: List<ArtifactSet>) {
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(sets) { set ->
+        items(
+            items = sets,
+            key = { it.name },
+            contentType = { "artifact_set" }
+        ) { set ->
             EncyclopediaArtifactItem(
                 artifactSet = set,
-                onClick = { /* TODO: Open Details */ }
+                onClick = { /* TODO */ }
             )
         }
     }
