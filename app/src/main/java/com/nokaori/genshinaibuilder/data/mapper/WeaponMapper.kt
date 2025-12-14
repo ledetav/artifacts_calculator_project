@@ -14,14 +14,7 @@ fun WeaponEntity.toDomain(): Weapon {
         id = this.id,
         name = this.name,
         type = this.type,
-        rarity = when(this.rarity) {
-            5 -> Rarity.FIVE_STARS
-            4 -> Rarity.FOUR_STARS
-            3 -> Rarity.THREE_STARS
-            2 -> Rarity.TWO_STARS
-            1 -> Rarity.ONE_STAR
-            else -> Rarity.UNKNOWN
-        },
+        rarity = Rarity.fromInt(this.rarity),
         baseAttackLvl1 = this.baseAtkLvl1.toInt(),
         scalingCurveId = this.atkCurveId,
         // Собираем стат (если он есть, у 1-2* может не быть)
