@@ -9,12 +9,16 @@ import com.nokaori.genshinaibuilder.data.local.entity.WeaponPromotionEntity
 import com.nokaori.genshinaibuilder.data.local.entity.WeaponRefinementEntity
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
 import kotlinx.coroutines.flow.Flow
+import androidx.paging.PagingSource
 
 @Dao
 interface WeaponDao {
     // --- ENCYCLOPEDIA ---
     @Query("SELECT * FROM weapons_data ORDER BY rarity DESC, name ASC")
     fun getAllWeapons(): Flow<List<WeaponEntity>>
+
+    @Query("SELECT * FROM weapons_data ORDER BY rarity DESC, name ASC")
+    fun getAllWeaponsPaging(): PagingSource<Int, WeaponEntity>
 
     @Query("SELECT * FROM weapons_data WHERE name LIKE '%' || :query || '%' ORDER BY rarity DESC")
     fun searchWeapons(query: String): Flow<List<WeaponEntity>>

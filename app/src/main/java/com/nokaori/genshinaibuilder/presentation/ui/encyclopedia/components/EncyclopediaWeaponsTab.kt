@@ -10,9 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.domain.model.Weapon
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 
 @Composable
-fun EncyclopediaWeaponsTab(weapons: List<Weapon>) {
+fun EncyclopediaWeaponsTab(weapons: LazyPagingItems<Weapon>) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 85.dp),
         contentPadding = PaddingValues(8.dp),
@@ -21,14 +25,20 @@ fun EncyclopediaWeaponsTab(weapons: List<Weapon>) {
         modifier = Modifier.fillMaxSize()
     ) {
         items(
-            items = weapons,
-            key = { it.id },
-            contentType = { "weapon" }
-        ) { weapon ->
-            EncyclopediaWeaponItem(
-                weapon = weapon,
-                onClick = { /* TODO */ }
-            )
+            count = weapons.itemCount,
+            key = weapons.itemKey { it.id },
+            contentType = weapons.itemContentType { "weapon" }
+        ) { index ->
+            val weapon = weapons[index]
+            
+            if (weapon != null) {
+                EncyclopediaWeaponItem(
+                    weapon = weapon,
+                    onClick = { /* TODO */ }
+                )
+            } else {
+                // Если элемент еще грузится (placeholder), можно показать серый квадрат (TODO)
+            }
         }
     }
 }

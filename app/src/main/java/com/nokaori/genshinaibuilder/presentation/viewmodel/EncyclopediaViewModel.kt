@@ -9,6 +9,8 @@ import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 
 class EncyclopediaViewModel(
     artifactRepository: ArtifactRepository,
@@ -28,4 +30,7 @@ class EncyclopediaViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+    
+    val weaponsPaged: Flow<PagingData<Weapon>> = weaponRepository.getAllWeaponsPaged()
+        .cachedIn(viewModelScope)
 }

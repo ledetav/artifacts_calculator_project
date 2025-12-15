@@ -19,11 +19,14 @@ import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.components.Ency
 import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.components.EncyclopediaWeaponsTab
 import com.nokaori.genshinaibuilder.presentation.viewmodel.EncyclopediaViewModel
 import kotlinx.coroutines.launch
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 
 @Composable
 fun EncyclopediaScreen(encyclopediaViewModel: EncyclopediaViewModel) {
     val artifactSets by encyclopediaViewModel.artifactSets.collectAsStateWithLifecycle()
-    val weapons by encyclopediaViewModel.weapons.collectAsStateWithLifecycle()
+    val weaponsPaged = viewModel.weaponsPaged.collectAsLazyPagingItems()
 
     val tabs = listOf(
         R.string.nav_artifact_sets,
@@ -56,7 +59,7 @@ fun EncyclopediaScreen(encyclopediaViewModel: EncyclopediaViewModel) {
         ) { page ->
             when (page) {
                 0 -> EncyclopediaArtifactsTab(sets = artifactSets)
-                1 -> EncyclopediaWeaponsTab(weapons = weapons)
+                1 -> EncyclopediaWeaponsTab(weaponsPaged)
             }
         }
     }

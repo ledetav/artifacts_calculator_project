@@ -9,6 +9,10 @@ import com.nokaori.genshinaibuilder.domain.model.Weapon
 import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 
 class WeaponRepositoryImpl(
     private val weaponDao: WeaponDao,
@@ -18,6 +22,18 @@ class WeaponRepositoryImpl(
     override fun getAllWeapons(): Flow<List<Weapon>> {
         return weaponDao.getAllWeapons().map { list ->
             list.map { it.toDomain() }
+        }
+    }
+
+    override fun getAllWeaponsPaged(): Flow<PagingData<Weapon>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                enablePlaceholders = true
+            ),
+            pagingSourceFactory = { weaponDao.getAllWeaponsPaging() }
+        ).flow.map { pagingData ->
+            pagingData.map { entity -> entity.toDomain() }
         }
     }
 
