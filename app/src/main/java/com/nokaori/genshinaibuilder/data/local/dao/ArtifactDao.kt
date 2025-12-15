@@ -8,12 +8,16 @@ import com.nokaori.genshinaibuilder.data.local.entity.ArtifactPieceEntity
 import com.nokaori.genshinaibuilder.data.local.entity.ArtifactSetEntity
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import kotlinx.coroutines.flow.Flow
+import androidx.paging.PagingSource
 
 @Dao
 interface ArtifactDao {
     // --- SETS ---
     @Query("SELECT * FROM artifact_sets_data ORDER BY name ASC")
     fun getAllArtifactSets(): Flow<List<ArtifactSetEntity>>
+
+    @Query("SELECT * FROM artifact_sets_data ORDER BY name ASC")
+    fun getAllArtifactSetsPaging(): PagingSource<Int, ArtifactSetEntity>
 
     @Query("SELECT * FROM artifact_sets_data WHERE name LIKE '%' || :query || '%' ORDER BY name ASC")
     fun searchArtifactSets(query: String): Flow<List<ArtifactSetEntity>>

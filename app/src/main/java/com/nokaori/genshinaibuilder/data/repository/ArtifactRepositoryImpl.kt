@@ -1,5 +1,9 @@
 package com.nokaori.genshinaibuilder.data.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import com.nokaori.genshinaibuilder.data.local.dao.ArtifactDao
 import com.nokaori.genshinaibuilder.data.local.dao.UserDao
 import com.nokaori.genshinaibuilder.data.local.entity.UserArtifactEntity
@@ -18,6 +22,18 @@ class ArtifactRepositoryImpl(
     override fun getArtifacts(): Flow<List<Artifact>> {
         return userDao.getUserArtifactsComplete().map { list ->
             list.map { it.toDomain() }
+        }
+    }
+
+    override fun getAvailableArtifactSetsPaged(): Flow<PagingData<ArtifactSet>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                enablePlaceholders = true
+            ),
+            pagingSourceFactory = { artifactDao.getAllArtifactSetsPaging() }
+        ).flow.map { pagingData ->
+            pagingData.map { it.toDomain() }
         }
     }
 

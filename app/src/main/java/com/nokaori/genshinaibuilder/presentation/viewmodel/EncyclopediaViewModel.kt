@@ -18,19 +18,8 @@ class EncyclopediaViewModel(
     weaponRepository: WeaponRepository
 ) : ViewModel() {
 
-    val artifactSets: StateFlow<List<ArtifactSet>> = artifactRepository.getAvailableArtifactSets()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
-
-    val weapons: StateFlow<List<Weapon>> = weaponRepository.getAllWeapons()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    val artifactSetsPaged: Flow<PagingData<ArtifactSet>> = artifactRepository.getAvailableArtifactSetsPaged()
+        .cachedIn(viewModelScope)
     
     val weaponsPaged: Flow<PagingData<Weapon>> = weaponRepository.getAllWeaponsPaged()
         .cachedIn(viewModelScope)

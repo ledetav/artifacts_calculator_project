@@ -5,14 +5,16 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 
 @Composable
-fun EncyclopediaArtifactsTab(sets: List<ArtifactSet>) {
+fun EncyclopediaArtifactsTab(sets: LazyPagingItems<ArtifactSet>) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 85.dp),
         contentPadding = PaddingValues(8.dp),
@@ -21,14 +23,18 @@ fun EncyclopediaArtifactsTab(sets: List<ArtifactSet>) {
         modifier = Modifier.fillMaxSize()
     ) {
         items(
-            items = sets,
-            key = { it.name },
-            contentType = { "artifact_set" }
-        ) { set ->
-            EncyclopediaArtifactItem(
-                artifactSet = set,
-                onClick = { /* TODO */ }
-            )
+            count = sets.itemCount,
+            key = sets.itemKey { it.name },
+            contentType = sets.itemContentType { "artifact_set" }
+        ) { index ->
+            val set = sets[index]
+            
+            if (set != null) {
+                EncyclopediaArtifactItem(
+                    artifactSet = set,
+                    onClick = { /* TODO */ }
+                )
+            }
         }
     }
 }

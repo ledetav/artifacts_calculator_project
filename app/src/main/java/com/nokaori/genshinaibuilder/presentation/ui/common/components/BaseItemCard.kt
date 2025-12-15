@@ -64,16 +64,10 @@ fun BaseItemCard(
         colors = CardDefaults.cardColors(containerColor = finalBgColor)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(finalBgColor)
-            )
-
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(iconUrl)
-                    .crossfade(true)
+                    .crossfade(false)
                     .build(),
                 contentDescription = name,
                 contentScale = ContentScale.Crop,
