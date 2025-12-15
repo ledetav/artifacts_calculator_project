@@ -26,7 +26,7 @@ import androidx.paging.compose.itemKey
 @Composable
 fun EncyclopediaScreen(encyclopediaViewModel: EncyclopediaViewModel) {
     val artifactSets by encyclopediaViewModel.artifactSets.collectAsStateWithLifecycle()
-    val weaponsPaged = viewModel.weaponsPaged.collectAsLazyPagingItems()
+    val weaponsPaged = encyclopediaViewModel.weaponsPaged.collectAsLazyPagingItems()
 
     val tabs = listOf(
         R.string.nav_artifact_sets,
