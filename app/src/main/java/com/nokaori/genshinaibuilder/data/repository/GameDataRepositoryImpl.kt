@@ -7,9 +7,10 @@ import com.nokaori.genshinaibuilder.data.remote.mapper.*
 import com.nokaori.genshinaibuilder.domain.model.SyncStatus
 import com.nokaori.genshinaibuilder.domain.repository.GameDataRepository
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import java.util.Collections
 
 class GameDataRepositoryImpl(
     private val characterDao: CharacterDao,
@@ -18,189 +19,227 @@ class GameDataRepositoryImpl(
     private val artifactDao: ArtifactDao,
     private val api: YattaApi
 ) : GameDataRepository {
+    private sealed interface UpdateEvent {
+        data class Log(val message: String) : UpdateEvent
+        data class Error(val message: String, val throwable: Throwable? = null) : UpdateEvent
+        // Можно добавить Progress(val current: Int, val total: Int), если захотим точный бар
+    }
 
     override fun updateGameData(): Flow<SyncStatus> = flow {
-        val logs = Collections.synchronizedList(mutableListOf<String>())
-        
-        fun addLog(msg: String) {
-            logs.add(msg)
-            Log.d("Sync", msg)
+        val eventChannel = Channel<UpdateEvent>(Channel.UNLIMITED)
+        val logsList = mutableListOf<String>()
+
+        coroutineScope {
+            val collectorJob = launch {
+                var lastEmitTime = 0L
+                
+                for (event in eventChannel) {
+                    when (event) {
+                        is UpdateEvent.Log -> {
+                            logsList.add(event.message)
+                            Log.d("Sync", event.message) 
+                        }
+                        is UpdateEvent.Error -> {
+                            val msg = "❌ ${event.message}"
+                            logsList.add(msg)
+                            Log.e("Sync", msg, event.throwable)
+                        }
+                    }
+
+                    val now = System.currentTimeMillis()
+                    if (now - lastEmitTime > 50) {
+                        emit(SyncStatus.InProgress(
+                            message = logsList.lastOrNull() ?: "Загрузка...",
+                            progress = 0.5f,
+                            logs = logsList.toList()
+                        ))
+                        lastEmitTime = now
+                    }
+                }
+            }
+
+            try {
+                val startTime = System.currentTimeMillis()
+                
+                eventChannel.send(UpdateEvent.Log("🚀 Начинаем обновление базы данных..."))
+
+                updateStatCurves(eventChannel)
+
+                val charsDeferred = async { updateCharacters(eventChannel) }
+                val weaponsDeferred = async { updateWeapons(eventChannel) }
+                val artifactsDeferred = async { updateArtifacts(eventChannel) }
+
+                val newChars = charsDeferred.await()
+                val newWeapons = weaponsDeferred.await()
+                val newArts = artifactsDeferred.await()
+
+                val totalNew = newChars + newWeapons + newArts
+                val duration = (System.currentTimeMillis() - startTime) / 1000f
+                
+                val finalMsg = "✅ Успешно! Заняло: ${duration}с. Новых объектов: $totalNew"
+                logsList.add(finalMsg)
+                
+                emit(SyncStatus.Success(finalMsg, logsList.toList()))
+
+            } catch (e: Exception) {
+                val errorMsg = e.localizedMessage ?: "Unknown Error"
+                logsList.add("🔥 КРИТИЧЕСКИЙ СБОЙ: $errorMsg")
+                emit(SyncStatus.Error(errorMsg))
+            } finally {
+                eventChannel.close()
+                collectorJob.join()
+            }
         }
+    }
 
-        emit(SyncStatus.InProgress("Подготовка...", 0f, logs.toList()))
-
+    private suspend fun updateStatCurves(channel: SendChannel<UpdateEvent>) {
+        channel.send(UpdateEvent.Log("📥 [Кривые] Скачивание..."))
         try {
-            val startTime = System.currentTimeMillis()
-            var newItemsTotal = 0
-
-            addLog("📥 Загрузка математических кривых...")
             val curves = api.getAvatarCurves().toEntities() +
                          api.getWeaponCurves().toEntities() +
                          api.getRelicCurves().toEntities()
             statCurveDao.insertCurves(curves)
-            addLog("✅ Кривые обновлены: ${curves.size} шт.")
-            emit(SyncStatus.InProgress("Кривые готовы", 0.1f, logs.toList()))
+            channel.send(UpdateEvent.Log("✨ [Кривые] Сохранено ${curves.size} шт."))
+        } catch (e: Exception) {
+            channel.send(UpdateEvent.Error("Ошибка кривых", e))
+            throw e // Кривые критичны, прерываем всё, если упали
+        }
+    }
 
-            // --- 2. ПЕРСОНАЖИ ---
-            addLog("📥 Загрузка списка персонажей...")
-            val charListResponse = api.getAvatarList()
-            val charDtos = charListResponse.data.items.values
-            
-            val existingCharIds = characterDao.getAllCharacterIds().toSet()
-            val incomingCharIds = charDtos.mapNotNull { it.id?.let { id -> parseIdForCheck(id) } }.toSet()
-            val newCharIds = incomingCharIds - existingCharIds
-            
-            addLog("📊 Персонажей: ${charDtos.size}. Новых: ${newCharIds.size}")
+    private suspend fun updateCharacters(channel: SendChannel<UpdateEvent>): Int {
+        channel.send(UpdateEvent.Log("👤 [Персонажи] Получение списка..."))
+        
+        val listResponse = api.getAvatarList()
+        val dtoList = listResponse.data.items.values
+        val basicEntities = dtoList.map { it.toEntity() }
+        val entityMap = basicEntities.associateBy { it.id }
 
-            val basicChars = charDtos.map { it.toEntity() }
-            val charEntityMap = charDtos.associateBy({ it.id }, { basicChars[charDtos.indexOf(it)] })
-            characterDao.insertCharacters(basicChars)
+        val existingIds = characterDao.getAllCharacterIds().toSet()
+        val newCount = basicEntities.count { it.id !in existingIds }
 
-            val charChunks = charDtos.chunked(5) 
-            val totalChunks = charChunks.size
+        characterDao.insertCharacters(basicEntities)
 
-            charChunks.forEachIndexed { index, batch ->
-                val deferreds = batch.map { dto ->
-                    coroutineScope {
-                        async {
-                            val safeId = dto.id ?: return@async null
-                            try {
-                                val details = api.getAvatarDetail(safeId).data
-                                val entity = charEntityMap[safeId] ?: return@async null
-                                
-                                val updated = entity.updateWithDetails(details)
+        val chunks = dtoList.chunked(5) 
+        var processed = 0
+
+        chunks.forEach { batch ->
+            coroutineScope {
+                batch.map { dto ->
+                    async {
+                        val safeId = dto.id ?: return@async
+                        try {
+                            val details = api.getAvatarDetail(safeId).data
+                            val entityId = dto.toEntity().id
+                            val currentEntity = entityMap[entityId]
+                            
+                            if (currentEntity != null) {
+                                val updated = currentEntity.updateWithDetails(details)
                                 val (talents, consts) = mapTalentsAndConstellations(updated.id, details)
                                 val promos = mapPromotions(updated.id, details)
 
-                                Triple(updated, Pair(talents, consts), promos)
-                            } catch (e: Exception) {
-                                addLog("⚠️ Ошибка: ${dto.name} - ${e.message}")
-                                null
+                                characterDao.insertCharacters(listOf(updated))
+                                characterDao.insertTalents(talents)
+                                characterDao.insertConstellations(consts)
+                                characterDao.insertPromotions(promos)
+                                
+                                // channel.send(UpdateEvent.Log("   -> Обновлен: ${updated.name}")) // Слишком много спама, если включить
                             }
+                        } catch (e: Exception) {
+                            channel.send(UpdateEvent.Error("Персонаж ${dto.name}", e))
                         }
                     }
-                }
-                val results = deferreds.awaitAll().filterNotNull()
-
-                results.forEach { (char, tc, promo) ->
-                    characterDao.insertCharacters(listOf(char))
-                    characterDao.insertTalents(tc.first)
-                    characterDao.insertConstellations(tc.second)
-                    characterDao.insertPromotions(promo)
-                }
-
-                val progress = 0.1f + (0.4f * (index + 1) / totalChunks)
-                emit(SyncStatus.InProgress("Персонажи: ${index * 5 + results.size}/${charDtos.size}", progress, logs.toList()))
-                
-                delay(100) 
+                }.awaitAll()
             }
-            newItemsTotal += newCharIds.size
-            addLog("✅ Персонажи обновлены")
+            processed += batch.size
+            if (processed % 10 == 0) channel.send(UpdateEvent.Log("👤 [Персонажи] Обработано $processed/${dtoList.size}..."))
+            delay(50)
+        }
+        
+        channel.send(UpdateEvent.Log("✅ [Персонажи] Готово. Новых: $newCount"))
+        return newCount
+    }
 
+    private suspend fun updateWeapons(channel: SendChannel<UpdateEvent>): Int {
+        channel.send(UpdateEvent.Log("⚔️ [Оружие] Получение списка..."))
+        val listResponse = api.getWeaponList()
+        val dtoList = listResponse.data.items.values.filter { it.isWeaponSkin != true }
+        
+        val basicEntities = dtoList.map { it.toEntity() }
+        val entityMap = basicEntities.associateBy { it.id }
+        
+        val existingIds = weaponDao.getAllWeaponIds().toSet()
+        val newCount = basicEntities.count { it.id !in existingIds }
 
-            // --- 3. ОРУЖИЕ ---
-            addLog("📥 Загрузка списка оружия...")
-            val weaponListResp = api.getWeaponList()
-            val weaponDtos = weaponListResp.data.items.values.filter { it.isWeaponSkin != true }
-            
-            val existingWeaponIds = weaponDao.getAllWeaponIds().toSet()
-            val newWeaponCount = weaponDtos.count { (it.id?.toIntOrNull() ?: 0) !in existingWeaponIds }
-            
-            addLog("📊 Оружия: ${weaponDtos.size}. Новых: $newWeaponCount")
-            
-            val basicWeapons = weaponDtos.map { it.toEntity() }
-            val weaponMap = weaponDtos.associateBy({ it.id }, { basicWeapons[weaponDtos.indexOf(it)] })
-            weaponDao.insertWeapons(basicWeapons)
+        weaponDao.insertWeapons(basicEntities)
 
-            val weaponChunks = weaponDtos.chunked(10)
-            val totalWeaponChunks = weaponChunks.size
+        val chunks = dtoList.chunked(10)
+        var processed = 0
 
-            weaponChunks.forEachIndexed { index, batch ->
-                val deferreds = batch.map { dto ->
-                    coroutineScope {
-                        async {
-                            val id = dto.id ?: return@async null
-                            try {
-                                val details = api.getWeaponDetail(id).data
-                                val entity = weaponMap[id] ?: return@async null
-                                
-                                val updated = entity.updateWithDetails(details)
+        chunks.forEach { batch ->
+            coroutineScope {
+                batch.map { dto ->
+                    async {
+                        val safeId = dto.id ?: return@async
+                        try {
+                            val details = api.getWeaponDetail(safeId).data
+                            val entityId = dto.toEntity().id
+                            val currentEntity = entityMap[entityId]
+                            
+                            if (currentEntity != null) {
+                                val updated = currentEntity.updateWithDetails(details)
                                 val refine = mapWeaponRefinements(updated.id, details)
-                                val promo = mapWeaponPromotions(updated.id, details)
-                                
-                                Triple(updated, refine, promo)
-                            } catch (e: Exception) {
-                                addLog("⚠️ Ошибка оружия: ${dto.name}")
-                                null
+                                val promos = mapWeaponPromotions(updated.id, details)
+
+                                weaponDao.insertWeapons(listOf(updated))
+                                refine?.let { weaponDao.insertRefinements(listOf(it)) }
+                                weaponDao.insertPromotions(promos)
                             }
+                        } catch (e: Exception) {
+                            channel.send(UpdateEvent.Error("Оружие ${dto.name}", e))
                         }
                     }
-                }
-                
-                val results = deferreds.awaitAll().filterNotNull()
-                
-                results.forEach { (w, r, p) ->
-                    weaponDao.insertWeapons(listOf(w))
-                    r?.let { weaponDao.insertRefinements(listOf(it)) }
-                    weaponDao.insertPromotions(p)
-                }
-
-                val progress = 0.5f + (0.3f * (index + 1) / totalWeaponChunks)
-                emit(SyncStatus.InProgress("Оружие: ${index * 10 + results.size}/${weaponDtos.size}", progress, logs.toList()))
-                delay(50)
+                }.awaitAll()
             }
-            newItemsTotal += newWeaponCount
-            addLog("✅ Оружие обновлено")
+            processed += batch.size
+            if (processed % 20 == 0) channel.send(UpdateEvent.Log("⚔️ [Оружие] Обработано $processed/${dtoList.size}..."))
+            delay(50)
+        }
+        channel.send(UpdateEvent.Log("✅ [Оружие] Готово. Новых: $newCount"))
+        return newCount
+    }
 
+    private suspend fun updateArtifacts(channel: SendChannel<UpdateEvent>): Int {
+        channel.send(UpdateEvent.Log("🏺 [Артефакты] Получение списка..."))
+        val dtoList = api.getRelicList().data.items.values
+        
+        val existingIds = artifactDao.getAllArtifactSetIds().toSet()
+        val newCount = dtoList.count { it.id !in existingIds }
 
-            // --- 4. АРТЕФАКТЫ ---
-            addLog("📥 Загрузка артефактов...")
-            val relicList = api.getRelicList().data.items.values
-            
-            val existingSets = artifactDao.getAllArtifactSetIds().toSet()
-            val newRelics = relicList.count { it.id !in existingSets }
-            addLog("📊 Сетов: ${relicList.size}. Новых: $newRelics")
-
-            val relicResults = relicList.map { dto ->
-                coroutineScope {
+        val chunks = dtoList.chunked(5)
+        var processed = 0
+        
+        chunks.forEach { batch ->
+            coroutineScope {
+                batch.map { dto ->
                     async {
                         try {
                             val details = api.getRelicDetail(dto.id).data
                             val set = details.toSetEntity()
                             val pieces = mapRelicPieces(set.id, details)
-                            Pair(set, pieces)
+                            
+                            artifactDao.insertArtifactSets(listOf(set))
+                            artifactDao.insertArtifactPieces(pieces)
                         } catch (e: Exception) {
-                            addLog("⚠️ Ошибка сета: ${dto.name}")
-                            null
+                            channel.send(UpdateEvent.Error("Сет ${dto.name}", e))
                         }
                     }
-                }
-            }.awaitAll().filterNotNull()
-
-            relicResults.forEach { (set, pieces) ->
-                artifactDao.insertArtifactSets(listOf(set))
-                artifactDao.insertArtifactPieces(pieces)
+                }.awaitAll()
             }
-            newItemsTotal += newRelics
-            addLog("✅ Артефакты обновлены")
-
-            // --- ФИНАЛ ---
-            val duration = (System.currentTimeMillis() - startTime) / 1000
-            val finalMsg = "Успешно! Заняло: ${duration} сек. Новых предметов: $newItemsTotal"
-            addLog(finalMsg)
-            
-            emit(SyncStatus.Success(finalMsg, logs.toList()))
-
-        } catch (e: Exception) {
-            addLog("❌ КРИТИЧЕСКАЯ ОШИБКА: ${e.message}")
-            emit(SyncStatus.Error(e.localizedMessage ?: "Unknown Error"))
+            processed += batch.size
+            delay(50)
         }
-    }
-
-    private fun parseIdForCheck(rawId: String): Int {
-         val simple = rawId.toIntOrNull()
-         if (simple != null) return simple
-         val base = rawId.split("-")[0].toIntOrNull() ?: 0
-         return base * 100
+        
+        channel.send(UpdateEvent.Log("✅ [Артефакты] Готово. Новых: $newCount"))
+        return newCount
     }
 }
