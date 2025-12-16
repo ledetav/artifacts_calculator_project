@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.nokaori.genshinaibuilder.GenshinBuilderApplication
 import com.nokaori.genshinaibuilder.domain.usecase.*
+import coil3.SingletonImageLoader
 
 class ViewModelFactory(
     private val application: GenshinBuilderApplication
@@ -38,7 +39,15 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
                 SettingsViewModel(
-                    updateGameDataUseCase = UpdateGameDataUseCase(container.gameDataRepository)
+                    updateGameDataUseCase = UpdateGameDataUseCase(container.gameDataRepository),
+
+                    characterRepository = container.characterRepository,
+                    weaponRepository = container.weaponRepository,
+                    artifactRepository = container.artifactRepository,
+
+                    imageLoader = SingletonImageLoader.get(application),
+
+                    appContext = application.applicationContext
                 ) as T
             }
             modelClass.isAssignableFrom(EncyclopediaViewModel::class.java) -> {

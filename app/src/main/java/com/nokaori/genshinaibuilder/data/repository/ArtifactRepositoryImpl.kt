@@ -37,6 +37,10 @@ class ArtifactRepositoryImpl(
         }
     }
 
+    override suspend fun getAllArtifactUrls(): List<String> {
+        return artifactDao.getAllArtifactUrls()
+    }
+
     override fun getAvailableArtifactSets(): Flow<List<ArtifactSet>> {
         return artifactDao.getAllArtifactSets().map { list ->
             list.map { it.toDomain() }

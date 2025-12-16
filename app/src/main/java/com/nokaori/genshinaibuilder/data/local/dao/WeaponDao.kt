@@ -20,6 +20,9 @@ interface WeaponDao {
     @Query("SELECT * FROM weapons_data ORDER BY rarity DESC, name ASC")
     fun getAllWeaponsPaging(): PagingSource<Int, WeaponEntity>
 
+    @Query("SELECT icon_url FROM weapons_data")
+    suspend fun getAllWeaponUrls(): List<String>
+
     @Query("SELECT * FROM weapons_data WHERE name LIKE '%' || :query || '%' ORDER BY rarity DESC")
     fun searchWeapons(query: String): Flow<List<WeaponEntity>>
 

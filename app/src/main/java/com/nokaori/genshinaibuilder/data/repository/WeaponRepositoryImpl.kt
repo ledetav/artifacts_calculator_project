@@ -37,6 +37,10 @@ class WeaponRepositoryImpl(
         }
     }
 
+    override suspend fun getAllWeaponUrls(): List<String> {
+        return weaponDao.getAllWeaponUrls()
+    }
+
     override fun getUserWeapons(): Flow<List<UserWeapon>> {
         return userDao.getUserWeaponsComplete().map { list ->
             list.map { it.toDomain() }

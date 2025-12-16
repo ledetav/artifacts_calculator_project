@@ -52,7 +52,25 @@ fun SettingsScreen(
                 Text("Загрузка данных с Yatta...", color = MaterialTheme.colorScheme.primary)
             }
             is SettingsViewModel.UpdateState.Success -> {
-                Text("✅ База успешно обновлена!", color = Color(0xFF4CAF50)) // Зеленый
+                Text("✅ База данных обновлена!", color = Color(0xFF4CAF50))
+            }
+            is SettingsViewModel.UpdateState.CachingImages -> {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("✅ База обновлена!", color = Color(0xFF4CAF50))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Кэширование ${state.count} изображений...",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = "(Это происходит в фоне, можно выходить)",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.LightGray
+                    )
+                }
             }
             is SettingsViewModel.UpdateState.Error -> {
                 // ВЫВОДИМ ОШИБКУ

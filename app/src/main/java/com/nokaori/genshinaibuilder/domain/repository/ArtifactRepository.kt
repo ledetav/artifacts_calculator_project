@@ -10,4 +10,5 @@ interface ArtifactRepository {
     fun getAvailableArtifactSetsPaged(): Flow<PagingData<ArtifactSet>>
     fun getAvailableArtifactSets(): Flow<List<ArtifactSet>>
     suspend fun addArtifact(artifact: Artifact)
+    suspend fun getAllArtifactUrls(): List<String>
 }

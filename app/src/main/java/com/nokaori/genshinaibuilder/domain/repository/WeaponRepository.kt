@@ -10,4 +10,5 @@ interface WeaponRepository {
     fun getAllWeaponsPaged(): Flow<PagingData<Weapon>>
     fun getUserWeapons(): Flow<List<UserWeapon>>
     suspend fun addUserWeapon(userWeapon: UserWeapon)
+    suspend fun getAllWeaponUrls(): List<String>
 }

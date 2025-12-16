@@ -21,6 +21,10 @@ class CharacterRepositoryImpl(
         }
     }
 
+    override suspend fun getAllCharacterUrls(): List<String> {
+        return characterDao.getAllCharacterUrls()
+    }
+
     override suspend fun getCharacterById(id: Int): Character? {
         val entity = characterDao.getCharacterById(id) ?: return null
         val isOwned = userDao.isCharacterOwned(id)

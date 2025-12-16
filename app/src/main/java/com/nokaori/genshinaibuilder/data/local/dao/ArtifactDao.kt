@@ -19,6 +19,9 @@ interface ArtifactDao {
     @Query("SELECT * FROM artifact_sets_data ORDER BY name ASC")
     fun getAllArtifactSetsPaging(): PagingSource<Int, ArtifactSetEntity>
 
+    @Query("SELECT icon_url FROM artifact_sets_data UNION SELECT icon_url FROM artifact_pieces_data")
+    suspend fun getAllArtifactUrls(): List<String>
+
     @Query("SELECT * FROM artifact_sets_data WHERE name LIKE '%' || :query || '%' ORDER BY name ASC")
     fun searchArtifactSets(query: String): Flow<List<ArtifactSetEntity>>
 
