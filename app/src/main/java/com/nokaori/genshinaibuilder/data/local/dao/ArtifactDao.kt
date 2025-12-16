@@ -28,6 +28,9 @@ interface ArtifactDao {
     @Query("SELECT * FROM artifact_sets_data WHERE id = :setId")
     suspend fun getArtifactSetById(setId: Int): ArtifactSetEntity?
 
+    @Query("SELECT id FROM artifact_sets_data")
+    suspend fun getAllArtifactSetIds(): List<Int>
+
     // Критически важно для добавления артефакта вручную (поиск ID по имени)
     @Query("SELECT * FROM artifact_sets_data WHERE name = :name LIMIT 1")
     suspend fun getSetByName(name: String): ArtifactSetEntity?

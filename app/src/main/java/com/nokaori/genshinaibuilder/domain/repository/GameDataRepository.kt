@@ -1,5 +1,8 @@
 package com.nokaori.genshinaibuilder.domain.repository
 
+import com.nokaori.genshinaibuilder.domain.model.SyncStatus
+import kotlinx.coroutines.flow.Flow
+
 interface GameDataRepository {
-    suspend fun updateGameData(): Result<Unit>
+    fun updateGameData(): Flow<SyncStatus>
 }

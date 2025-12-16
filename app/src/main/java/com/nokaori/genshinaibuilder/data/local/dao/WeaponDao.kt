@@ -32,6 +32,9 @@ interface WeaponDao {
     @Query("SELECT * FROM weapons_data WHERE id = :weaponId")
     suspend fun getWeaponById(weaponId: Int): WeaponEntity?
 
+    @Query("SELECT id FROM weapons_data")
+    suspend fun getAllWeaponIds(): List<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWeapons(weapons: List<WeaponEntity>)
 

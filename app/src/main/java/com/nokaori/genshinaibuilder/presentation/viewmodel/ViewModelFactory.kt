@@ -39,15 +39,7 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
                 SettingsViewModel(
-                    updateGameDataUseCase = UpdateGameDataUseCase(container.gameDataRepository),
-
-                    characterRepository = container.characterRepository,
-                    weaponRepository = container.weaponRepository,
-                    artifactRepository = container.artifactRepository,
-
-                    imageLoader = SingletonImageLoader.get(application),
-
-                    appContext = application.applicationContext
+                    gameDataRepository = container.gameDataRepository
                 ) as T
             }
             modelClass.isAssignableFrom(EncyclopediaViewModel::class.java) -> {
