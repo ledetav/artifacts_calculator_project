@@ -30,6 +30,7 @@ fun WeaponType.toDisplayName(): String {
         WeaponType.POLEARM -> stringResource(R.string.weapon_type_polearm)
         WeaponType.BOW -> stringResource(R.string.weapon_type_bow)
         WeaponType.CATALYST -> stringResource(R.string.weapon_type_catalyst)
+        else -> stringResource(R.string.weapon_type_unknown)
     }
 }
 
@@ -55,6 +56,7 @@ fun StatType.toDisplayName(showPercentSign: Boolean = true): String {
         StatType.PHYSICAL_DAMAGE_BONUS -> R.string.stat_type_physical_damage_bonus
         StatType.PYRO_DAMAGE_BONUS -> R.string.stat_type_pyro_damage_bonus
         StatType.HEALING_BONUS -> R.string.stat_type_healing_bonus
+        else -> R.string.stat_type_unknown
     }
 
     val baseName = stringResource(stringId)

@@ -14,11 +14,7 @@ fun WeaponEntity.toDomain(): Weapon {
         id = this.id,
         name = this.name,
         type = this.type,
-        rarity = when(this.rarity) {
-            5 -> Rarity.FIVE_STARS
-            4 -> Rarity.FOUR_STARS
-            else -> Rarity.THREE_STARS
-        },
+        rarity = Rarity.fromInt(this.rarity),
         baseAttackLvl1 = this.baseAtkLvl1.toInt(),
         scalingCurveId = this.atkCurveId,
         // Собираем стат (если он есть, у 1-2* может не быть)
@@ -30,7 +26,8 @@ fun WeaponEntity.toDomain(): Weapon {
                 else
                     StatValue.IntValue(this.subStatBaseValue.toInt())
             )
-        } else null
+        } else null,
+        iconUrl = this.iconUrl
     )
 }
 

@@ -6,9 +6,9 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.nokaori.genshinaibuilder.data.local.entity.ArtifactPieceEntity
 import com.nokaori.genshinaibuilder.data.local.entity.ArtifactSetEntity
-import com.nokaori.genshinaibuilder.data.local.entity.ArtifactSlotRuleEntity
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import kotlinx.coroutines.flow.Flow
+import androidx.paging.PagingSource
 
 @Dao
 interface ArtifactDao {
@@ -16,11 +16,20 @@ interface ArtifactDao {
     @Query("SELECT * FROM artifact_sets_data ORDER BY name ASC")
     fun getAllArtifactSets(): Flow<List<ArtifactSetEntity>>
 
+    @Query("SELECT * FROM artifact_sets_data ORDER BY name ASC")
+    fun getAllArtifactSetsPaging(): PagingSource<Int, ArtifactSetEntity>
+
+    @Query("SELECT icon_url FROM artifact_sets_data UNION SELECT icon_url FROM artifact_pieces_data")
+    suspend fun getAllArtifactUrls(): List<String>
+
     @Query("SELECT * FROM artifact_sets_data WHERE name LIKE '%' || :query || '%' ORDER BY name ASC")
     fun searchArtifactSets(query: String): Flow<List<ArtifactSetEntity>>
 
     @Query("SELECT * FROM artifact_sets_data WHERE id = :setId")
     suspend fun getArtifactSetById(setId: Int): ArtifactSetEntity?
+
+    @Query("SELECT id FROM artifact_sets_data")
+    suspend fun getAllArtifactSetIds(): List<Int>
 
     // Критически важно для добавления артефакта вручную (поиск ID по имени)
     @Query("SELECT * FROM artifact_sets_data WHERE name = :name LIMIT 1")
@@ -35,14 +44,4 @@ interface ArtifactDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertArtifactPieces(pieces: List<ArtifactPieceEntity>)
-
-    // --- RULES ---
-    @Query("SELECT * FROM artifact_slot_rules")
-    suspend fun getAllSlotRules(): List<ArtifactSlotRuleEntity>
-
-    @Query("SELECT * FROM artifact_slot_rules WHERE slot = :slot")
-    suspend fun getRulesForSlot(slot: ArtifactSlot): ArtifactSlotRuleEntity?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSlotRules(rules: List<ArtifactSlotRuleEntity>)
 }

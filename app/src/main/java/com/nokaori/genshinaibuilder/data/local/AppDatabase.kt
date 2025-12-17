@@ -12,7 +12,6 @@ import com.nokaori.genshinaibuilder.data.local.entity.*
         // 1. Encyclopedia: Artifacts
         ArtifactSetEntity::class,
         ArtifactPieceEntity::class,
-        ArtifactSlotRuleEntity::class,
 
         // 2. Encyclopedia: Weapons
         WeaponEntity::class,
@@ -37,7 +36,7 @@ import com.nokaori.genshinaibuilder.data.local.entity.*
         CharacterBuildEntity::class,
         TeamBuildEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

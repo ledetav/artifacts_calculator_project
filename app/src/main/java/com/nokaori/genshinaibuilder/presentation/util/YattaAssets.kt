@@ -17,6 +17,7 @@ object YattaAssets {
             Element.DENDRO -> "Grass"
             Element.CRYO -> "Ice"
             Element.GEO -> "Rock"
+            else -> "Unknown"
         }
         // UI_MessageIcon_Fire.png
         return "$BASE_URL/other/UI_MessageIcon_$internalName.png"
@@ -30,6 +31,7 @@ object YattaAssets {
             WeaponType.POLEARM -> "Pole"
             WeaponType.BOW -> "Bow"
             WeaponType.CATALYST -> "Catalyst"
+            else -> "Unknown"
         }
         // UI_GachaTypeIcon_Sword.png
         return "$BASE_URL/UI_GachaTypeIcon_$internalName.png"

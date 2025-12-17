@@ -1,4 +1,4 @@
-package com.nokaori.genshinaibuilder.presentation.ui.characters.components
+package com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,31 +20,25 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-// ИМПОРТЫ COIL 3:
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.Icon
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.nokaori.genshinaibuilder.domain.model.Character
-import com.nokaori.genshinaibuilder.domain.model.Element
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.BaseItemCard
-import com.nokaori.genshinaibuilder.presentation.ui.theme.getElementColor
+import com.nokaori.genshinaibuilder.presentation.util.YattaAssets
 
 @Composable
-fun CharacterItem(
-    character: Character,
+fun EncyclopediaArtifactItem(
+    artifactSet: ArtifactSet,
     onClick: () -> Unit
 ) {
     BaseItemCard(
-        name = character.name,
-        iconUrl = character.iconUrl,
-        rarity = character.rarity,
+        name = artifactSet.name,
+        iconUrl = artifactSet.iconUrl,
+        rarity = null,
         onClick = onClick,
-        backgroundColor = getElementColor(character.element).copy(alpha = 0.5f), 
-        isGrayscale = !character.isOwned,
-        modifier = Modifier.aspectRatio(0.7f)
+        aspectRatio = 1f
     )
 }

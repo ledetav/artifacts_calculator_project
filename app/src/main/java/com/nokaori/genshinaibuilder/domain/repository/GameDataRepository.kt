@@ -1,6 +1,8 @@
 package com.nokaori.genshinaibuilder.domain.repository
 
+import com.nokaori.genshinaibuilder.domain.model.SyncStatus
+import kotlinx.coroutines.flow.Flow
+
 interface GameDataRepository {
-    // Возвращаем Result, чтобы ViewModel знала, успешно прошло или нет
-    suspend fun updateCharacters(): Result<Unit>
+    fun updateGameData(): Flow<SyncStatus>
 }

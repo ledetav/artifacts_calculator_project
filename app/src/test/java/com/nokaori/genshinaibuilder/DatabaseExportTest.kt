@@ -4,34 +4,49 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.nokaori.genshinaibuilder.data.local.AppDatabase
-import com.nokaori.genshinaibuilder.data.local.entity.ArtifactSetEntity
+import com.nokaori.genshinaibuilder.data.remote.api.YattaApi
+import com.nokaori.genshinaibuilder.data.repository.GameDataRepositoryImpl
 import kotlinx.coroutines.test.runTest
+import okhttp3.OkHttpClient
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
-// Используем Robolectric (JUnit 4)
 @RunWith(RobolectricTestRunner::class)
-// Убираем генерацию манифеста, если она мешает, но обычно для Room нужен Context
-@Config(manifest = Config.NONE) // Можно явно указать SDK
+@Config(manifest = Config.NONE)
 class DatabaseExportTest {
 
     private lateinit var db: AppDatabase
+    private lateinit var api: YattaApi
     private val dbName = "genshin_debug.db"
 
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         
-        // allowMainThreadQueries нужен, так как Robolectric иногда блокирует потоки иначе
         db = Room.databaseBuilder(context, AppDatabase::class.java, dbName)
             .allowMainThreadQueries()
             .build()
+
+        val client = OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+
+        api = Retrofit.Builder()
+            .baseUrl("https://gi.yatta.moe/api/v2/")
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(YattaApi::class.java)
     }
 
     @After
@@ -41,8 +56,6 @@ class DatabaseExportTest {
         
         val context = ApplicationProvider.getApplicationContext<Context>()
         val dbFile = context.getDatabasePath(dbName)
-        
-        // Сохраняем прямо в корень проекта, чтобы легко найти
         val projectDir = System.getProperty("user.dir")
         val destFile = File(projectDir, dbName)
 
@@ -59,19 +72,13 @@ class DatabaseExportTest {
 
     @Test
     fun populateAndExport() = runTest {
-        val dao = db.artifactDao()
-
-        val set = ArtifactSetEntity(
-            id = 15001,
-            name = "Gladiator's Finale",
-            rarities = listOf(4, 5),
-            bonus2pc = "+18% ATK",
-            bonus4pc = "Normal Attack DMG +35%",
-            iconUrl = "url_flower"
-        )
+        val repository = GameDataRepositoryImpl(db.characterDao(), db.statCurveDao(), db.weaponDao(), db.artifactDao(), api)
+        val result = repository.updateGameData()
         
-        dao.insertArtifactSets(listOf(set))
-
-        println("Data inserted into DB.")
+        if (result.isSuccess) {
+            println("✅ Characters populated from API")
+        } else {
+            println("❌ Failed: ${result.exceptionOrNull()?.message}")
+        }
     }
 }

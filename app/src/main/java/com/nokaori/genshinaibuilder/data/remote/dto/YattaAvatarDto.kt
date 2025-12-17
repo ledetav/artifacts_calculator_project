@@ -18,8 +18,6 @@ data class YattaAvatarDto(
         @SerializedName("id") val id: String?,
         @SerializedName("name") val name: String?,
         @SerializedName("rank") val rank: Int?,
-
-        // ВОТ ЗДЕСЬ БЫЛА ОШИБКА:
         @SerializedName("element") val element: String?,
         @SerializedName("weaponType") val weaponType: String?,
         @SerializedName("icon") val iconName: String?,

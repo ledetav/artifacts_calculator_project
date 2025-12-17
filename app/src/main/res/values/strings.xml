@@ -48,6 +48,7 @@
     <string name="stat_type_physical_damage_bonus">Бонус физ. урона</string>
     <string name="stat_type_pyro_damage_bonus">Бонус Пиро урона</string>
     <string name="stat_type_healing_bonus">Бонус лечения</string>
+    <string name="stat_type_unknown">Неизвестно</string>
     <string name="artifact_set_and_level">%1$s (+%2$d)</string>
     <string name="weapon_search_placeholder">Поиск по оружию</string>
     <string name="weapon_level">Уровень: %1$d/90</string>
@@ -57,6 +58,7 @@
     <string name="weapon_type_polearm">Древковое</string>
     <string name="weapon_type_bow">Стрелковое</string>
     <string name="weapon_type_catalyst">Катализатор</string>
+    <string name="weapon_type_unknown">Неизвестно</string>
     <string name="filter_weapon_type">Тип оружия</string>
     <string name="filter_weapon_main_stat">Дополнительный стат</string>
     <string name="filter_weapon_main_stat_choose">Выбрать дополнительный стат</string>

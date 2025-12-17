@@ -50,6 +50,8 @@ import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
 import com.nokaori.genshinaibuilder.presentation.ui.settings.SettingsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.theme.GenshinAIBuilderTheme
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.WeaponScreen
+import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.EncyclopediaScreen
+import com.nokaori.genshinaibuilder.presentation.viewmodel.EncyclopediaViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.CharacterViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
@@ -76,13 +78,8 @@ fun AppContent() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // --- INJECTION: Получаем ViewModel'и через Фабрику ---
-    // Factory сама достанет зависимости из Application класса
-    
     val themeViewModel: ThemeViewModel = viewModel(factory = ViewModelFactory.Factory)
-    
-    // Эти VM можно создавать здесь или внутри composable блоков навигации.
-    // Создадим здесь, чтобы передать в Screens.
+    val encyclopediaViewModel: EncyclopediaViewModel = viewModel(factory = ViewModelFactory.Factory)
     val artifactViewModel: ArtifactViewModel = viewModel(factory = ViewModelFactory.Factory)
     val weaponViewModel: WeaponViewModel = viewModel(factory = ViewModelFactory.Factory)
     val characterViewModel: CharacterViewModel = viewModel(factory = ViewModelFactory.Factory)
@@ -182,14 +179,12 @@ fun AppContent() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        // Теперь стартуем с Энциклопедии (или с Персонажей, как тебе удобнее)
                         startDestination = NavigationItem.Encyclopedia.route, 
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         // 1. Энциклопедия (Табы)
                         composable(NavigationItem.Encyclopedia.route) {
-                            // Тут ViewModel пока не нужна, или создадим позже EncyclopediaViewModel
-                            com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.EncyclopediaScreen()
+                            EncyclopediaScreen(encyclopediaViewModel = encyclopediaViewModel)
                         }
 
                         // 2. Персонажи (Список)

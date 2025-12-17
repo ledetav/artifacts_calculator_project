@@ -2,6 +2,7 @@ package com.nokaori.genshinaibuilder.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import com.nokaori.genshinaibuilder.domain.model.Element
+import com.nokaori.genshinaibuilder.domain.model.Rarity
 
 fun getElementColor(element: Element): Color {
     return when (element) {
@@ -12,5 +13,21 @@ fun getElementColor(element: Element): Color {
         Element.DENDRO -> Color(0xFF32CD32) // Lime Green
         Element.CRYO -> Color(0xFFA0E6FF) // Light Blue
         Element.GEO -> Color(0xFFDAA520) // Goldenrod
+        Element.UNKNOWN -> Color.Gray
     }
+}
+
+fun getRarityColor(rarity: Rarity): Color {
+    return when (rarity) {
+        Rarity.FIVE_STARS -> Color(0xFFCF8D38)
+        Rarity.FOUR_STARS -> Color(0xFF8F68A7)
+        Rarity.THREE_STARS -> Color(0xFF538C9E)
+        Rarity.TWO_STARS -> Color(0xFF568C66)
+        Rarity.ONE_STAR -> Color(0xFF6D737F)
+        Rarity.UNKNOWN -> Color.DarkGray
+    }
+}
+
+fun getRarityBackgroundColor(rarity: Rarity): Color {
+    return getRarityColor(rarity).copy(alpha = 0.5f)
 }
