@@ -35,8 +35,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -49,22 +49,21 @@ import com.nokaori.genshinaibuilder.presentation.ui.characters.CharacterScreen
 import com.nokaori.genshinaibuilder.presentation.ui.characters.details.CharacterDetailsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MainTopAppBar
+import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.EncyclopediaScreen
 import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
 import com.nokaori.genshinaibuilder.presentation.ui.settings.SettingsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.theme.GenshinAIBuilderTheme
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.WeaponScreen
-import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.EncyclopediaScreen
-import com.nokaori.genshinaibuilder.presentation.viewmodel.EncyclopediaViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.CharacterViewModel
+import com.nokaori.genshinaibuilder.presentation.viewmodel.EncyclopediaViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
-import kotlinx.coroutines.launch
-import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
+@AndroidEntryPoint // ВАЖНО: Точка входа для Hilt
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +82,7 @@ fun AppContent() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    // Hilt автоматически создает ViewModels
     val themeViewModel: ThemeViewModel = hiltViewModel()
     val encyclopediaViewModel: EncyclopediaViewModel = hiltViewModel()
     val artifactViewModel: ArtifactViewModel = hiltViewModel()
@@ -92,6 +92,7 @@ fun AppContent() {
 
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
 
+    // Список экранов для меню
     val allNavItems = listOf(
         NavigationItem.Encyclopedia,
         NavigationItem.Characters,
@@ -100,6 +101,14 @@ fun AppContent() {
         NavigationItem.Builds,
         NavigationItem.Settings
     )
+
+    // Список маршрутов, где нужна ГЛАВНАЯ верхняя панель (с бургером)
+    val topLevelRoutes = allNavItems.map { it.route }
+    
+    // Проверяем, находимся ли мы на главном экране (или, например, на экране деталей)
+    val isTopLevelDestination = currentRoute in topLevelRoutes
+
+    // Определяем заголовок текущего пункта меню
     val currentNavItem = allNavItems.find { it.route == currentRoute }
 
     GenshinAIBuilderTheme(darkTheme = isDarkTheme) {
@@ -107,6 +116,7 @@ fun AppContent() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
+            // Настройка системных баров (Status Bar)
             val view = LocalView.current
             if (!view.isInEditMode) {
                 SideEffect {
@@ -120,6 +130,7 @@ fun AppContent() {
                 drawerState = drawerState,
                 drawerContent = {
                     ModalDrawerSheet {
+                        // Заголовок шторки
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -145,6 +156,7 @@ fun AppContent() {
 
                         HorizontalDivider()
 
+                        // Пункты меню
                         AppDrawer(
                             currentItemRoute = currentRoute,
                             onItemClick = { item ->
@@ -162,37 +174,34 @@ fun AppContent() {
                 }
             ) {
                 Scaffold(
+                    // ВАЖНО: Показываем главный TopBar только на корневых экранах.
+                    // На экране деталей персонажа Scaffold будет свой.
                     topBar = {
-                        MainTopAppBar(
-                            title = stringResource(id = currentNavItem?.titleResId ?: R.string.app_name),
-                            onNavigationIconClick = {
-                                scope.launch { drawerState.open() }
-                            },
-                            actions = {
-                                // Кнопки "+" временно скрыты, пока нет экранов ввода
-                                // (чтобы не вызывать краш при пустой базе)
-                                /*
-                                if (currentRoute == NavigationItem.Artifacts.route) {
-                                    IconButton(onClick = { /* TODO: Open Add Artifact Screen */ }) {
-                                        Icon(Icons.Default.Add, contentDescription = null)
-                                    }
+                        if (isTopLevelDestination) {
+                            MainTopAppBar(
+                                title = stringResource(id = currentNavItem?.titleResId ?: R.string.app_name),
+                                onNavigationIconClick = {
+                                    scope.launch { drawerState.open() }
+                                },
+                                actions = {
+                                    // Здесь можно вернуть кнопки действий для главных экранов, если нужно
                                 }
-                                */
-                            }
-                        )
+                            )
+                        }
                     }
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = NavigationItem.Encyclopedia.route, 
+                        startDestination = NavigationItem.Encyclopedia.route,
+                        // Если TopBar скрыт (на деталях), innerPadding.top будет 0.
+                        // Если показан - будет отступ. Это то, что нам нужно.
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        // 1. Энциклопедия (Табы)
+                        // 1. Энциклопедия
                         composable(NavigationItem.Encyclopedia.route) {
                             EncyclopediaScreen(encyclopediaViewModel = encyclopediaViewModel)
                         }
 
-                        // 2. Персонажи (Список)
                         composable(NavigationItem.Characters.route) {
                             CharacterScreen(
                                 characterViewModel = characterViewModel,
@@ -200,23 +209,14 @@ fun AppContent() {
                             )
                         }
 
-                        composable("character/{characterId}", 
-                            arguments = listOf(navArgument("characterId") { type = NavType.IntType })
-                        ) {
-                            CharacterDetailsScreen(onBackClick = { navController.popBackStack() })
-                        }
-
-                        // 3. Инвентарь: Артефакты
                         composable(NavigationItem.Artifacts.route) {
                             ArtifactScreen(artifactViewModel = artifactViewModel)
                         }
 
-                        // 4. Инвентарь: Оружие
                         composable(NavigationItem.Weapons.route) {
                             WeaponScreen(weaponViewModel = weaponViewModel)
                         }
 
-                        // 5. Билды
                         composable(NavigationItem.Builds.route) {
                             Surface(modifier = Modifier.fillMaxSize()) {
                                 Box(contentAlignment = Alignment.Center) {
@@ -228,6 +228,19 @@ fun AppContent() {
                         // 6. Настройки
                         composable(NavigationItem.Settings.route) {
                             SettingsScreen(settingsViewModel = settingsViewModel)
+                        }
+
+                        // 7. ДЕТАЛИ ПЕРСОНАЖА (Новый экран)
+                        composable(
+                            route = "character/{characterId}",
+                            arguments = listOf(
+                                navArgument("characterId") { type = NavType.IntType }
+                            )
+                        ) {
+                            // Здесь свой Scaffold, поэтому padding от родителя не мешает
+                            CharacterDetailsScreen(
+                                onBackClick = { navController.popBackStack() }
+                            )
                         }
                     }
                 }
