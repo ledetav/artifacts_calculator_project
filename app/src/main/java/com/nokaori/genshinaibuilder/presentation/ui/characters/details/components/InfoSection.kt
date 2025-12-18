@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -11,6 +12,9 @@ import com.nokaori.genshinaibuilder.domain.model.Character
 import com.nokaori.genshinaibuilder.domain.model.UserCharacter
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.BaseItemCard
 import com.nokaori.genshinaibuilder.presentation.ui.theme.getElementColor
+import com.nokaori.genshinaibuilder.presentation.ui.theme.getRarityColor
+import androidx.compose.ui.res.stringResource
+import com.nokaori.genshinaibuilder.R
 
 @Composable
 fun CharacterInfoSection(
@@ -20,52 +24,57 @@ fun CharacterInfoSection(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(16.dp, 8.dp, 16.dp, 8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             BaseItemCard(
                 name = "",
                 iconUrl = character.iconUrl,
                 rarity = character.rarity,
                 onClick = {},
                 aspectRatio = 1f,
-                backgroundColor = getElementColor(character.element).copy(alpha = 0.5f)
+                backgroundColor = getElementColor(character.element).copy(alpha = 0.5f),
+                bottomContent = {}
             )
+
             Spacer(modifier = Modifier.height(8.dp))
+
             Text(
                 text = character.name,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
+
             Text(
                 text = "⭐".repeat(character.rarity.stars),
                 style = MaterialTheme.typography.bodyMedium,
-                color = com.nokaori.genshinaibuilder.presentation.ui.theme.getRarityColor(character.rarity)
+                color = getRarityColor(character.rarity)
             )
         }
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // Правая часть: Статы
         Column(modifier = Modifier.weight(1.5f)) {
             Text(
-                text = "Характеристики",
+                text = stringResource(R.string.char_section_attributes),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // Если есть userCharacter, берем его статы (пока заглушка, т.к. нужно считать статы)
-            // Если нет, берем базовые 1 уровня
             val level = userCharacter?.level ?: 1
-            val hp = if(userCharacter != null) "???" else "Base HP" // TODO: Подключить калькулятор
-            
-            StatRow("Уровень", "$level/90")
-            StatRow("HP", hp) // Заглушка
-            StatRow("ATK", "???")
-            StatRow("DEF", "???")
-            StatRow("МС", "0")
-            StatRow("Крит. шанс", "5.0%")
-            StatRow("Крит. урон", "50.0%")
+
+            // TODO: В будущем подключить реальный калькулятор статов
+            StatRow(stringResource(R.string.stat_label_level), "$level/90")
+            StatRow(stringResource(R.string.stat_type_hp), "???")
+            StatRow(stringResource(R.string.stat_type_atk), "???")
+            StatRow(stringResource(R.string.stat_type_def), "???")
+            StatRow(stringResource(R.string.stat_type_elemental_mastery), "0")
+            StatRow(stringResource(R.string.stat_type_crit_rate), "5.0%")
+            StatRow(stringResource(R.string.stat_type_crit_dmg), "50.0%")
         }
     }
 }

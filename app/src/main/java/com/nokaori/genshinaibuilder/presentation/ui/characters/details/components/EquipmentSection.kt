@@ -19,22 +19,23 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.domain.model.UserWeapon
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.BaseItemCard
+import com.nokaori.genshinaibuilder.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun EquipmentSection(
     equippedWeapon: UserWeapon?,
     onAddWeaponClick: () -> Unit,
-    onAddArtifactClick: (Int) -> Unit // slot index
+    onAddArtifactClick: (Int) -> Unit
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
-            text = "Экипировка",
+            text = stringResource(R.string.char_section_equipment),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
         Row(modifier = Modifier.fillMaxWidth()) {
-            // Оружие (большой слот)
             Box(modifier = Modifier.weight(1f).aspectRatio(1f)) {
                 if (equippedWeapon != null) {
                     BaseItemCard(
@@ -51,8 +52,6 @@ fun EquipmentSection(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Артефакты (сетка 2x3, но у нас 5 слотов, так что просто Row с переносом или LazyGrid)
-            // Для простоты сделаем Row со скроллом или просто 5 мелких слотов
             Row(modifier = Modifier.weight(2f), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 repeat(5) { index ->
                     // TODO: Check equipped artifacts for slot $index
@@ -75,15 +74,12 @@ fun EmptySlot(onClick: () -> Unit, iconSize: androidx.compose.ui.unit.Dp = 24.dp
             .fillMaxSize()
             .clip(RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
-            .border(1.dp, color, RoundedCornerShape(8.dp)), // Fallback border
+            .border(1.dp, color, RoundedCornerShape(8.dp)), 
         contentAlignment = Alignment.Center
     ) {
-        // Кастомная отрисовка пунктира (опционально, если border выше не устраивает)
-        // Canvas(modifier = Modifier.fillMaxSize()) { drawRoundRect(color = color, style = stroke, cornerRadius = CornerRadius(8.dp.toPx())) }
-        
         Icon(
             imageVector = Icons.Default.Add,
-            contentDescription = "Add",
+            contentDescription = stringResource(R.string.cd_add_item),
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(iconSize)
         )
