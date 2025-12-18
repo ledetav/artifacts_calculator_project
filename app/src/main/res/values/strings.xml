@@ -68,7 +68,6 @@
     <string name="filter_ownership_all">Все</string>
     <string name="filter_ownership_owned">Мои</string>
     <string name="filter_ownership_missing">Нет</string>
-    <string name="tab_talents">Талатны</string>
     <string name="tab_talents">Таланты</string>
     <string name="tab_constellations">Созвездия</string>
     <string name="char_section_attributes">Характеристики</string>
