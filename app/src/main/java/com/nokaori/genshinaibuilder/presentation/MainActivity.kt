@@ -50,6 +50,7 @@ import com.nokaori.genshinaibuilder.presentation.ui.characters.details.Character
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MainTopAppBar
 import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.EncyclopediaScreen
+import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.details.ArtifactSetDetailsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
 import com.nokaori.genshinaibuilder.presentation.ui.settings.SettingsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.theme.GenshinAIBuilderTheme
@@ -63,7 +64,7 @@ import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint // ВАЖНО: Точка входа для Hilt
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,7 +93,6 @@ fun AppContent() {
 
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
 
-    // Список экранов для меню
     val allNavItems = listOf(
         NavigationItem.Encyclopedia,
         NavigationItem.Characters,
@@ -102,13 +102,10 @@ fun AppContent() {
         NavigationItem.Settings
     )
 
-    // Список маршрутов, где нужна ГЛАВНАЯ верхняя панель (с бургером)
     val topLevelRoutes = allNavItems.map { it.route }
-    
-    // Проверяем, находимся ли мы на главном экране (или, например, на экране деталей)
+
     val isTopLevelDestination = currentRoute in topLevelRoutes
 
-    // Определяем заголовок текущего пункта меню
     val currentNavItem = allNavItems.find { it.route == currentRoute }
 
     GenshinAIBuilderTheme(darkTheme = isDarkTheme) {
@@ -116,7 +113,6 @@ fun AppContent() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            // Настройка системных баров (Status Bar)
             val view = LocalView.current
             if (!view.isInEditMode) {
                 SideEffect {
@@ -130,7 +126,6 @@ fun AppContent() {
                 drawerState = drawerState,
                 drawerContent = {
                     ModalDrawerSheet {
-                        // Заголовок шторки
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -156,7 +151,6 @@ fun AppContent() {
 
                         HorizontalDivider()
 
-                        // Пункты меню
                         AppDrawer(
                             currentItemRoute = currentRoute,
                             onItemClick = { item ->
@@ -174,8 +168,6 @@ fun AppContent() {
                 }
             ) {
                 Scaffold(
-                    // ВАЖНО: Показываем главный TopBar только на корневых экранах.
-                    // На экране деталей персонажа Scaffold будет свой.
                     topBar = {
                         if (isTopLevelDestination) {
                             MainTopAppBar(
@@ -184,7 +176,7 @@ fun AppContent() {
                                     scope.launch { drawerState.open() }
                                 },
                                 actions = {
-                                    // Здесь можно вернуть кнопки действий для главных экранов, если нужно
+                                    // Здесь можно вернуть кнопки действий
                                 }
                             )
                         }
@@ -193,13 +185,18 @@ fun AppContent() {
                     NavHost(
                         navController = navController,
                         startDestination = NavigationItem.Encyclopedia.route,
-                        // Если TopBar скрыт (на деталях), innerPadding.top будет 0.
-                        // Если показан - будет отступ. Это то, что нам нужно.
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        // 1. Энциклопедия
                         composable(NavigationItem.Encyclopedia.route) {
-                            EncyclopediaScreen(encyclopediaViewModel = encyclopediaViewModel)
+                            EncyclopediaScreen(
+                                encyclopediaViewModel = encyclopediaViewModel,
+                                onArtifactSetClick = { setId ->
+                                    navController.navigate("encyclopedia/artifact/$setId")
+                                },
+                                onWeaponClick = { weaponId ->
+                                    // TODO: navController.navigate("encyclopedia/weapon/$weaponId")
+                                }
+                            )
                         }
 
                         composable(NavigationItem.Characters.route) {
@@ -225,22 +222,26 @@ fun AppContent() {
                             }
                         }
 
-                        // 6. Настройки
                         composable(NavigationItem.Settings.route) {
                             SettingsScreen(settingsViewModel = settingsViewModel)
                         }
 
-                        // 7. ДЕТАЛИ ПЕРСОНАЖА (Новый экран)
                         composable(
                             route = "character/{characterId}",
                             arguments = listOf(
                                 navArgument("characterId") { type = NavType.IntType }
                             )
                         ) {
-                            // Здесь свой Scaffold, поэтому padding от родителя не мешает
                             CharacterDetailsScreen(
                                 onBackClick = { navController.popBackStack() }
                             )
+                        }
+
+                        composable(
+                            route = "encyclopedia/artifact/{setId}",
+                            arguments = listOf(navArgument("setId") { type = NavType.IntType })
+                        ) {
+                            ArtifactSetDetailsScreen(onBackClick = { navController.popBackStack() })
                         }
                     }
                 }

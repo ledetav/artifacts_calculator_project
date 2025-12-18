@@ -9,9 +9,12 @@ import com.nokaori.genshinaibuilder.data.local.dao.UserDao
 import com.nokaori.genshinaibuilder.data.local.entity.UserArtifactEntity
 import com.nokaori.genshinaibuilder.data.mapper.toDomain
 import com.nokaori.genshinaibuilder.domain.model.Artifact
+import com.nokaori.genshinaibuilder.domain.model.ArtifactPiece
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
+import com.nokaori.genshinaibuilder.domain.model.Rarity
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -28,13 +31,12 @@ class ArtifactRepositoryImpl @Inject constructor (
 
     override fun getAvailableArtifactSetsPaged(): Flow<PagingData<ArtifactSet>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = 20,
-                enablePlaceholders = true
-            ),
+            config = PagingConfig(pageSize = 20),
             pagingSourceFactory = { artifactDao.getAllArtifactSetsPaging() }
         ).flow.map { pagingData ->
-            pagingData.map { it.toDomain() }
+            pagingData.map { entity ->
+                entity.toDomain()
+            }
         }
     }
 
@@ -74,5 +76,14 @@ class ArtifactRepositoryImpl @Inject constructor (
         )
 
         userDao.insertUserArtifact(entity)
+    }
+
+    override suspend fun getArtifactSetDetails(setId: Int): ArtifactSet {
+        val setEntity = artifactDao.getArtifactSetById(setId)
+            ?: throw IllegalStateException("Set not found")
+
+        val piecesEntities = artifactDao.getPiecesBySetId(setId).first()
+
+        return setEntity.toDomain(pieces = piecesEntities)
     }
 }

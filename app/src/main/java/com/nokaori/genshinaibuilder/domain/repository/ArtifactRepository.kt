@@ -11,4 +11,5 @@ interface ArtifactRepository {
     fun getAvailableArtifactSets(): Flow<List<ArtifactSet>>
     suspend fun addArtifact(artifact: Artifact)
     suspend fun getAllArtifactUrls(): List<String>
+    suspend fun getArtifactSetDetails(setId: Int): ArtifactSet
 }

@@ -22,7 +22,11 @@ import kotlinx.coroutines.launch
 import androidx.paging.compose.collectAsLazyPagingItems
 
 @Composable
-fun EncyclopediaScreen(encyclopediaViewModel: EncyclopediaViewModel) {
+fun EncyclopediaScreen(
+    encyclopediaViewModel: EncyclopediaViewModel,
+    onArtifactSetClick: (Int) -> Unit,
+    onWeaponClick: (Int) -> Unit
+    ) {
     val artifactSets = encyclopediaViewModel.artifactSetsPaged.collectAsLazyPagingItems()
     val weaponsPaged = encyclopediaViewModel.weaponsPaged.collectAsLazyPagingItems()
 
@@ -56,8 +60,14 @@ fun EncyclopediaScreen(encyclopediaViewModel: EncyclopediaViewModel) {
             modifier = Modifier.fillMaxSize()
         ) { page ->
             when (page) {
-                0 -> EncyclopediaArtifactsTab(artifactSets)
-                1 -> EncyclopediaWeaponsTab(weaponsPaged)
+                0 -> EncyclopediaArtifactsTab(
+                    sets = artifactSets,
+                    onArtifactClick = onArtifactSetClick
+                )
+                1 -> EncyclopediaWeaponsTab(
+                    weapons = weaponsPaged,
+                    // onClick = { onWeaponClick(it.id) }
+                )
             }
         }
     }

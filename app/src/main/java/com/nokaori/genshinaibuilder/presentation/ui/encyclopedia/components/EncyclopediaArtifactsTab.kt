@@ -14,7 +14,10 @@ import androidx.paging.compose.itemKey
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 
 @Composable
-fun EncyclopediaArtifactsTab(sets: LazyPagingItems<ArtifactSet>) {
+fun EncyclopediaArtifactsTab(
+    sets: LazyPagingItems<ArtifactSet>,
+    onArtifactClick: (Int) -> Unit
+) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 85.dp),
         contentPadding = PaddingValues(8.dp),
@@ -32,7 +35,7 @@ fun EncyclopediaArtifactsTab(sets: LazyPagingItems<ArtifactSet>) {
             if (set != null) {
                 EncyclopediaArtifactItem(
                     artifactSet = set,
-                    onClick = { /* TODO */ }
+                    onClick = { onArtifactClick(set.id) }
                 )
             }
         }

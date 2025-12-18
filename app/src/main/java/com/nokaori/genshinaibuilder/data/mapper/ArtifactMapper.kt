@@ -1,8 +1,10 @@
 package com.nokaori.genshinaibuilder.data.mapper
 
+import com.nokaori.genshinaibuilder.data.local.entity.ArtifactPieceEntity
 import com.nokaori.genshinaibuilder.data.local.entity.ArtifactSetEntity
 import com.nokaori.genshinaibuilder.data.local.model.UserArtifactComplete
 import com.nokaori.genshinaibuilder.domain.model.Artifact
+import com.nokaori.genshinaibuilder.domain.model.ArtifactPiece
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.Rarity
 import com.nokaori.genshinaibuilder.domain.model.Stat
@@ -36,9 +38,25 @@ fun UserArtifactComplete.toDomain(): Artifact {
 }
 
 // Маппер для списка сетов (для фильтров)
-fun ArtifactSetEntity.toDomain(): ArtifactSet {
+fun ArtifactSetEntity.toDomain(
+    pieces: List<ArtifactPieceEntity> = emptyList()
+): ArtifactSet {
     return ArtifactSet(
+        id = this.id,
         name = this.name,
-        iconUrl = this.iconUrl
+        iconUrl = this.iconUrl,
+        rarities = this.rarities.map { Rarity.fromInt(it) },
+        bonus2pc = this.bonus2pc,
+        bonus4pc = this.bonus4pc,
+        pieces = pieces.map { it.toDomain() }
+    )
+}
+
+fun ArtifactPieceEntity.toDomain(): ArtifactPiece {
+    return ArtifactPiece(
+        id = this.id,
+        name = this.name,
+        iconUrl = this.iconUrl,
+        slot = this.slot
     )
 }
