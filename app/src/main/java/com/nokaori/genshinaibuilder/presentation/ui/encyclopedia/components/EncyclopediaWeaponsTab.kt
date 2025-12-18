@@ -16,7 +16,10 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 
 @Composable
-fun EncyclopediaWeaponsTab(weapons: LazyPagingItems<Weapon>) {
+fun EncyclopediaWeaponsTab(
+    weapons: LazyPagingItems<Weapon>,
+    onWeaponClick: (Int) -> Unit
+) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 85.dp),
         contentPadding = PaddingValues(8.dp),
@@ -34,7 +37,7 @@ fun EncyclopediaWeaponsTab(weapons: LazyPagingItems<Weapon>) {
             if (weapon != null) {
                 EncyclopediaWeaponItem(
                     weapon = weapon,
-                    onClick = { /* TODO */ }
+                    onClick = { onWeaponClick(weapon.id) }
                 )
             } else {
                 // Если элемент еще грузится (placeholder), можно показать серый квадрат (TODO)

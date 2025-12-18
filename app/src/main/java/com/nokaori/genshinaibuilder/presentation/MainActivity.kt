@@ -51,6 +51,7 @@ import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MainTopAppBar
 import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.EncyclopediaScreen
 import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.details.ArtifactSetDetailsScreen
+import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.details.WeaponDetailsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
 import com.nokaori.genshinaibuilder.presentation.ui.settings.SettingsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.theme.GenshinAIBuilderTheme
@@ -194,7 +195,7 @@ fun AppContent() {
                                     navController.navigate("encyclopedia/artifact/$setId")
                                 },
                                 onWeaponClick = { weaponId ->
-                                    // TODO: navController.navigate("encyclopedia/weapon/$weaponId")
+                                    navController.navigate("encyclopedia/weapon/$weaponId")
                                 }
                             )
                         }
@@ -242,6 +243,13 @@ fun AppContent() {
                             arguments = listOf(navArgument("setId") { type = NavType.IntType })
                         ) {
                             ArtifactSetDetailsScreen(onBackClick = { navController.popBackStack() })
+                        }
+
+                        composable(
+                            route = "encyclopedia/weapon/{weaponId}",
+                            arguments = listOf(navArgument("weaponId") { type = NavType.IntType })
+                        ) {
+                            WeaponDetailsScreen(onBackClick = { navController.popBackStack() })
                         }
                     }
                 }

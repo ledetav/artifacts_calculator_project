@@ -11,4 +11,5 @@ interface WeaponRepository {
     fun getUserWeapons(): Flow<List<UserWeapon>>
     suspend fun addUserWeapon(userWeapon: UserWeapon)
     suspend fun getAllWeaponUrls(): List<String>
+    suspend fun getWeaponDetails(weaponId: Int): Weapon
 }

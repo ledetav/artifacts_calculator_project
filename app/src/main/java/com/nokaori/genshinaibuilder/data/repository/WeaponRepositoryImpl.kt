@@ -60,4 +60,13 @@ class WeaponRepositoryImpl @Inject constructor (
         )
         userDao.insertUserWeapon(entity)
     }
+
+    override suspend fun getWeaponDetails(weaponId: Int): Weapon {
+        val weaponEntity = weaponDao.getWeaponById(weaponId)
+            ?: throw IllegalStateException("Weapon not found")
+
+        val refinementEntity = weaponDao.getWeaponRefinement(weaponId)
+
+        return weaponEntity.toDomain(refinementEntity)
+    }
 }

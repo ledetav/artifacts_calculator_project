@@ -8,7 +8,13 @@ data class Weapon(
     val baseAttackLvl1: Int, 
     val scalingCurveId: String,
     val mainStat: Stat?,
-    val iconUrl: String 
+    val iconUrl: String,
+    val refinement: WeaponRefinement? = null
+)
+
+data class WeaponRefinement(
+    val passiveName: String,
+    val descriptions: List<String>
 )
 
 data class UserWeapon(

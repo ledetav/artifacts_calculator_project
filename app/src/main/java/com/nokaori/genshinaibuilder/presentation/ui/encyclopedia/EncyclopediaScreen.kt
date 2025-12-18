@@ -66,7 +66,7 @@ fun EncyclopediaScreen(
                 )
                 1 -> EncyclopediaWeaponsTab(
                     weapons = weaponsPaged,
-                    // onClick = { onWeaponClick(it.id) }
+                    onWeaponClick = onWeaponClick
                 )
             }
         }
