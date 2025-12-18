@@ -13,8 +13,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import javax.inject.Inject
 
-class WeaponRepositoryImpl(
+class WeaponRepositoryImpl @Inject constructor (
     private val weaponDao: WeaponDao,
     private val userDao: UserDao
 ) : WeaponRepository {

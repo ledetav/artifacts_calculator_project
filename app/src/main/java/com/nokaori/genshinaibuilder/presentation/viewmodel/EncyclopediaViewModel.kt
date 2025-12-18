@@ -12,8 +12,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class EncyclopediaViewModel(
+@HiltViewModel
+class EncyclopediaViewModel @Inject constructor (
     artifactRepository: ArtifactRepository,
     weaponRepository: WeaponRepository
 ) : ViewModel() {

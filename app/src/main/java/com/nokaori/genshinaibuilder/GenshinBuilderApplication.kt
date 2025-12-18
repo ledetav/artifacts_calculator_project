@@ -9,16 +9,13 @@ import coil3.memory.MemoryCache
 import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.util.DebugLogger
-import com.nokaori.genshinaibuilder.di.AppContainer
-import com.nokaori.genshinaibuilder.di.DefaultAppContainer
 import okio.Path.Companion.toOkioPath
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class GenshinBuilderApplication : Application(), SingletonImageLoader.Factory {
-    lateinit var container: AppContainer
-
     override fun onCreate() {
         super.onCreate()
-        container = DefaultAppContainer(this)
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {

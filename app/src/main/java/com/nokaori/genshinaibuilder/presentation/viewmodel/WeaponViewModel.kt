@@ -15,8 +15,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
 
-class WeaponViewModel(
+@HiltViewModel
+class WeaponViewModel @Inject constructor (
     private val weaponRepository: WeaponRepository,
     private val filterWeaponsUseCase: FilterWeaponsUseCase
 ) : ViewModel() {

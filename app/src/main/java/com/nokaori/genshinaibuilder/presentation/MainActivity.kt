@@ -56,10 +56,12 @@ import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.CharacterViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
-import com.nokaori.genshinaibuilder.presentation.viewmodel.ViewModelFactory
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
 import kotlinx.coroutines.launch
+import androidx.hilt.navigation.compose.hiltViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,12 +80,12 @@ fun AppContent() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val themeViewModel: ThemeViewModel = viewModel(factory = ViewModelFactory.Factory)
-    val encyclopediaViewModel: EncyclopediaViewModel = viewModel(factory = ViewModelFactory.Factory)
-    val artifactViewModel: ArtifactViewModel = viewModel(factory = ViewModelFactory.Factory)
-    val weaponViewModel: WeaponViewModel = viewModel(factory = ViewModelFactory.Factory)
-    val characterViewModel: CharacterViewModel = viewModel(factory = ViewModelFactory.Factory)
-    val settingsViewModel: SettingsViewModel = viewModel(factory = ViewModelFactory.Factory)
+    val themeViewModel: ThemeViewModel = hiltViewModel()
+    val encyclopediaViewModel: EncyclopediaViewModel = hiltViewModel()
+    val artifactViewModel: ArtifactViewModel = hiltViewModel()
+    val weaponViewModel: WeaponViewModel = hiltViewModel()
+    val characterViewModel: CharacterViewModel = hiltViewModel()
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
 
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
 

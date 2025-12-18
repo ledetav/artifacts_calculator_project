@@ -3,8 +3,9 @@ package com.nokaori.genshinaibuilder.domain.usecase
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.UserWeapon
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
+import javax.inject.Inject
 
-class FilterWeaponsUseCase {
+class FilterWeaponsUseCase @Inject constructor() {
     operator fun invoke(
         weapons: List<UserWeapon>,
         searchQuery: String,

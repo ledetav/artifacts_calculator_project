@@ -2,8 +2,9 @@ package com.nokaori.genshinaibuilder.domain.usecase
 
 import com.nokaori.genshinaibuilder.domain.model.Character
 import com.nokaori.genshinaibuilder.domain.model.Element
+import javax.inject.Inject
 
-class FilterCharactersUseCase {
+class FilterCharactersUseCase @Inject constructor() {
 
     enum class OwnershipFilter {
         ALL,

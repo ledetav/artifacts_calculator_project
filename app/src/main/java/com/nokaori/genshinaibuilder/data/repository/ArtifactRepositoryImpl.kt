@@ -13,8 +13,9 @@ import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class ArtifactRepositoryImpl(
+class ArtifactRepositoryImpl @Inject constructor (
     private val artifactDao: ArtifactDao,
     private val userDao: UserDao
 ) : ArtifactRepository {

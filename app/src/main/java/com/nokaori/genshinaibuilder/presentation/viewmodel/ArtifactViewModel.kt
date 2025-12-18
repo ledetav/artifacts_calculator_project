@@ -19,8 +19,11 @@ import kotlinx.coroutines.flow.update
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ArtifactViewModel(
+@HiltViewModel
+class ArtifactViewModel @Inject constructor (
     private val artifactRepository: ArtifactRepository,
     private val filterArtifactsUseCase: FilterArtifactsUseCase
 ) : ViewModel() {
