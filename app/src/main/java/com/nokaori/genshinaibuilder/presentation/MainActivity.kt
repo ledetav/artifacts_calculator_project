@@ -37,13 +37,16 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.ArtifactScreen
 import com.nokaori.genshinaibuilder.presentation.ui.characters.CharacterScreen
+import com.nokaori.genshinaibuilder.presentation.ui.characters.details.CharacterDetailsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MainTopAppBar
 import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
@@ -191,7 +194,16 @@ fun AppContent() {
 
                         // 2. Персонажи (Список)
                         composable(NavigationItem.Characters.route) {
-                            CharacterScreen(characterViewModel = characterViewModel)
+                            CharacterScreen(
+                                characterViewModel = characterViewModel,
+                                onCharacterClick = { id -> navController.navigate("character/$id") }
+                            )
+                        }
+
+                        composable("character/{characterId}", 
+                            arguments = listOf(navArgument("characterId") { type = NavType.IntType })
+                        ) {
+                            CharacterDetailsScreen(onBackClick = { navController.popBackStack() })
                         }
 
                         // 3. Инвентарь: Артефакты

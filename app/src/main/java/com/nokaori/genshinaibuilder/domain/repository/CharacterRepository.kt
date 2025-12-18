@@ -1,6 +1,8 @@
 package com.nokaori.genshinaibuilder.domain.repository
 
 import com.nokaori.genshinaibuilder.domain.model.Character
+import com.nokaori.genshinaibuilder.domain.model.CharacterConstellation
+import com.nokaori.genshinaibuilder.domain.model.CharacterTalent
 import com.nokaori.genshinaibuilder.domain.model.UserCharacter
 import kotlinx.coroutines.flow.Flow
 
@@ -10,4 +12,6 @@ interface CharacterRepository {
     suspend fun toggleCharacterOwnership(characterId: Int)
     fun getUserCharacter(encyclopediaId: Int): Flow<UserCharacter?>
     suspend fun getAllCharacterUrls(): List<String>
+    fun getTalents(characterId: Int): Flow<List<CharacterTalent>>
+    fun getConstellations(characterId: Int): Flow<List<CharacterConstellation>>
 }

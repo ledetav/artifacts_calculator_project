@@ -22,7 +22,8 @@ import com.nokaori.genshinaibuilder.presentation.viewmodel.CharacterViewModel
 @Composable
 fun CharacterScreen(
     characterViewModel: CharacterViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCharacterClick: (Int) -> Unit = {}
 ) {
     val searchQuery by characterViewModel.searchQuery.collectAsStateWithLifecycle()
     val characters by characterViewModel.characters.collectAsStateWithLifecycle()
@@ -70,7 +71,7 @@ fun CharacterScreen(
             items(characters) { character ->
                 CharacterItem(
                     character = character,
-                    onClick = { characterViewModel.onCharacterClicked(character.id) }
+                    onClick = { onCharacterClick(character.id) }
                 )
             }
         }

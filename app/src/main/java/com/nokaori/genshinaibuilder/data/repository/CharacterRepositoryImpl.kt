@@ -5,6 +5,8 @@ import com.nokaori.genshinaibuilder.data.local.dao.UserDao
 import com.nokaori.genshinaibuilder.data.local.entity.UserCharacterEntity
 import com.nokaori.genshinaibuilder.data.mapper.toDomain
 import com.nokaori.genshinaibuilder.domain.model.Character
+import com.nokaori.genshinaibuilder.domain.model.CharacterConstellation
+import com.nokaori.genshinaibuilder.domain.model.CharacterTalent
 import com.nokaori.genshinaibuilder.domain.model.UserCharacter
 import com.nokaori.genshinaibuilder.domain.repository.CharacterRepository
 import kotlinx.coroutines.flow.Flow
@@ -55,6 +57,33 @@ class CharacterRepositoryImpl @Inject constructor (
     override fun getUserCharacter(encyclopediaId: Int): Flow<UserCharacter?> {
         return userDao.getUserCharacterCompleteByEncyclopediaId(encyclopediaId).map {
             it?.toDomain()
+        }
+    }
+
+    override fun getTalents(characterId: Int): Flow<List<CharacterTalent>> {
+        return characterDao.getTalents(characterId).map { list ->
+            list.map { entity ->
+                CharacterTalent(
+                    name = entity.name,
+                    description = entity.description,
+                    iconUrl = entity.iconUrl,
+                    type = entity.type,
+                    attributes = entity.scalingAttributes
+                )
+            }
+        }
+    }
+    
+    override fun getConstellations(characterId: Int): Flow<List<CharacterConstellation>> {
+        return characterDao.getConstellations(characterId).map { list ->
+            list.map { entity ->
+                CharacterConstellation(
+                    order = entity.order,
+                    name = entity.name,
+                    description = entity.description,
+                    iconUrl = entity.iconUrl
+                )
+            }
         }
     }
 }
