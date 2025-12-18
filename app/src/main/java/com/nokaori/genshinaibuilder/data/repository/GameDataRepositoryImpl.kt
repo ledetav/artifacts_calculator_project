@@ -12,8 +12,9 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import java.util.Collections
+import javax.inject.Inject
 
-class GameDataRepositoryImpl(
+class GameDataRepositoryImpl @Inject constructor (
     private val characterDao: CharacterDao,
     private val statCurveDao: StatCurveDao,
     private val weaponDao: WeaponDao,

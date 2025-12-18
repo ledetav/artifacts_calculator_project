@@ -15,8 +15,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
 
-class CharacterViewModel(
+@HiltViewModel
+class CharacterViewModel @Inject constructor(
     private val characterRepository: CharacterRepository,
     private val filterCharactersUseCase: FilterCharactersUseCase
 ) : ViewModel() {

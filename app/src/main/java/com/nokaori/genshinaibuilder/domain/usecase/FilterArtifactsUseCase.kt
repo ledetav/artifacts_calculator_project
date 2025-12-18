@@ -4,8 +4,9 @@ import com.nokaori.genshinaibuilder.domain.model.Artifact
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.StatType
+import javax.inject.Inject
 
-class FilterArtifactsUseCase {
+class FilterArtifactsUseCase @Inject constructor() {
     operator fun invoke(
         artifacts: List<Artifact>,
         searchQuery: String,

@@ -4,8 +4,9 @@ import com.nokaori.genshinaibuilder.domain.model.Stat
 import com.nokaori.genshinaibuilder.domain.model.UserWeapon
 import com.nokaori.genshinaibuilder.domain.model.Weapon
 import com.nokaori.genshinaibuilder.domain.model.StatValue
+import javax.inject.Inject
 
-class CalculateWeaponStatsUseCase {
+class CalculateWeaponStatsUseCase @Inject constructor() {
     data class CalculatedStats(
         val baseAttack: Int,
         val mainStat: Stat?

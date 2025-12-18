@@ -8,8 +8,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
 
-class SettingsViewModel(
+@HiltViewModel
+class SettingsViewModel @Inject constructor (
     private val gameDataRepository: GameDataRepository
 ) : ViewModel() {
 
