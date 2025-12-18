@@ -29,7 +29,6 @@ class CharacterDetailsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val equippedWeapon: StateFlow<List<UserWeapon>> = weaponRepository.getUserWeapons()
-        .map { list -> list.filter { it.equippedCharacterId == userCharacter.value?.characterId } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
         
     val talents: StateFlow<List<CharacterTalent>> = characterRepository.getTalents(characterId)
