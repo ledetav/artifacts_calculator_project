@@ -42,6 +42,7 @@ fun CharacterDetailsScreen(
     val equippedWeapon by viewModel.equippedWeapon.collectAsStateWithLifecycle()
     val talents by viewModel.talents.collectAsStateWithLifecycle()
     val constellations by viewModel.constellations.collectAsStateWithLifecycle()
+    val characterStats by viewModel.characterStats.collectAsStateWithLifecycle()
 
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 2 })
@@ -102,7 +103,7 @@ fun CharacterDetailsScreen(
                 .padding(innerPadding)
                 .verticalScroll(scrollState)
         ) {
-            CharacterInfoSection(character!!, userCharacter)
+            CharacterInfoSection(character!!, userCharacter, characterStats)
 
             HorizontalDivider()
 

@@ -7,5 +7,10 @@ data class Character(
     val weaponType: WeaponType,
     val rarity: Rarity,
     val iconUrl: String, 
-    val isOwned: Boolean = false 
+    val isOwned: Boolean = false,
+    val baseHp: Float,
+    val baseAtk: Float,
+    val baseDef: Float,
+    val ascensionStatType: StatType,
+    val curveId: String
 )

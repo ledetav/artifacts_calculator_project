@@ -15,11 +15,14 @@ import com.nokaori.genshinaibuilder.presentation.ui.theme.getElementColor
 import com.nokaori.genshinaibuilder.presentation.ui.theme.getRarityColor
 import androidx.compose.ui.res.stringResource
 import com.nokaori.genshinaibuilder.R
+import com.nokaori.genshinaibuilder.domain.model.CharacterStatsResult
+import com.nokaori.genshinaibuilder.presentation.ui.mappers.toDisplayName
 
 @Composable
 fun CharacterInfoSection(
     character: Character,
-    userCharacter: UserCharacter?
+    userCharacter: UserCharacter?,
+    stats: CharacterStatsResult?
 ) {
     Row(
         modifier = Modifier
@@ -65,16 +68,30 @@ fun CharacterInfoSection(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            val level = userCharacter?.level ?: 1
 
-            // TODO: В будущем подключить реальный калькулятор статов
+            val level = userCharacter?.level ?: 1
             StatRow(stringResource(R.string.stat_label_level), "$level/90")
-            StatRow(stringResource(R.string.stat_type_hp), "???")
-            StatRow(stringResource(R.string.stat_type_atk), "???")
-            StatRow(stringResource(R.string.stat_type_def), "???")
+
+            val hpStr = stats?.let { "%.0f".format(it.maxHp) } ?: "..."
+            val atkStr = stats?.let { "%.0f".format(it.atk) } ?: "..."
+            val defStr = stats?.let { "%.0f".format(it.def) } ?: "..."
+
+            StatRow(stringResource(R.string.stat_type_hp), hpStr)
+            StatRow(stringResource(R.string.stat_type_atk), atkStr)
+            StatRow(stringResource(R.string.stat_type_def), defStr)
             StatRow(stringResource(R.string.stat_type_elemental_mastery), "0")
             StatRow(stringResource(R.string.stat_type_crit_rate), "5.0%")
             StatRow(stringResource(R.string.stat_type_crit_dmg), "50.0%")
+
+            if (stats != null && stats.ascensionStatValue > 0) {
+                val name = stats.ascensionStatType.toDisplayName()
+                val value = if(stats.ascensionStatType.isPercentage)
+                    "%.1f%%".format(stats.ascensionStatValue * 100)
+                else
+                    "%.0f".format(stats.ascensionStatValue)
+
+                StatRow(name, value)
+            }
         }
     }
 }

@@ -47,6 +47,9 @@ interface CharacterDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPromotions(promotions: List<CharacterPromotionEntity>)
 
+    @Query("SELECT * FROM character_promotions WHERE character_id = :charId ORDER BY ascension_level ASC")
+    suspend fun getPromotionsForCharacter(charId: Int): List<CharacterPromotionEntity>
+
     // --- CONSTELLATIONS ---
     @Query("SELECT * FROM character_constellations WHERE character_id = :charId ORDER BY `order` ASC")
     fun getConstellations(charId: Int): Flow<List<CharacterConstellationEntity>>

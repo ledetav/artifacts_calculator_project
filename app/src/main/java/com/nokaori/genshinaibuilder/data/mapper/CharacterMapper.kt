@@ -21,7 +21,12 @@ fun CharacterEntity.toDomain(isOwned: Boolean): Character {
         weaponType = this.weaponType,
         rarity = Rarity.fromInt(this.rarity),
         iconUrl = this.iconUrl,
-        isOwned = isOwned
+        isOwned = isOwned,
+        baseHp = this.baseHpLvl1,
+        baseAtk = this.baseAtkLvl1,
+        baseDef = this.baseDefLvl1,
+        ascensionStatType = this.ascensionStatType,
+        curveId = this.curveId
     )
 }
 
