@@ -117,8 +117,8 @@ fun CharacterDetailsScreen(
             }
 
             TabRow(selectedTabIndex = pagerState.currentPage) {
-                Tab(selected = pagerState.currentPage == 0, onClick = { scope.launch { pagerState.animateScrollToPage(0) } }, text = { Text("Talents") })
-                Tab(selected = pagerState.currentPage == 1, onClick = { scope.launch { pagerState.animateScrollToPage(1) } }, text = { Text("Constellations") })
+                Tab(selected = pagerState.currentPage == 0, onClick = { scope.launch { pagerState.animateScrollToPage(0) } }, text = { Text(stringResource(R.string.tab_talents)) })
+                Tab(selected = pagerState.currentPage == 1, onClick = { scope.launch { pagerState.animateScrollToPage(1) } }, text = { Text(stringResource(R.string.tab_constellations)) })
             }
 
             HorizontalPager(
