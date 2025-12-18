@@ -68,4 +68,17 @@
     <string name="filter_ownership_all">Все</string>
     <string name="filter_ownership_owned">Мои</string>
     <string name="filter_ownership_missing">Нет</string>
+    <string name="tab_talents">Талатны</string>
+    <string name="tab_talents">Таланты</string>
+    <string name="tab_constellations">Созвездия</string>
+    <string name="char_section_attributes">Характеристики</string>
+    <string name="char_section_equipment">Экипировка</string>
+    <string name="stat_label_level">Уровень</string>
+    <string name="talent_passive">Пассивный талант</string>
+    <string name="talent_level_fmt">Уровень %1$d</string>
+    <string name="cd_back">Назад</string>
+    <string name="cd_add_to_collection">Добавить в коллекцию</string>
+    <string name="cd_edit_character">Редактировать</string>
+    <string name="cd_delete_character">Удалить</string>
+    <string name="cd_add_item">Добавить предмет</string>
 </resources>
