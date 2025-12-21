@@ -5,6 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.nokaori.genshinaibuilder.data.local.dao.ArtifactDao
+import com.nokaori.genshinaibuilder.data.local.dao.StatCurveDao
 import com.nokaori.genshinaibuilder.data.local.dao.UserDao
 import com.nokaori.genshinaibuilder.data.local.entity.UserArtifactEntity
 import com.nokaori.genshinaibuilder.data.mapper.toDomain
@@ -12,6 +13,8 @@ import com.nokaori.genshinaibuilder.domain.model.Artifact
 import com.nokaori.genshinaibuilder.domain.model.ArtifactPiece
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.Rarity
+import com.nokaori.genshinaibuilder.domain.model.StatCurve
+import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -20,7 +23,8 @@ import javax.inject.Inject
 
 class ArtifactRepositoryImpl @Inject constructor (
     private val artifactDao: ArtifactDao,
-    private val userDao: UserDao
+    private val userDao: UserDao,
+    private val statCurveDao: StatCurveDao
 ) : ArtifactRepository {
 
     override fun getArtifacts(): Flow<List<Artifact>> {
@@ -85,5 +89,37 @@ class ArtifactRepositoryImpl @Inject constructor (
         val piecesEntities = artifactDao.getPiecesBySetId(setId).first()
 
         return setEntity.toDomain(pieces = piecesEntities)
+    }
+
+    override suspend fun getArtifactMainStatCurve(rarity: Int, statType: StatType): StatCurve? {
+        val propName = mapStatTypeToYattaString(statType) ?: return null
+        val curveId = "ARTIFACT_RANK_${rarity}_MAIN_$propName"
+
+        val entity = statCurveDao.getCurve(curveId) ?: return null
+        return StatCurve(entity.id, entity.points)
+    }
+
+    private fun mapStatTypeToYattaString(type: StatType): String? {
+        return when(type) {
+            StatType.HP -> "FIGHT_PROP_HP"
+            StatType.ATK -> "FIGHT_PROP_ATTACK"
+            StatType.HP_PERCENT -> "FIGHT_PROP_HP_PERCENT"
+            StatType.ATK_PERCENT -> "FIGHT_PROP_ATTACK_PERCENT"
+            StatType.DEF_PERCENT -> "FIGHT_PROP_DEFENSE_PERCENT"
+            StatType.CRIT_RATE -> "FIGHT_PROP_CRITICAL"
+            StatType.CRIT_DMG -> "FIGHT_PROP_CRITICAL_HURT"
+            StatType.ENERGY_RECHARGE -> "FIGHT_PROP_CHARGE_EFFICIENCY"
+            StatType.ELEMENTAL_MASTERY -> "FIGHT_PROP_ELEMENT_MASTERY"
+            StatType.HEALING_BONUS -> "FIGHT_PROP_HEAL_ADD"
+            StatType.PHYSICAL_DAMAGE_BONUS -> "FIGHT_PROP_PHYSICAL_ADD_HURT"
+            StatType.PYRO_DAMAGE_BONUS -> "FIGHT_PROP_FIRE_ADD_HURT"
+            StatType.HYDRO_DAMAGE_BONUS -> "FIGHT_PROP_WATER_ADD_HURT"
+            StatType.CRYO_DAMAGE_BONUS -> "FIGHT_PROP_ICE_ADD_HURT"
+            StatType.ELECTRO_DAMAGE_BONUS -> "FIGHT_PROP_ELEC_ADD_HURT"
+            StatType.ANEMO_DAMAGE_BONUS -> "FIGHT_PROP_WIND_ADD_HURT"
+            StatType.GEO_DAMAGE_BONUS -> "FIGHT_PROP_ROCK_ADD_HURT"
+            StatType.DENDRO_DAMAGE_BONUS -> "FIGHT_PROP_GRASS_ADD_HURT"
+            else -> null
+        }
     }
 }

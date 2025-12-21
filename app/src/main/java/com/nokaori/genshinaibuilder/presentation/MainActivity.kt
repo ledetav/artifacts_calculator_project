@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Brightness4
 import androidx.compose.material.icons.filled.Brightness7
 import androidx.compose.material3.DrawerValue
@@ -45,6 +46,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.ArtifactScreen
+import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.EditorArtifactScreen
 import com.nokaori.genshinaibuilder.presentation.ui.characters.CharacterScreen
 import com.nokaori.genshinaibuilder.presentation.ui.characters.details.CharacterDetailsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
@@ -118,8 +120,10 @@ fun AppContent() {
             if (!view.isInEditMode) {
                 SideEffect {
                     val window = (view.context as Activity).window
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDarkTheme
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !isDarkTheme
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
+                        !isDarkTheme
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars =
+                        !isDarkTheme
                 }
             }
 
@@ -172,12 +176,23 @@ fun AppContent() {
                     topBar = {
                         if (isTopLevelDestination) {
                             MainTopAppBar(
-                                title = stringResource(id = currentNavItem?.titleResId ?: R.string.app_name),
+                                title = stringResource(
+                                    id = currentNavItem?.titleResId ?: R.string.app_name
+                                ),
                                 onNavigationIconClick = {
                                     scope.launch { drawerState.open() }
                                 },
                                 actions = {
-                                    // Здесь можно вернуть кнопки действий
+                                    if (currentRoute == NavigationItem.Artifacts.route) {
+                                        IconButton(onClick = {
+                                            navController.navigate("artifact/add")
+                                        }) {
+                                            Icon(
+                                                Icons.Default.Add,
+                                                contentDescription = stringResource(R.string.artifact_add_button)
+                                            )
+                                        }
+                                    }
                                 }
                             )
                         }
@@ -250,6 +265,12 @@ fun AppContent() {
                             arguments = listOf(navArgument("weaponId") { type = NavType.IntType })
                         ) {
                             WeaponDetailsScreen(onBackClick = { navController.popBackStack() })
+                        }
+
+                        composable("artifact/add") {
+                            EditorArtifactScreen(
+                                onBackClick = { navController.popBackStack() }
+                            )
                         }
                     }
                 }
