@@ -122,4 +122,13 @@ class ArtifactRepositoryImpl @Inject constructor (
             else -> null
         }
     }
+
+    override suspend fun getArtifactSubStatRolls(rarity: Int, statType: StatType): List<Float>? {
+        val propName = mapStatTypeToYattaString(statType) ?: return null
+        val curveId = "ARTIFACT_RANK_${rarity}_SUB_$propName"
+
+        val entity = statCurveDao.getCurve(curveId) ?: return null
+
+        return entity.points.toSortedMap().values.toList()
+    }
 }

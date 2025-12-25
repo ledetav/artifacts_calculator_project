@@ -24,5 +24,24 @@ data class EditorArtifactState(
     val maxLevel: Int = 20,
     val mainStatType: StatType? = null,
     val mainStatValue: Float = 0f,
-    val availableMainStats: List<StatType> = emptyList()
+    val availableMainStats: List<StatType> = emptyList(),
+
+    val subStats: List<SubStatState> = emptyList(),
+    val maxSubStatsCount: Int = 4,
+    val maxRollsPerLine: Int = 6,
+    val currentMaxTotalRolls: Int = 9,
+
+    val validationError: List<String>? = null,
+    val isSaveSuccess: Boolean = false
 )
+
+data class SubStatState(
+    val id: Long = System.currentTimeMillis(),
+    val type: StatType? = null,
+    val rollHistory: List<Float> = emptyList(),
+    val tierValues: List<Float> = emptyList(),
+    val availableTypes: List<StatType> = emptyList()
+) {
+    val value: Float get() = rollHistory.sum()
+    val rollCount: Int get() = rollHistory.size
+}

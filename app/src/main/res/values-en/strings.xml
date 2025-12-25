@@ -81,4 +81,6 @@
     <string name="cd_delete_character">Delete</string>
     <string name="cd_add_item">Add Item</string>
     <string name="art_section_pieces">%d Set Pieces</string>
+    <string name="artifact_substats_title">Artifact Substats</string>
+    <string name="artifact_substats_empty_hint">Please add artifact sustats</string>
 </resources>

@@ -81,4 +81,6 @@
     <string name="cd_delete_character">Удалить</string>
     <string name="cd_add_item">Добавить предмет</string>
     <string name="art_section_pieces">%d куска сета</string>
+    <string name="artifact_substats_title">Подстаты артефакта</string>
+    <string name="artifact_substats_empty_hint">Добавьте подстаты артефакта</string>
 </resources>

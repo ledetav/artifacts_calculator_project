@@ -34,6 +34,7 @@ robolectric = "4.16"
 retrofit = "3.0.0"
 okhttp3 = "5.2.2"
 paging = "3.3.6"
+runtime = "1.10.0"
 
 [libraries]
 
@@ -83,6 +84,7 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 
 # --- Gson ---
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+gson-extras = { group = "com.google.code.gson", name = "gson-extras", version = "2.13.2-rc1"}
 
 # --- Testing ---
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
@@ -114,6 +116,7 @@ androidx-paging-compose = { module = "androidx.paging:paging-compose", version.r
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.2.0" }
+androidx-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

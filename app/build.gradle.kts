@@ -91,10 +91,12 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.runtime)
     ksp(libs.androidx.room.compiler)
 
     // Gson
     implementation(libs.gson)
+    implementation(libs.gson.extras)
 
     // Hilt
     implementation(libs.hilt.android)

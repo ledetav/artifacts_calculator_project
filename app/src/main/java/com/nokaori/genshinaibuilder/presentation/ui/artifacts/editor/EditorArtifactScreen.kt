@@ -6,8 +6,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +25,7 @@ import coil3.request.crossfade
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.BaseDialog
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.components.MainStatSection
+import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.components.SubStatsSection
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.components.TopSelectionSection
 import com.nokaori.genshinaibuilder.presentation.viewmodel.EditorArtifactViewModel
 
@@ -35,6 +38,29 @@ fun EditorArtifactScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val filteredSets by viewModel.filteredSets.collectAsStateWithLifecycle()
     val isEditingEnabled = state.selectedSet != null
+
+    LaunchedEffect(state.isSaveSuccess) {
+        if (state.isSaveSuccess) {
+            onBackClick()
+        }
+    }
+
+    if (state.validationError != null) {
+        AlertDialog(
+            onDismissRequest = viewModel::onDismissError,
+            title = { Text("Validation Error") },
+            text = {
+                Column {
+                    state.validationError!!.forEach { err ->
+                        Text("- $err", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = viewModel::onDismissError) { Text("OK") }
+            }
+        )
+    }
 
     if (state.isSetSelectionDialogOpen) {
         SetSelectionDialog(
@@ -64,6 +90,14 @@ fun EditorArtifactScreen(
                         )
                     }
                 }
+            )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = viewModel::onSaveClicked,
+                icon = { Icon(Icons.Default.Save, null) },
+                text = { Text("Save Artifact") },
+                containerColor = MaterialTheme.colorScheme.primary
             )
         }
     ) { innerPadding ->
@@ -98,7 +132,22 @@ fun EditorArtifactScreen(
                 enabled = isEditingEnabled
             )
 
-            // TODO: Substats
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SubStatsSection(
+                subStats = state.subStats,
+                artifactRarity = state.rarity,
+                canAddMore = state.subStats.size < state.maxSubStatsCount,
+                enabled = isEditingEnabled,
+                onAddSubStat = viewModel::onAddSubStat,
+                onRemoveSubStat = viewModel::onRemoveSubStat,
+                onTypeChanged = viewModel::onSubStatTypeChanged,
+                onRollAdded = viewModel::onSubStatRollAdded,
+                onRollRemoved = viewModel::onSubStatRollRemoved,
+                onManualInput = viewModel::onSubStatManualValueEntered
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
