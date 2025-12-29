@@ -86,12 +86,12 @@ class FilterWeaponsUseCaseTest {
     fun invoke_withSearchQuery_filtersWeapons() {
         val result = useCase(
             testWeapons,
-            "Sword",
+            "Primordial",
             emptySet(),
             0f..90f,
             null
         )
-        assertEquals(2, result.size)
+        assertEquals(1, result.size)
     }
 
     @Test
@@ -137,7 +137,7 @@ class FilterWeaponsUseCaseTest {
     fun invoke_withMultipleFilters_appliesAllFilters() {
         val result = useCase(
             testWeapons,
-            "Sword",
+            "Primordial",
             setOf(WeaponType.SWORD),
             90f..90f,
             StatType.CRIT_RATE

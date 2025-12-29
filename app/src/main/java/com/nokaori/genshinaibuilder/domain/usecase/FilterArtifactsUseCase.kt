@@ -15,48 +15,44 @@ class FilterArtifactsUseCase @Inject constructor() {
         selectedSlots: Set<ArtifactSlot>,
         selectedMainStat: StatType?
     ): List<Artifact> {
-        val searchedList = if (searchQuery.isBlank()) {
-            artifacts
-        } else {
-            artifacts.filter { artifact ->
+        var filtered = artifacts
+
+        if (searchQuery.isNotBlank()) {
+            filtered = filtered.filter { artifact ->
                 artifact.setName.contains(searchQuery, ignoreCase = true) ||
                         artifact.artifactName.contains(searchQuery, ignoreCase = true)
             }
         }
 
-        val setFilteredList = if(selectedSet == null){
-            searchedList
-        } else {
-            searchedList.filter { artifact ->
+        if (selectedSet != null) {
+            filtered = filtered.filter { artifact ->
                 artifact.setName == selectedSet.name
             }
         }
 
-        val levelFilteredList = setFilteredList.filter{ artifact ->
+        filtered = filtered.filter { artifact ->
             artifact.level.toFloat() in levelRange
         }
 
-        val slotFilteredList = if (selectedSlots.isEmpty()) {
-            levelFilteredList
-        } else {
-            levelFilteredList.filter { artifact ->
+        if (selectedSlots.isNotEmpty()) {
+            filtered = filtered.filter { artifact ->
                 artifact.slot in selectedSlots
             }
         }
 
-        val mainStatFilteredList = if (selectedMainStat == null) {
-            slotFilteredList
-        } else {
-            slotFilteredList.filter { artifact ->
+        if (selectedMainStat != null) {
+            filtered = filtered.filter { artifact ->
                 artifact.mainStat.type == selectedMainStat
             }
         }
 
-        return mainStatFilteredList.sortedBy { artifact ->
+        return filtered.sortedBy { artifact ->
             when {
                 searchQuery.isNotBlank() &&
-                        artifact.artifactName.contains(searchQuery, ignoreCase = true) -> 0
-                else -> 1
+                        artifact.artifactName.equals(searchQuery, ignoreCase = true) -> 0
+                searchQuery.isNotBlank() &&
+                        artifact.artifactName.contains(searchQuery, ignoreCase = true) -> 1
+                else -> 2
             }
         }
     }

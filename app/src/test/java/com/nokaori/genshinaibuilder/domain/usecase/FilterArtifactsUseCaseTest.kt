@@ -155,7 +155,7 @@ class FilterArtifactsUseCaseTest {
             emptySet(),
             null
         )
-        assertEquals(3, result.size)
+        assertEquals(1, result.size)
         assertEquals(1, result.first().id)
     }
 

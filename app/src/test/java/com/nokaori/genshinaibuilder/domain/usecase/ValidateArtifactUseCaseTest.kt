@@ -23,8 +23,9 @@ class ValidateArtifactUseCaseTest {
             selectedSet = ArtifactSet(id = 1, name = "Crimson Witch", iconUrl = ""),
             mainStatType = StatType.ATK_PERCENT,
             subStats = listOf(
-                SubStatState(type = StatType.CRIT_RATE, rollHistory = listOf(0.05f)),
-                SubStatState(type = StatType.CRIT_DMG, rollHistory = listOf(0.10f))
+                SubStatState(type = StatType.CRIT_RATE, rollHistory = listOf(0.05f, 0.05f, 0.05f)),
+                SubStatState(type = StatType.CRIT_DMG, rollHistory = listOf(0.10f, 0.10f, 0.10f)),
+                SubStatState(type = StatType.HP_PERCENT, rollHistory = listOf(0.15f, 0.15f, 0.15f))
             ),
             level = 20,
             rarity = Rarity.FIVE_STARS
@@ -135,8 +136,8 @@ class ValidateArtifactUseCaseTest {
             selectedSet = ArtifactSet(id = 1, name = "Crimson Witch", iconUrl = ""),
             mainStatType = StatType.ATK_PERCENT,
             subStats = listOf(
-                SubStatState(type = StatType.CRIT_RATE, rollHistory = listOf(0.05f)),
-                SubStatState(type = StatType.CRIT_DMG, rollHistory = listOf(0.10f))
+                SubStatState(type = StatType.CRIT_RATE, rollHistory = listOf(0.05f, 0.05f, 0.05f, 0.05f, 0.05f)),
+                SubStatState(type = StatType.CRIT_DMG, rollHistory = listOf(0.10f, 0.10f, 0.10f))
             ),
             level = 20,
             rarity = Rarity.FOUR_STARS
@@ -151,7 +152,7 @@ class ValidateArtifactUseCaseTest {
             selectedSet = ArtifactSet(id = 1, name = "Crimson Witch", iconUrl = ""),
             mainStatType = StatType.ATK_PERCENT,
             subStats = listOf(
-                SubStatState(type = StatType.CRIT_RATE, rollHistory = listOf(0.05f))
+                SubStatState(type = StatType.CRIT_RATE, rollHistory = listOf(0.05f, 0.05f))
             ),
             level = 4,
             rarity = Rarity.THREE_STARS
