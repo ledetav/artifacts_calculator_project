@@ -6,6 +6,10 @@ import com.nokaori.genshinaibuilder.data.local.entity.UserWeaponEntity
 import com.nokaori.genshinaibuilder.data.local.entity.WeaponEntity
 import com.nokaori.genshinaibuilder.data.local.entity.WeaponRefinementEntity
 import com.nokaori.genshinaibuilder.data.local.model.UserWeaponComplete
+import com.nokaori.genshinaibuilder.domain.model.Rarity
+import com.nokaori.genshinaibuilder.domain.model.Stat
+import com.nokaori.genshinaibuilder.domain.model.StatType
+import com.nokaori.genshinaibuilder.domain.model.StatValue
 import com.nokaori.genshinaibuilder.domain.model.UserWeapon
 import com.nokaori.genshinaibuilder.domain.model.Weapon
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
@@ -41,10 +45,11 @@ class WeaponRepositoryImplTest {
             name = "Aqua Simulacra",
             type = WeaponType.BOW,
             rarity = 5,
-            baseAtk = 542,
-            subStatType = "CRIT_RATE",
-            subStatValue = 44.1f,
-            description = "Test",
+            baseAtkLvl1 = 542f,
+            subStatType = StatType.CRIT_RATE,
+            subStatBaseValue = 44.1f,
+            atkCurveId = "WEAPON_CURVE_EXP_FAST",
+            subStatCurveId = "WEAPON_CURVE_CRIT_RATE",
             iconUrl = "url"
         )
 
@@ -78,15 +83,16 @@ class WeaponRepositoryImplTest {
                 isLocked = false,
                 equippedCharacterId = null
             ),
-            weapon = WeaponEntity(
+            weaponEntity = WeaponEntity(
                 id = 1,
                 name = "Aqua Simulacra",
                 type = WeaponType.BOW,
                 rarity = 5,
-                baseAtk = 542,
-                subStatType = "CRIT_RATE",
-                subStatValue = 44.1f,
-                description = "Test",
+                baseAtkLvl1 = 542f,
+                subStatType = StatType.CRIT_RATE,
+                subStatBaseValue = 44.1f,
+                atkCurveId = "WEAPON_CURVE_EXP_FAST",
+                subStatCurveId = "WEAPON_CURVE_CRIT_RATE",
                 iconUrl = "url"
             )
         )
@@ -101,30 +107,17 @@ class WeaponRepositoryImplTest {
 
     @Test
     fun addUserWeapon_withValidWeapon_insertsUserWeapon() = runTest {
-        val weapon = WeaponEntity(
-            id = 1,
-            name = "Aqua Simulacra",
-            type = WeaponType.BOW,
-            rarity = 5,
-            baseAtk = 542,
-            subStatType = "CRIT_RATE",
-            subStatValue = 44.1f,
-            description = "Test",
-            iconUrl = "url"
-        )
-
         val userWeapon = UserWeapon(
+            id = 0,
             weapon = Weapon(
                 id = 1,
                 name = "Aqua Simulacra",
                 type = WeaponType.BOW,
-                rarity = 5,
-                baseAtk = 542,
-                subStatType = "CRIT_RATE",
-                subStatValue = 44.1f,
-                description = "Test",
-                iconUrl = "url",
-                refinements = emptyList()
+                rarity = Rarity.FIVE_STARS,
+                baseAttackLvl1 = 542,
+                scalingCurveId = "WEAPON_CURVE_EXP_FAST",
+                mainStat = Stat(StatType.CRIT_RATE, StatValue.DoubleValue(44.1)),
+                iconUrl = "url"
             ),
             level = 90,
             ascension = 6,
@@ -144,10 +137,11 @@ class WeaponRepositoryImplTest {
             name = "Aqua Simulacra",
             type = WeaponType.BOW,
             rarity = 5,
-            baseAtk = 542,
-            subStatType = "CRIT_RATE",
-            subStatValue = 44.1f,
-            description = "Test",
+            baseAtkLvl1 = 542f,
+            subStatType = StatType.CRIT_RATE,
+            subStatBaseValue = 44.1f,
+            atkCurveId = "WEAPON_CURVE_EXP_FAST",
+            subStatCurveId = "WEAPON_CURVE_CRIT_RATE",
             iconUrl = "url"
         )
 

@@ -3,10 +3,12 @@ package com.nokaori.genshinaibuilder.data.repository
 import com.nokaori.genshinaibuilder.data.local.dao.ArtifactDao
 import com.nokaori.genshinaibuilder.data.local.dao.StatCurveDao
 import com.nokaori.genshinaibuilder.data.local.dao.UserDao
+import com.nokaori.genshinaibuilder.data.local.entity.ArtifactPieceEntity
 import com.nokaori.genshinaibuilder.data.local.entity.ArtifactSetEntity
 import com.nokaori.genshinaibuilder.data.local.entity.StatCurveEntity
 import com.nokaori.genshinaibuilder.data.local.entity.UserArtifactEntity
 import com.nokaori.genshinaibuilder.data.local.model.UserArtifactComplete
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.Artifact
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.Rarity
@@ -47,7 +49,7 @@ class ArtifactRepositoryImplTest {
             userArtifact = UserArtifactEntity(
                 id = 1,
                 setId = 1,
-                slot = "FLOWER",
+                slot = ArtifactSlot.FLOWER_OF_LIFE,
                 rarity = 5,
                 level = 20,
                 isLocked = false,
@@ -56,10 +58,19 @@ class ArtifactRepositoryImplTest {
                 subStats = emptyList(),
                 equippedCharacterId = null
             ),
-            set = ArtifactSetEntity(
+            setEntity = ArtifactSetEntity(
                 id = 1,
                 name = "Crimson Witch",
-                description = "Test",
+                rarities = listOf(4, 5),
+                bonus2pc = "Test",
+                bonus4pc = "Test",
+                iconUrl = "url"
+            ),
+            pieceEntity = ArtifactPieceEntity(
+                id = 1,
+                setId = 1,
+                slot = ArtifactSlot.FLOWER_OF_LIFE,
+                name = "Flower",
                 iconUrl = "url"
             )
         )
@@ -77,7 +88,9 @@ class ArtifactRepositoryImplTest {
         val mockSet = ArtifactSetEntity(
             id = 1,
             name = "Crimson Witch",
-            description = "Test",
+            rarities = listOf(4, 5),
+            bonus2pc = "Test",
+            bonus4pc = "Test",
             iconUrl = "url"
         )
 
@@ -104,10 +117,11 @@ class ArtifactRepositoryImplTest {
         val artifact = Artifact(
             id = 0,
             setName = "Crimson Witch",
-            slot = "FLOWER",
-            rarity = Rarity.FIVE_STAR,
+            slot = ArtifactSlot.FLOWER_OF_LIFE,
+            rarity = Rarity.FIVE_STARS,
             level = 20,
             isLocked = false,
+            artifactName = "Flower",
             mainStat = Stat(StatType.HP, StatValue.IntValue(4780)),
             subStats = emptyList()
         )
@@ -115,7 +129,9 @@ class ArtifactRepositoryImplTest {
         val mockSet = ArtifactSetEntity(
             id = 1,
             name = "Crimson Witch",
-            description = "Test",
+            rarities = listOf(4, 5),
+            bonus2pc = "Test",
+            bonus4pc = "Test",
             iconUrl = "url"
         )
 
@@ -131,10 +147,11 @@ class ArtifactRepositoryImplTest {
         val artifact = Artifact(
             id = 0,
             setName = "NonExistent",
-            slot = "FLOWER",
-            rarity = Rarity.FIVE_STAR,
+            slot = ArtifactSlot.FLOWER_OF_LIFE,
+            rarity = Rarity.FIVE_STARS,
             level = 20,
             isLocked = false,
+            artifactName = "Flower",
             mainStat = Stat(StatType.HP, StatValue.IntValue(4780)),
             subStats = emptyList()
         )

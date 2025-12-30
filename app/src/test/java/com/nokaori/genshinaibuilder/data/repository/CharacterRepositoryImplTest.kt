@@ -17,9 +17,11 @@ import com.nokaori.genshinaibuilder.domain.model.CharacterPromotion
 import com.nokaori.genshinaibuilder.domain.model.CharacterTalent
 import com.nokaori.genshinaibuilder.domain.model.Element
 import com.nokaori.genshinaibuilder.domain.model.StatCurve
+import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.TalentAttribute
 import com.nokaori.genshinaibuilder.domain.model.TalentType
 import com.nokaori.genshinaibuilder.domain.model.UserCharacter
+import com.nokaori.genshinaibuilder.domain.model.WeaponType
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -56,8 +58,12 @@ class CharacterRepositoryImplTest {
                 name = "Nahida",
                 element = Element.DENDRO,
                 rarity = 5,
-                weaponType = "CATALYST",
-                region = "Sumeru",
+                weaponType = WeaponType.CATALYST,
+                baseHpLvl1 = 1000f,
+                baseAtkLvl1 = 100f,
+                baseDefLvl1 = 50f,
+                ascensionStatType = StatType.ELEMENTAL_MASTERY,
+                curveId = "AVATAR_CURVE_EXP_FAST",
                 iconUrl = "url",
                 splashUrl = "url"
             ),
@@ -79,8 +85,12 @@ class CharacterRepositoryImplTest {
             name = "Nahida",
             element = Element.DENDRO,
             rarity = 5,
-            weaponType = "CATALYST",
-            region = "Sumeru",
+            weaponType = WeaponType.CATALYST,
+            baseHpLvl1 = 1000f,
+            baseAtkLvl1 = 100f,
+            baseDefLvl1 = 50f,
+            ascensionStatType = StatType.ELEMENTAL_MASTERY,
+            curveId = "AVATAR_CURVE_EXP_FAST",
             iconUrl = "url",
             splashUrl = "url"
         )
@@ -154,13 +164,17 @@ class CharacterRepositoryImplTest {
                 talentSkillLevel = 10,
                 talentBurstLevel = 10
             ),
-            character = CharacterEntity(
+            characterEntity = CharacterEntity(
                 id = 1,
                 name = "Nahida",
                 element = Element.DENDRO,
                 rarity = 5,
-                weaponType = "CATALYST",
-                region = "Sumeru",
+                weaponType = WeaponType.CATALYST,
+                baseHpLvl1 = 1000f,
+                baseAtkLvl1 = 100f,
+                baseDefLvl1 = 50f,
+                ascensionStatType = StatType.ELEMENTAL_MASTERY,
+                curveId = "AVATAR_CURVE_EXP_FAST",
                 iconUrl = "url",
                 splashUrl = "url"
             )
@@ -179,10 +193,11 @@ class CharacterRepositoryImplTest {
         val mockTalent = CharacterTalentEntity(
             id = 1,
             characterId = 1,
+            orderIndex = 0,
+            type = TalentType.NORMAL_ATTACK,
             name = "Normal Attack",
             description = "Test",
             iconUrl = "url",
-            type = TalentType.NORMAL,
             scalingAttributes = emptyList()
         )
 
@@ -197,12 +212,12 @@ class CharacterRepositoryImplTest {
     @Test
     fun getConstellations_returnsFlowOfConstellations() = runTest {
         val mockConstellation = CharacterConstellationEntity(
-            id = 1,
             characterId = 1,
             order = 1,
             name = "Constellation 1",
             description = "Test",
-            iconUrl = "url"
+            iconUrl = "url",
+            talentLevelUpTarget = TalentType.ELEMENTAL_SKILL
         )
 
         whenever(characterDao.getConstellations(1)).thenReturn(flowOf(listOf(mockConstellation)))
@@ -216,7 +231,6 @@ class CharacterRepositoryImplTest {
     @Test
     fun getCharacterPromotions_returnsListOfPromotions() = runTest {
         val mockPromotion = CharacterPromotionEntity(
-            id = 1,
             characterId = 1,
             ascensionLevel = 1,
             addHp = 100f,
