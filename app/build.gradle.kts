@@ -114,6 +114,8 @@ dependencies {
 
     // Тестирование
     testImplementation(libs.junit4)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
 
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
