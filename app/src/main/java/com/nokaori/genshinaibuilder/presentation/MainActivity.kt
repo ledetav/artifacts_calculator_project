@@ -185,7 +185,7 @@ fun AppContent() {
                                 actions = {
                                     if (currentRoute == NavigationItem.Artifacts.route) {
                                         IconButton(onClick = {
-                                            navController.navigate("artifact/add")
+                                            navController.navigate("artifact/editor")
                                         }) {
                                             Icon(
                                                 Icons.Default.Add,
@@ -223,7 +223,12 @@ fun AppContent() {
                         }
 
                         composable(NavigationItem.Artifacts.route) {
-                            ArtifactScreen(artifactViewModel = artifactViewModel)
+                            ArtifactScreen(
+                                artifactViewModel = artifactViewModel,
+                                onArtifactClick = { artifactId ->
+                                    navController.navigate("artifact/editor?artifactId=$artifactId")
+                                }
+                            )
                         }
 
                         composable(NavigationItem.Weapons.route) {
@@ -267,7 +272,16 @@ fun AppContent() {
                             WeaponDetailsScreen(onBackClick = { navController.popBackStack() })
                         }
 
-                        composable("artifact/add") {
+                        composable(
+                            route = "artifact/editor?artifactId={artifactId}",
+                            arguments = listOf(
+                                navArgument("artifactId") {
+                                    type = NavType.IntType
+                                    nullable = true
+                                    defaultValue = -1
+                                }
+                            )
+                        ) {
                             EditorArtifactScreen(
                                 onBackClick = { navController.popBackStack() }
                             )

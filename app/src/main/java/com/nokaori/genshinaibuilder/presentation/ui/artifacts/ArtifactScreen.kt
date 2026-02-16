@@ -22,7 +22,8 @@ import com.nokaori.genshinaibuilder.presentation.ui.artifacts.components.Artifac
 @Composable
 fun ArtifactScreen(
     modifier: Modifier = Modifier,
-    artifactViewModel: ArtifactViewModel
+    artifactViewModel: ArtifactViewModel,
+    onArtifactClick: (Int) -> Unit
 ) {
     val searchQuery by artifactViewModel.searchQuery.collectAsStateWithLifecycle()
     val searchedArtifacts by artifactViewModel.searchedArtifacts.collectAsStateWithLifecycle()
@@ -84,7 +85,10 @@ fun ArtifactScreen(
             contentPadding = PaddingValues(horizontal = 8.dp)
         ) {
             items(searchedArtifacts) { artifact ->
-                ArtifactItem(artifact = artifact)
+                ArtifactItem(
+                    artifact = artifact,
+                    onClick = { onArtifactClick(artifact.id) }
+                )
             }
         }
     }
