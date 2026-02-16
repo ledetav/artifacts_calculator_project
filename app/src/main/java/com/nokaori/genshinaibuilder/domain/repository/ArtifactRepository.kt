@@ -16,4 +16,6 @@ interface ArtifactRepository {
     suspend fun getArtifactSetDetails(setId: Int): ArtifactSet
     suspend fun getArtifactMainStatCurve(rarity: Int, statType: StatType): StatCurve?
     suspend fun getArtifactSubStatRolls(rarity: Int, statType: StatType): List<Float>?
+    suspend fun getArtifactById(id: Int): Artifact?
+    suspend fun updateArtifact(artifact: Artifact)
 }

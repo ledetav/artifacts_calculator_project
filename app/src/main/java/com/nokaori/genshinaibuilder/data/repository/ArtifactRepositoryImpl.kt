@@ -131,4 +131,36 @@ class ArtifactRepositoryImpl @Inject constructor (
 
         return entity.points.toSortedMap().values.toList()
     }
+
+    override suspend fun getArtifactById(id: Int): Artifact? {
+        return userDao.getUserArtifactCompleteById(id)?.toDomain()
+    }
+
+    override suspend fun updateArtifact(artifact: Artifact) {
+        // Получаем старую запись, чтобы не затереть equippedCharacterId, если он был
+        val existingEntity = userDao.getUserArtifactById(artifact.id) ?: return
+        
+        val setEntity = artifactDao.getSetByName(artifact.setName)
+            ?: throw IllegalArgumentException("Set '${artifact.setName}' not found")
+
+        val mainStatVal = when (val v = artifact.mainStat.value) {
+            is com.nokaori.genshinaibuilder.domain.model.StatValue.IntValue -> v.value.toFloat()
+            is com.nokaori.genshinaibuilder.domain.model.StatValue.DoubleValue -> v.value.toFloat()
+        }
+
+        val entity = UserArtifactEntity(
+            id = artifact.id, // Сохраняем ID для обновления
+            setId = setEntity.id,
+            slot = artifact.slot,
+            rarity = artifact.rarity.stars,
+            level = artifact.level,
+            isLocked = artifact.isLocked,
+            mainStatType = artifact.mainStat.type,
+            mainStatValue = mainStatVal,
+            subStats = artifact.subStats,
+            equippedCharacterId = existingEntity.equippedCharacterId // Сохраняем привязку к персонажу
+        )
+
+        userDao.updateUserArtifact(entity)
+    }
 }

@@ -10,6 +10,9 @@ import androidx.room.Update
 import com.nokaori.genshinaibuilder.data.local.entity.UserArtifactEntity
 import com.nokaori.genshinaibuilder.data.local.entity.UserCharacterEntity
 import com.nokaori.genshinaibuilder.data.local.entity.UserWeaponEntity
+import com.nokaori.genshinaibuilder.data.local.model.UserCharacterComplete
+import com.nokaori.genshinaibuilder.data.local.model.UserWeaponComplete
+import com.nokaori.genshinaibuilder.data.local.model.UserArtifactComplete
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -19,12 +22,12 @@ interface UserDao {
     // Для списка "Мои персонажи" (с именем и картинкой из энциклопедии)
     @Transaction
     @Query("SELECT * FROM user_characters")
-    fun getAllUserCharactersComplete(): Flow<List<com.nokaori.genshinaibuilder.data.local.model.UserCharacterComplete>>
+    fun getAllUserCharactersComplete(): Flow<List<UserCharacterComplete>>
 
     // Для экрана деталей конкретного перса
     @Transaction
     @Query("SELECT * FROM user_characters WHERE character_encyclopedia_id = :encyclopediaId")
-    fun getUserCharacterCompleteByEncyclopediaId(encyclopediaId: Int): Flow<com.nokaori.genshinaibuilder.data.local.model.UserCharacterComplete?>
+    fun getUserCharacterCompleteByEncyclopediaId(encyclopediaId: Int): Flow<UserCharacterComplete?>
 
     @Query("SELECT * FROM user_characters WHERE id = :id")
     suspend fun getUserCharacterById(id: Int): UserCharacterEntity?
@@ -50,7 +53,7 @@ interface UserDao {
     // Получить оружие + данные из энциклопедии
     @Transaction
     @Query("SELECT * FROM user_weapons")
-    fun getUserWeaponsComplete(): Flow<List<com.nokaori.genshinaibuilder.data.local.model.UserWeaponComplete>>
+    fun getUserWeaponsComplete(): Flow<List<UserWeaponComplete>>
 
     @Query("SELECT * FROM user_weapons WHERE id = :id")
     suspend fun getUserWeaponById(id: Int): UserWeaponEntity?
@@ -81,7 +84,21 @@ interface UserDao {
         INNER JOIN artifact_sets_data AS s ON ua.set_id = s.id
         INNER JOIN artifact_pieces_data AS p ON ua.set_id = p.set_id AND ua.slot = p.slot
     """)
-    fun getUserArtifactsComplete(): Flow<List<com.nokaori.genshinaibuilder.data.local.model.UserArtifactComplete>>
+    fun getUserArtifactsComplete(): Flow<List<UserArtifactComplete>>
+
+    @Query("""
+        SELECT 
+            ua.*, 
+            s.id AS user_set_id, s.name AS user_set_name, s.rarities AS user_set_rarities, 
+            s.bonus_2pc AS user_set_bonus_2pc, s.bonus_4pc AS user_set_bonus_4pc, s.icon_url AS user_set_icon_url,
+            p.id AS piece_id, p.set_id AS piece_set_id, p.slot AS piece_slot, 
+            p.name AS piece_name, p.icon_url AS piece_icon_url
+        FROM user_artifacts AS ua
+        INNER JOIN artifact_sets_data AS s ON ua.set_id = s.id
+        INNER JOIN artifact_pieces_data AS p ON ua.set_id = p.set_id AND ua.slot = p.slot
+        WHERE ua.id = :id
+    """)
+    suspend fun getUserArtifactCompleteById(id: Int): UserArtifactComplete?
 
     @Query("SELECT * FROM user_artifacts WHERE id = :id")
     suspend fun getUserArtifactById(id: Int): UserArtifactEntity?
