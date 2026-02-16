@@ -6,6 +6,7 @@ import com.nokaori.genshinaibuilder.domain.model.Rarity
 import com.nokaori.genshinaibuilder.domain.model.StatType
 
 data class EditorArtifactState(
+    val artifactId: Int? = null,
     val selectedSet: ArtifactSet? = null,
     val slot: ArtifactSlot = ArtifactSlot.FLOWER_OF_LIFE,
     val rarity: Rarity = Rarity.FIVE_STARS,
