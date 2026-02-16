@@ -185,7 +185,7 @@ fun AppContent() {
                                 actions = {
                                     if (currentRoute == NavigationItem.Artifacts.route) {
                                         IconButton(onClick = {
-                                            navController.navigate("artifact/editor")
+                                            navController.navigate("artifact/editor?artifactId=-1")
                                         }) {
                                             Icon(
                                                 Icons.Default.Add,
