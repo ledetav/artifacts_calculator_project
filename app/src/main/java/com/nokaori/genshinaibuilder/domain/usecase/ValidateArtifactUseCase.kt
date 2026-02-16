@@ -34,8 +34,6 @@ class ValidateArtifactUseCase @Inject constructor() {
         val (minInitial, maxInitial) = getInitialLinesRange(rarity)
         val upgrades = level / 4
 
-        val minTotal = minInitial + (if (level >= 4) 0 else 0)
-
         val minPossible = minInitial + upgrades
         val maxPossible = maxInitial + upgrades
 
@@ -43,6 +41,17 @@ class ValidateArtifactUseCase @Inject constructor() {
             errors.add("Invalid number of rolls for Lv.$level ${rarity.stars}★ artifact.\n" +
                     "Current: $totalRolls rolls.\n" +
                     "Expected: $minPossible..$maxPossible rolls.")
+        }
+
+        val minLines = minOf(4, minInitial + upgrades)
+        val maxLines = minOf(4, maxInitial + upgrades)
+        val currentLines = filledSubStats.size
+
+        if (currentLines < minLines || currentLines > maxLines) {
+            val expectedText = if (minLines == maxLines) "$minLines" else "$minLines..$maxLines"
+            errors.add("Invalid number of substats for Lv.$level ${rarity.stars}★ artifact.\n" +
+                    "Current: $currentLines substats.\n" +
+                    "Expected: $expectedText substats.")
         }
 
         val types = filledSubStats.mapNotNull { it.type }
