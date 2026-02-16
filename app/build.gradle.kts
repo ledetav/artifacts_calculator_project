@@ -14,8 +14,8 @@ android {
         applicationId = "com.nokaori.genshinaibuilder"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = (project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : 1)
+        versionName = "1.0.${versionCode}"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
