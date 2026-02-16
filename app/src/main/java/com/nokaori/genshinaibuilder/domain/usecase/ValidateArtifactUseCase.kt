@@ -15,16 +15,17 @@ class ValidateArtifactUseCase @Inject constructor() {
         val errors = mutableListOf<String>()
 
         if (state.selectedSet == null) {
-            errors.add("Artifact Set is not selected.")
+            errors.add("Please select an Artifact Set.")
         }
 
         if (state.mainStatType == null) {
-            errors.add("Main Stat is not selected.")
+            errors.add("Please select a Main Stat.")
         }
 
         val filledSubStats = state.subStats.filter { it.type != null }
+
         if (filledSubStats.any { it.value <= 0f }) {
-            errors.add("Some substats have 0 value.")
+            errors.add("Some substats have a value of 0. Please enter a value or remove them.")
         }
 
         val totalRolls = filledSubStats.sumOf { it.rollCount }
@@ -37,30 +38,28 @@ class ValidateArtifactUseCase @Inject constructor() {
         val minPossible = minInitial + upgrades
         val maxPossible = maxInitial + upgrades
 
-        if (totalRolls < minPossible || totalRolls > maxPossible) {
-            errors.add("Invalid number of rolls for Lv.$level ${rarity.stars}★ artifact.\n" +
-                    "Current: $totalRolls rolls.\n" +
-                    "Expected: $minPossible..$maxPossible rolls.")
+        if (totalRolls > 0 && (totalRolls < minPossible || totalRolls > maxPossible)) {
+            val expectedText = if (minPossible == maxPossible) "$minPossible" else "$minPossible to $maxPossible"
+            errors.add("A Lv.$level ${rarity.stars}★ artifact should have $expectedText total substat rolls, but currently has $totalRolls.")
         }
 
         val minLines = minOf(4, minInitial + upgrades)
         val maxLines = minOf(4, maxInitial + upgrades)
         val currentLines = filledSubStats.size
 
-        if (currentLines < minLines || currentLines > maxLines) {
-            val expectedText = if (minLines == maxLines) "$minLines" else "$minLines..$maxLines"
-            errors.add("Invalid number of substats for Lv.$level ${rarity.stars}★ artifact.\n" +
-                    "Current: $currentLines substats.\n" +
-                    "Expected: $expectedText substats.")
+        if (currentLines > 0 && (currentLines < minLines || currentLines > maxLines)) {
+            val expectedText = if (minLines == maxLines) "$minLines" else "$minLines to $maxLines"
+            errors.add("A Lv.$level ${rarity.stars}★ artifact should have $expectedText substat lines, but currently has $currentLines.")
         }
 
         val types = filledSubStats.mapNotNull { it.type }
+        
         if (types.size != types.toSet().size) {
-            errors.add("Duplicate substats found.")
+            errors.add("Duplicate substats found. Each substat must be unique.")
         }
 
-        if (state.mainStatType in types) {
-            errors.add("Substat cannot be the same as Main Stat.")
+        if (state.mainStatType != null && state.mainStatType in types) {
+            errors.add("A substat cannot be the same as the Main Stat.")
         }
 
         return if (errors.isEmpty()) ValidationResult.Success else ValidationResult.Error(errors)

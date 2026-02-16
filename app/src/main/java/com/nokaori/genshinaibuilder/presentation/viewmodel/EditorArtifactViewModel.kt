@@ -44,6 +44,20 @@ class EditorArtifactViewModel @Inject constructor(
         } else {
             updateMainStatsForCurrentSlot()
         }
+
+        viewModelScope.launch {
+            _state.collect { currentState ->
+                val validation = validateArtifactUseCase(currentState)
+                val newErrors = when (validation) {
+                    is ValidateArtifactUseCase.ValidationResult.Error -> validation.messages
+                    is ValidateArtifactUseCase.ValidationResult.Success -> emptyList()
+                }
+
+                if (currentState.validationErrors != newErrors) {
+                    _state.update { it.copy(validationErrors = newErrors) }
+                }
+            }
+        }
     }
 
     fun onSetClicked() { _state.update { it.copy(isSetSelectionDialogOpen = true) } }
@@ -321,20 +335,9 @@ class EditorArtifactViewModel @Inject constructor(
     }
 
     fun onSaveClicked() {
-        val validation = validateArtifactUseCase(_state.value)
-
-        when (validation) {
-            is ValidateArtifactUseCase.ValidationResult.Error -> {
-                _state.update { it.copy(validationError = validation.messages) }
-            }
-            is ValidateArtifactUseCase.ValidationResult.Success -> {
-                saveArtifactToDb()
-            }
+        if (_state.value.validationErrors.isEmpty()) {
+            saveArtifactToDb()
         }
-    }
-
-    fun onDismissError() {
-        _state.update { it.copy(validationError = null) }
     }
 
     private fun saveArtifactToDb() {

@@ -32,7 +32,7 @@ data class EditorArtifactState(
     val maxRollsPerLine: Int = 6,
     val currentMaxTotalRolls: Int = 9,
 
-    val validationError: List<String>? = null,
+    val validationErrors: List<String> = emptyList(),
     val isSaveSuccess: Boolean = false
 )
 
