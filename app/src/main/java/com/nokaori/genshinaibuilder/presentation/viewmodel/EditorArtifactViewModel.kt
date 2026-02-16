@@ -68,7 +68,19 @@ class EditorArtifactViewModel @Inject constructor(
     fun onRarityChanged(rarity: Rarity) {
         val newMaxLevel = when(rarity) { Rarity.FIVE_STARS -> 20; Rarity.FOUR_STARS -> 16; Rarity.THREE_STARS -> 12; else -> 4 }
         val newLevel = if (_state.value.level > newMaxLevel) newMaxLevel else _state.value.level
-        _state.update { it.copy(rarity = rarity, maxLevel = newMaxLevel, level = newLevel) }
+        
+        _state.update { state -> 
+            val newMaxSubStats = getMaxSubStatsFor(rarity, newLevel)
+            val newSubStats = state.subStats.take(newMaxSubStats) // Отсекаем лишнее, если лимит уменьшился
+    
+            state.copy(
+                rarity = rarity, 
+                maxLevel = newMaxLevel, 
+                level = newLevel,
+                maxSubStatsCount = newMaxSubStats,
+                subStats = newSubStats
+            ) 
+        }
         updateMainStatsForCurrentSlot()
         refreshAllSubStatValues()
     }
@@ -92,7 +104,16 @@ class EditorArtifactViewModel @Inject constructor(
     }
 
     fun onLevelChanged(level: Int) {
-        _state.update { it.copy(level = level) }
+        _state.update { state -> 
+            val newMaxSubStats = getMaxSubStatsFor(state.rarity, level)
+            val newSubStats = state.subStats.take(newMaxSubStats)
+    
+            state.copy(
+                level = level,
+                maxSubStatsCount = newMaxSubStats,
+                subStats = newSubStats
+            ) 
+        }
         recalculateMainStatValue()
     }
 
@@ -206,6 +227,8 @@ class EditorArtifactViewModel @Inject constructor(
                 )
             }
 
+            val newMaxSubStats = getMaxSubStatsFor(artifact.rarity, artifact.level)
+
             _state.update {
                 it.copy(
                     artifactId = artifact.id,
@@ -221,7 +244,8 @@ class EditorArtifactViewModel @Inject constructor(
                         is StatValue.DoubleValue -> v.value.toFloat()
                         is StatValue.IntValue -> v.value.toFloat()
                     },
-                    subStats = loadedSubStats,
+                    maxSubStatsCount = newMaxSubStats,
+                    subStats = loadedSubStats.take(newMaxSubStats),
                     availableMainStats = ArtifactRules.getAllowedMainStats(artifact.slot)
                 )
             }
@@ -358,5 +382,15 @@ class EditorArtifactViewModel @Inject constructor(
             
             _state.update { it.copy(isSaveSuccess = true) }
         }
+    }
+
+    private fun getMaxSubStatsFor(rarity: Rarity, level: Int): Int {
+        val maxInitial = when (rarity) {
+            Rarity.FIVE_STARS -> 4
+            Rarity.FOUR_STARS -> 3
+            Rarity.THREE_STARS -> 2
+            else -> 0
+        }
+        return minOf(4, maxInitial + (level / 4))
     }
 }
