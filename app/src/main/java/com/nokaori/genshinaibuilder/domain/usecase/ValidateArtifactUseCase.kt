@@ -22,8 +22,12 @@ class ValidateArtifactUseCase @Inject constructor() {
             errors.add("Please select a Main Stat.")
         }
 
-        val filledSubStats = state.subStats.filter { it.type != null }
+        if (state.subStats.any { it.type == null }) {
+            errors.add("Some substats are empty. Please select a stat type or remove them.")
+        }
 
+        val filledSubStats = state.subStats.filter { it.type != null }
+        
         if (filledSubStats.any { it.value <= 0f }) {
             errors.add("Some substats have a value of 0. Please enter a value or remove them.")
         }
@@ -38,7 +42,7 @@ class ValidateArtifactUseCase @Inject constructor() {
         val minPossible = minInitial + upgrades
         val maxPossible = maxInitial + upgrades
 
-        if (totalRolls > 0 && (totalRolls < minPossible || totalRolls > maxPossible)) {
+        if (totalRolls < minPossible || totalRolls > maxPossible) {
             val expectedText = if (minPossible == maxPossible) "$minPossible" else "$minPossible to $maxPossible"
             errors.add("A Lv.$level ${rarity.stars}★ artifact should have $expectedText total substat rolls, but currently has $totalRolls.")
         }
@@ -47,7 +51,7 @@ class ValidateArtifactUseCase @Inject constructor() {
         val maxLines = minOf(4, maxInitial + upgrades)
         val currentLines = filledSubStats.size
 
-        if (currentLines > 0 && (currentLines < minLines || currentLines > maxLines)) {
+        if (currentLines < minLines || currentLines > maxLines) {
             val expectedText = if (minLines == maxLines) "$minLines" else "$minLines to $maxLines"
             errors.add("A Lv.$level ${rarity.stars}★ artifact should have $expectedText substat lines, but currently has $currentLines.")
         }
