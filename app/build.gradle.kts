@@ -10,6 +10,15 @@ android {
     namespace = "com.nokaori.genshinaibuilder"
     compileSdk = 36
 
+    signingConfigs {
+        debug {
+            storeFile file("../debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.nokaori.genshinaibuilder"
         minSdk = 24
@@ -32,6 +41,12 @@ android {
                 it.maxHeapSize = "2048m"
                 it.jvmArgs("-XX:MaxMetaspaceSize=512m")
             }
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
         }
     }
 
