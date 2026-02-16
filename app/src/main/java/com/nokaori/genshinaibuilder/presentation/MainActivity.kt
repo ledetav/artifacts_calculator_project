@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Brightness4
 import androidx.compose.material.icons.filled.Brightness7
 import androidx.compose.material3.DrawerValue
@@ -35,29 +36,38 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.ArtifactScreen
+import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.EditorArtifactScreen
 import com.nokaori.genshinaibuilder.presentation.ui.characters.CharacterScreen
+import com.nokaori.genshinaibuilder.presentation.ui.characters.details.CharacterDetailsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.MainTopAppBar
+import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.EncyclopediaScreen
+import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.details.ArtifactSetDetailsScreen
+import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.details.WeaponDetailsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
 import com.nokaori.genshinaibuilder.presentation.ui.settings.SettingsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.theme.GenshinAIBuilderTheme
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.WeaponScreen
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.CharacterViewModel
+import com.nokaori.genshinaibuilder.presentation.viewmodel.EncyclopediaViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
-import com.nokaori.genshinaibuilder.presentation.viewmodel.ViewModelFactory
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,17 +86,13 @@ fun AppContent() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // --- INJECTION: Получаем ViewModel'и через Фабрику ---
-    // Factory сама достанет зависимости из Application класса
-    
-    val themeViewModel: ThemeViewModel = viewModel(factory = ViewModelFactory.Factory)
-    
-    // Эти VM можно создавать здесь или внутри composable блоков навигации.
-    // Создадим здесь, чтобы передать в Screens.
-    val artifactViewModel: ArtifactViewModel = viewModel(factory = ViewModelFactory.Factory)
-    val weaponViewModel: WeaponViewModel = viewModel(factory = ViewModelFactory.Factory)
-    val characterViewModel: CharacterViewModel = viewModel(factory = ViewModelFactory.Factory)
-    val settingsViewModel: SettingsViewModel = viewModel(factory = ViewModelFactory.Factory)
+    // Hilt автоматически создает ViewModels
+    val themeViewModel: ThemeViewModel = hiltViewModel()
+    val encyclopediaViewModel: EncyclopediaViewModel = hiltViewModel()
+    val artifactViewModel: ArtifactViewModel = hiltViewModel()
+    val weaponViewModel: WeaponViewModel = hiltViewModel()
+    val characterViewModel: CharacterViewModel = hiltViewModel()
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
 
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
 
@@ -98,6 +104,11 @@ fun AppContent() {
         NavigationItem.Builds,
         NavigationItem.Settings
     )
+
+    val topLevelRoutes = allNavItems.map { it.route }
+
+    val isTopLevelDestination = currentRoute in topLevelRoutes
+
     val currentNavItem = allNavItems.find { it.route == currentRoute }
 
     GenshinAIBuilderTheme(darkTheme = isDarkTheme) {
@@ -109,8 +120,10 @@ fun AppContent() {
             if (!view.isInEditMode) {
                 SideEffect {
                     val window = (view.context as Activity).window
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDarkTheme
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !isDarkTheme
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
+                        !isDarkTheme
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars =
+                        !isDarkTheme
                 }
             }
 
@@ -161,53 +174,62 @@ fun AppContent() {
             ) {
                 Scaffold(
                     topBar = {
-                        MainTopAppBar(
-                            title = stringResource(id = currentNavItem?.titleResId ?: R.string.app_name),
-                            onNavigationIconClick = {
-                                scope.launch { drawerState.open() }
-                            },
-                            actions = {
-                                // Кнопки "+" временно скрыты, пока нет экранов ввода
-                                // (чтобы не вызывать краш при пустой базе)
-                                /*
-                                if (currentRoute == NavigationItem.Artifacts.route) {
-                                    IconButton(onClick = { /* TODO: Open Add Artifact Screen */ }) {
-                                        Icon(Icons.Default.Add, contentDescription = null)
+                        if (isTopLevelDestination) {
+                            MainTopAppBar(
+                                title = stringResource(
+                                    id = currentNavItem?.titleResId ?: R.string.app_name
+                                ),
+                                onNavigationIconClick = {
+                                    scope.launch { drawerState.open() }
+                                },
+                                actions = {
+                                    if (currentRoute == NavigationItem.Artifacts.route) {
+                                        IconButton(onClick = {
+                                            navController.navigate("artifact/add")
+                                        }) {
+                                            Icon(
+                                                Icons.Default.Add,
+                                                contentDescription = stringResource(R.string.artifact_add_button)
+                                            )
+                                        }
                                     }
                                 }
-                                */
-                            }
-                        )
+                            )
+                        }
                     }
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        // Теперь стартуем с Энциклопедии (или с Персонажей, как тебе удобнее)
-                        startDestination = NavigationItem.Encyclopedia.route, 
+                        startDestination = NavigationItem.Encyclopedia.route,
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        // 1. Энциклопедия (Табы)
                         composable(NavigationItem.Encyclopedia.route) {
-                            // Тут ViewModel пока не нужна, или создадим позже EncyclopediaViewModel
-                            com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.EncyclopediaScreen()
+                            EncyclopediaScreen(
+                                encyclopediaViewModel = encyclopediaViewModel,
+                                onArtifactSetClick = { setId ->
+                                    navController.navigate("encyclopedia/artifact/$setId")
+                                },
+                                onWeaponClick = { weaponId ->
+                                    navController.navigate("encyclopedia/weapon/$weaponId")
+                                }
+                            )
                         }
 
-                        // 2. Персонажи (Список)
                         composable(NavigationItem.Characters.route) {
-                            CharacterScreen(characterViewModel = characterViewModel)
+                            CharacterScreen(
+                                characterViewModel = characterViewModel,
+                                onCharacterClick = { id -> navController.navigate("character/$id") }
+                            )
                         }
 
-                        // 3. Инвентарь: Артефакты
                         composable(NavigationItem.Artifacts.route) {
                             ArtifactScreen(artifactViewModel = artifactViewModel)
                         }
 
-                        // 4. Инвентарь: Оружие
                         composable(NavigationItem.Weapons.route) {
                             WeaponScreen(weaponViewModel = weaponViewModel)
                         }
 
-                        // 5. Билды
                         composable(NavigationItem.Builds.route) {
                             Surface(modifier = Modifier.fillMaxSize()) {
                                 Box(contentAlignment = Alignment.Center) {
@@ -216,9 +238,39 @@ fun AppContent() {
                             }
                         }
 
-                        // 6. Настройки
                         composable(NavigationItem.Settings.route) {
                             SettingsScreen(settingsViewModel = settingsViewModel)
+                        }
+
+                        composable(
+                            route = "character/{characterId}",
+                            arguments = listOf(
+                                navArgument("characterId") { type = NavType.IntType }
+                            )
+                        ) {
+                            CharacterDetailsScreen(
+                                onBackClick = { navController.popBackStack() }
+                            )
+                        }
+
+                        composable(
+                            route = "encyclopedia/artifact/{setId}",
+                            arguments = listOf(navArgument("setId") { type = NavType.IntType })
+                        ) {
+                            ArtifactSetDetailsScreen(onBackClick = { navController.popBackStack() })
+                        }
+
+                        composable(
+                            route = "encyclopedia/weapon/{weaponId}",
+                            arguments = listOf(navArgument("weaponId") { type = NavType.IntType })
+                        ) {
+                            WeaponDetailsScreen(onBackClick = { navController.popBackStack() })
+                        }
+
+                        composable("artifact/add") {
+                            EditorArtifactScreen(
+                                onBackClick = { navController.popBackStack() }
+                            )
                         }
                     }
                 }

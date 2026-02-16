@@ -37,7 +37,7 @@ fun <T> SimpleDropdown(
     items: List<T>,
     selectedItem: T?,
     onItemSelected: (T) -> Unit,
-    onClearSelection: () -> Unit,
+    onClearSelection: (() -> Unit)? = null,
     placeholderText: String,
     itemText: @Composable (T) -> String,
     isExpanded: Boolean,
@@ -52,7 +52,7 @@ fun <T> SimpleDropdown(
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.outline,
-                    shape = MaterialTheme.shapes.extraLarge
+                    shape = MaterialTheme.shapes.small
                 )
                 .clip(MaterialTheme.shapes.extraSmall)
                 .clickable(
@@ -70,7 +70,7 @@ fun <T> SimpleDropdown(
                 else MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            if (selectedItem != null) {
+            if (selectedItem != null && onClearSelection != null) {
                 IconButton(
                     onClick = onClearSelection,
                     modifier = Modifier.size(24.dp)

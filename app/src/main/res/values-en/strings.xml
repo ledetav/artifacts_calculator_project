@@ -68,4 +68,19 @@
     <string name="filter_ownership_all">All</string>
     <string name="filter_ownership_owned">Owned</string>
     <string name="filter_ownership_missing">Missing</string>
+    <string name="tab_talents">Talents</string>
+    <string name="tab_constellations">Constellations</string>
+    <string name="char_section_attributes">Attributes</string>
+    <string name="char_section_equipment">Equipment</string>
+    <string name="stat_label_level">Level</string>
+    <string name="talent_passive">Passive Talent</string>
+    <string name="talent_level_fmt">Level %1$d</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_add_to_collection">Add to Collection</string>
+    <string name="cd_edit_character">Edit</string>
+    <string name="cd_delete_character">Delete</string>
+    <string name="cd_add_item">Add Item</string>
+    <string name="art_section_pieces">%d Set Pieces</string>
+    <string name="artifact_substats_title">Artifact Substats</string>
+    <string name="artifact_substats_empty_hint">Please add artifact sustats</string>
 </resources>

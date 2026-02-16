@@ -2,11 +2,19 @@ package com.nokaori.genshinaibuilder.data.local.converters
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory
 import com.nokaori.genshinaibuilder.domain.model.*
 
 class Converters {
-    private val gson = Gson()
+    private val statValueAdapterFactory = RuntimeTypeAdapterFactory.of(StatValue::class.java, "type")
+        .registerSubtype(StatValue.IntValue::class.java, "int")
+        .registerSubtype(StatValue.DoubleValue::class.java, "double")
+
+    private val gson = GsonBuilder()
+        .registerTypeAdapterFactory(statValueAdapterFactory)
+        .create()
 
     // --- Списки примитивов ---
 

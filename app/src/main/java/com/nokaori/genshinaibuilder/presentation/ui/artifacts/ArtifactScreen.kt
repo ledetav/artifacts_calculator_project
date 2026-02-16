@@ -7,9 +7,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,7 +53,7 @@ fun ArtifactScreen(
     }
 
     Column(modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
-        OutlinedTextField(
+        TextField(
             value = searchQuery,
             onValueChange = { newText ->
                 artifactViewModel.onSearchQueryChange(newText)
@@ -70,7 +70,12 @@ fun ArtifactScreen(
                         contentDescription = stringResource(R.string.filter_dialog_title)
                     )
                 }
-            }
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))

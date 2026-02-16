@@ -25,11 +25,17 @@ interface CharacterDao {
     """)
     fun getCharactersWithOwnership(): Flow<List<com.nokaori.genshinaibuilder.data.local.model.CharacterWithOwnership>>
 
+    @Query("SELECT icon_url FROM characters_data UNION SELECT splash_url FROM characters_data")
+    suspend fun getAllCharacterUrls(): List<String>
+
     @Query("SELECT * FROM characters_data WHERE name LIKE '%' || :query || '%' ORDER BY rarity DESC")
     fun searchCharacters(query: String): Flow<List<CharacterEntity>>
 
     @Query("SELECT * FROM characters_data WHERE id = :id")
     suspend fun getCharacterById(id: Int): CharacterEntity?
+
+    @Query("SELECT id FROM characters_data")
+    suspend fun getAllCharacterIds(): List<Int>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCharacters(characters: List<CharacterEntity>)
@@ -40,6 +46,9 @@ interface CharacterDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPromotions(promotions: List<CharacterPromotionEntity>)
+
+    @Query("SELECT * FROM character_promotions WHERE character_id = :charId ORDER BY ascension_level ASC")
+    suspend fun getPromotionsForCharacter(charId: Int): List<CharacterPromotionEntity>
 
     // --- CONSTELLATIONS ---
     @Query("SELECT * FROM character_constellations WHERE character_id = :charId ORDER BY `order` ASC")

@@ -31,35 +31,33 @@ fun YattaWeaponCurveResponse.toEntities(): List<StatCurveEntity> {
 
 fun YattaRelicCurveResponse.toEntities(): List<StatCurveEntity> {
     val result = mutableListOf<StatCurveEntity>()
-    
+
     this.data.ranked.forEach ranked@{ (rankStr: String, levelsMap) ->
         val rank = rankStr.toIntOrNull() ?: return@ranked
-        
         val mainStatsMap = mutableMapOf<String, MutableMap<Int, Float>>()
 
         levelsMap.forEach levels@{ (levelStr: String, stats) ->
             val gameLevel = (levelStr.toIntOrNull() ?: 0) - 1
             if (gameLevel < 0) return@levels
-
             stats.forEach { (statName: String, value: Double) ->
                 mainStatsMap.getOrPut(statName) { mutableMapOf() }[gameLevel] = value.toFloat()
             }
         }
-
         mainStatsMap.forEach { (statName: String, points) ->
             val curveId = "ARTIFACT_RANK_${rank}_MAIN_${statName}"
             result.add(StatCurveEntity(id = curveId, points = points))
         }
     }
+
     this.data.affix.forEach affix@{ (rankStr: String, statsMap) ->
         val rank = rankStr.toIntOrNull() ?: return@affix
 
         statsMap.forEach { (statName: String, rolls) ->
-            val maxRoll = rolls.maxOrNull()?.toFloat() ?: 0f
-            
+            val points = rolls.mapIndexed { index, value ->
+                index to value.toFloat()
+            }.toMap()
+
             val curveId = "ARTIFACT_RANK_${rank}_SUB_${statName}"
-            val points = mapOf(0 to maxRoll)
-            
             result.add(StatCurveEntity(id = curveId, points = points))
         }
     }

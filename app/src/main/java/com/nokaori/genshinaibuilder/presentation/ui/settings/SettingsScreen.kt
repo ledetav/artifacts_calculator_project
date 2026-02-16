@@ -5,19 +5,22 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nokaori.genshinaibuilder.domain.model.SyncStatus
 import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel
 ) {
-    val updateState by settingsViewModel.updateState.collectAsStateWithLifecycle()
+    val syncStatus by settingsViewModel.syncStatus.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -35,44 +38,59 @@ fun SettingsScreen(
 
         Button(
             onClick = { settingsViewModel.updateDatabase() },
-            enabled = updateState !is SettingsViewModel.UpdateState.Loading
+            enabled = syncStatus !is SyncStatus.InProgress
         ) {
             Text(text = "Обновить базу персонажей")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        when (val state = updateState) {
-            is SettingsViewModel.UpdateState.Idle -> {
-                Text("База данных готова к обновлению.", color = Color.Gray)
-            }
-            is SettingsViewModel.UpdateState.Loading -> {
-                CircularProgressIndicator()
+        when (val status = syncStatus) {
+            is SyncStatus.Idle -> Text("Ожидание...")
+            
+            is SyncStatus.InProgress -> {
+                LinearProgressIndicator(
+                    progress = { status.progress },
+                    modifier = Modifier.fillMaxWidth().height(8.dp),
+                )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Загрузка данных с Yatta...", color = MaterialTheme.colorScheme.primary)
+                Text(status.message, style = MaterialTheme.typography.labelLarge)
+                
+                // Консоль (последние 3 лога)
+                LogConsole(logs = status.logs)
             }
-            is SettingsViewModel.UpdateState.Success -> {
-                Text("✅ База успешно обновлена!", color = Color(0xFF4CAF50)) // Зеленый
+            
+            is SyncStatus.Success -> {
+                Text(status.summary, color = Color.Green, style = MaterialTheme.typography.titleMedium)
+                LogConsole(logs = status.fullLogs)
             }
-            is SettingsViewModel.UpdateState.Error -> {
-                // ВЫВОДИМ ОШИБКУ
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "❌ Ошибка обновления",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = state.message,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                    }
-                }
+            
+            is SyncStatus.Error -> {
+                Text("Ошибка: ${status.message}", color = Color.Red)
+            }
+        }
+    }
+}
+
+@Composable
+fun LogConsole(logs: List<String>) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.05f)),
+        modifier = Modifier.fillMaxWidth().height(200.dp).padding(top = 8.dp)
+    ) {
+        val scrollState = rememberScrollState()
+        LaunchedEffect(logs.size) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+        
+        Column(modifier = Modifier.padding(8.dp).verticalScroll(scrollState)) {
+            logs.forEach { log ->
+                Text(
+                    text = log,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 10.sp,
+                    lineHeight = 12.sp
+                )
             }
         }
     }

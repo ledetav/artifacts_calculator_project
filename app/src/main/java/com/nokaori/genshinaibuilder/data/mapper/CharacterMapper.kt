@@ -4,6 +4,7 @@ import com.nokaori.genshinaibuilder.data.local.entity.CharacterEntity
 import com.nokaori.genshinaibuilder.data.local.model.CharacterWithOwnership
 import com.nokaori.genshinaibuilder.data.local.model.UserCharacterComplete
 import com.nokaori.genshinaibuilder.domain.model.Character
+import com.nokaori.genshinaibuilder.domain.model.Rarity
 import com.nokaori.genshinaibuilder.domain.model.UserCharacter
 
 // 1. Для списка энциклопедии (с галочкой "Есть/Нет")
@@ -18,9 +19,14 @@ fun CharacterEntity.toDomain(isOwned: Boolean): Character {
         name = this.name,
         element = this.element,
         weaponType = this.weaponType,
-        rarity = this.rarity,
+        rarity = Rarity.fromInt(this.rarity),
         iconUrl = this.iconUrl,
-        isOwned = isOwned
+        isOwned = isOwned,
+        baseHp = this.baseHpLvl1,
+        baseAtk = this.baseAtkLvl1,
+        baseDef = this.baseDefLvl1,
+        ascensionStatType = this.ascensionStatType,
+        curveId = this.curveId
     )
 }
 

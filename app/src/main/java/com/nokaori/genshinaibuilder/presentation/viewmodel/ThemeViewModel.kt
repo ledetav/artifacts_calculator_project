@@ -7,8 +7,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ThemeViewModel(private val themeRepository: ThemeRepository) : ViewModel() {
+@HiltViewModel
+class ThemeViewModel @Inject constructor (private val themeRepository: ThemeRepository) : ViewModel() {
     val isDarkTheme: StateFlow<Boolean> = themeRepository.isDarkTheme
         .stateIn(
             scope = viewModelScope,

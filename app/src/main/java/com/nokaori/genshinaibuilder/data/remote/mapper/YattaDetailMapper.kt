@@ -6,10 +6,8 @@ import com.nokaori.genshinaibuilder.data.local.entity.CharacterTalentEntity
 import com.nokaori.genshinaibuilder.data.local.entity.CharacterPromotionEntity
 import com.nokaori.genshinaibuilder.data.remote.dto.YattaAvatarDetailDto
 import com.nokaori.genshinaibuilder.data.remote.dto.YattaTalentDto
-import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.TalentAttribute
 import com.nokaori.genshinaibuilder.domain.model.TalentType
-import com.nokaori.genshinaibuilder.data.remote.mapper.parseYattaStatType
 
 private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI"
 

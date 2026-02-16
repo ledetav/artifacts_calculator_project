@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -22,7 +23,8 @@ import com.nokaori.genshinaibuilder.presentation.viewmodel.CharacterViewModel
 @Composable
 fun CharacterScreen(
     characterViewModel: CharacterViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCharacterClick: (Int) -> Unit = {}
 ) {
     val searchQuery by characterViewModel.searchQuery.collectAsStateWithLifecycle()
     val characters by characterViewModel.characters.collectAsStateWithLifecycle()
@@ -45,7 +47,7 @@ fun CharacterScreen(
 
     Column(modifier = modifier.padding(8.dp)) {
         // Поиск и кнопка фильтра
-        OutlinedTextField(
+        TextField(
             value = searchQuery,
             onValueChange = characterViewModel::onSearchQueryChange,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
@@ -55,7 +57,12 @@ fun CharacterScreen(
                 IconButton(onClick = characterViewModel::onFilterIconClicked) {
                     Icon(Icons.Default.FilterList, contentDescription = null)
                 }
-            }
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent
+            )
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -70,7 +77,7 @@ fun CharacterScreen(
             items(characters) { character ->
                 CharacterItem(
                     character = character,
-                    onClick = { characterViewModel.onCharacterClicked(character.id) }
+                    onClick = { onCharacterClick(character.id) }
                 )
             }
         }
