@@ -185,7 +185,7 @@ fun AppContent() {
                                 actions = {
                                     if (currentRoute == NavigationItem.Artifacts.route) {
                                         IconButton(onClick = {
-                                            navController.navigate("artifact/editor?artifactId=-1")
+                                            navController.navigate("artifact/editor")
                                         }) {
                                             Icon(
                                                 Icons.Default.Add,
@@ -276,14 +276,15 @@ fun AppContent() {
                             route = "artifact/editor?artifactId={artifactId}",
                             arguments = listOf(
                                 navArgument("artifactId") {
-                                    type = NavType.IntType
+                                    type = NavType.StringType
                                     nullable = true
-                                    defaultValue = -1
+                                    defaultValue = null
                                 }
                             )
-                        ) {
+                        ) { backStackEntry ->
                             EditorArtifactScreen(
-                                onBackClick = { navController.popBackStack() }
+                                onBackClick = { navController.popBackStack() },
+                                artifactId = backStackEntry.arguments?.getString("artifactId")
                             )
                         }
                     }

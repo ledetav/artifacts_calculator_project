@@ -33,6 +33,7 @@ import com.nokaori.genshinaibuilder.presentation.viewmodel.EditorArtifactViewMod
 @Composable
 fun EditorArtifactScreen(
     onBackClick: () -> Unit,
+    artifactId: String? = null,
     viewModel: EditorArtifactViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
