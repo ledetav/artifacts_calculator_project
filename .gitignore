@@ -99,3 +99,6 @@ coverage/
 # Специфичные для Flutter файлы, которые не нужно отслеживать
 flutter_diag.log
 flutter_tools.stamp
+
+giaibuilder_release_key.jks
+giaibuilder_keystore_b64.txt
