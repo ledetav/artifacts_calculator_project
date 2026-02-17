@@ -19,6 +19,8 @@ import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.components.ArtifactFilterDialog
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.components.ArtifactItem
+import com.nokaori.genshinaibuilder.presentation.util.sensor.rememberShakeSensor
+import com.nokaori.genshinaibuilder.presentation.ui.artifacts.data.ArtifactFilterState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +32,13 @@ fun ArtifactScreen(
     val searchQuery by artifactViewModel.searchQuery.collectAsStateWithLifecycle()
     val searchedArtifacts by artifactViewModel.searchedArtifacts.collectAsStateWithLifecycle()
     val isFilterDialogShown by artifactViewModel.isFilterDialogShown.collectAsStateWithLifecycle()
+    val hasActiveFilters by artifactViewModel.hasActiveFilters.collectAsStateWithLifecycle()
+
+    rememberShakeSensor(onShake = {
+        if (hasActiveFilters) {
+            artifactViewModel.onResetFilters()
+        }
+    })
 
     if(isFilterDialogShown){
         val draftArtifactFilterState by artifactViewModel.draftArtifactFilterState.collectAsStateWithLifecycle()

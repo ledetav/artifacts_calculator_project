@@ -17,6 +17,7 @@ import com.nokaori.genshinaibuilder.presentation.ui.weapons.components.UserWeapo
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.components.WeaponFilterDialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nokaori.genshinaibuilder.presentation.util.sensor.rememberShakeSensor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,6 +29,13 @@ fun WeaponScreen(
     val searchedWeapons by weaponViewModel.searchedWeapons.collectAsStateWithLifecycle()
     val isFilterDialogShown by weaponViewModel.isFilterDialogShown.collectAsStateWithLifecycle()
     val areWeaponFiltersChanged by weaponViewModel.areWeaponFiltersChanged.collectAsStateWithLifecycle()
+    val hasActiveFilters by weaponViewModel.hasActiveFilters.collectAsStateWithLifecycle()
+
+    rememberShakeSensor(onShake = {
+        if (hasActiveFilters) {
+            weaponViewModel.onResetFilters()
+        }
+    })
 
     if (isFilterDialogShown) {
         val draftWeaponFilterState by weaponViewModel.draftWeaponFilterState.collectAsStateWithLifecycle()

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -38,6 +39,10 @@ class CharacterViewModel @Inject constructor(
     val areFiltersChanged: StateFlow<Boolean> = combine(_filterState, _draftFilterState) { active, draft ->
         active != draft
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
+
+    val hasActiveFilters: StateFlow<Boolean> = _filterState.map {
+        it != CharacterFilterState()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     // Основной список
     val characters: StateFlow<List<Character>> = combine(

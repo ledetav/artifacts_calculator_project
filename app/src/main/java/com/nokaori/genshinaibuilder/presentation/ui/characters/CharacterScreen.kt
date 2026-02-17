@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nokaori.genshinaibuilder.presentation.util.sensor.rememberShakeSensor
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.characters.components.CharacterFilterDialog
 import com.nokaori.genshinaibuilder.presentation.ui.characters.components.CharacterItem
@@ -30,6 +31,13 @@ fun CharacterScreen(
     val characters by characterViewModel.characters.collectAsStateWithLifecycle()
     val isFilterDialogShown by characterViewModel.isFilterDialogShown.collectAsStateWithLifecycle()
     val areFiltersChanged by characterViewModel.areFiltersChanged.collectAsStateWithLifecycle()
+    val hasActiveFilters by characterViewModel.hasActiveFilters.collectAsStateWithLifecycle()
+
+    rememberShakeSensor(onShake = {
+        if (hasActiveFilters) {
+            characterViewModel.onResetFilters()
+        }
+    })
 
     if (isFilterDialogShown) {
         val draftState by characterViewModel.draftFilterState.collectAsStateWithLifecycle()

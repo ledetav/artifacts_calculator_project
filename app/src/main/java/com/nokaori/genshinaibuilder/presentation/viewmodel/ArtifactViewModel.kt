@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlin.math.max
@@ -42,6 +43,10 @@ class ArtifactViewModel @Inject constructor (
         draftArtifactFilterState
     ) { active, draft ->
         active != draft
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val hasActiveFilters: StateFlow<Boolean> = _activeArtifactFilterState.map {
+        it != ArtifactFilterState()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     // Данные берутся из БД через репозиторий
