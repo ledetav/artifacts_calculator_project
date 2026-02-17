@@ -6,6 +6,7 @@ data class Artifact(
     val rarity: Rarity,
     val setName: String,
     val artifactName: String,
+    val iconUrl: String,
     val level: Int,
     val mainStat: Stat,
     val subStats: List<Stat>,
