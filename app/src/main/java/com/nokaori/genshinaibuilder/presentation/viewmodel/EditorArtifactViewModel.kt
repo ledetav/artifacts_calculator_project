@@ -352,6 +352,7 @@ class EditorArtifactViewModel @Inject constructor(
                 rarity = s.rarity,
                 setName = s.selectedSet!!.name,
                 artifactName = artifactPieceName,
+                iconUrl = s.currentPieceIconUrl ?: "",
                 level = s.level,
 
                 mainStat = Stat(

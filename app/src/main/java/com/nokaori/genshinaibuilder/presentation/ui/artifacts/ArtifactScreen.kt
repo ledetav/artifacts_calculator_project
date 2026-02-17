@@ -2,6 +2,8 @@ package com.nokaori.genshinaibuilder.presentation.ui.artifacts
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
@@ -81,10 +83,16 @@ fun ArtifactScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(
-            contentPadding = PaddingValues(horizontal = 8.dp)
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 100.dp), // Задает ширину колонки, создавая сетку
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(searchedArtifacts) { artifact ->
+            items(
+                items = searchedArtifacts,
+                key = { artifact -> artifact.id }
+            ) { artifact ->
                 ArtifactItem(
                     artifact = artifact,
                     onClick = { onArtifactClick(artifact.id) }
