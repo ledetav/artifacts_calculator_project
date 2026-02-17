@@ -33,33 +33,19 @@ import com.nokaori.genshinaibuilder.presentation.viewmodel.EditorArtifactViewMod
 @Composable
 fun EditorArtifactScreen(
     onBackClick: () -> Unit,
+    artifactId: String? = null,
     viewModel: EditorArtifactViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val filteredSets by viewModel.filteredSets.collectAsStateWithLifecycle()
     val isEditingEnabled = state.selectedSet != null
+    
+    val hasErrors = state.validationErrors.isNotEmpty()
 
     LaunchedEffect(state.isSaveSuccess) {
         if (state.isSaveSuccess) {
             onBackClick()
         }
-    }
-
-    if (state.validationError != null) {
-        AlertDialog(
-            onDismissRequest = viewModel::onDismissError,
-            title = { Text("Validation Error") },
-            text = {
-                Column {
-                    state.validationError!!.forEach { err ->
-                        Text("- $err", color = MaterialTheme.colorScheme.error)
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = viewModel::onDismissError) { Text("OK") }
-            }
-        )
     }
 
     if (state.isSetSelectionDialogOpen) {
@@ -94,10 +80,14 @@ fun EditorArtifactScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = viewModel::onSaveClicked,
+                onClick = { if (!hasErrors) viewModel.onSaveClicked() },
                 icon = { Icon(Icons.Default.Save, null) },
                 text = { Text("Save Artifact") },
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = if (hasErrors) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primary,
+                contentColor = if (hasErrors) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onPrimary,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = if (hasErrors) 0.dp else 6.dp
+                )
             )
         }
     ) { innerPadding ->
@@ -147,7 +137,33 @@ fun EditorArtifactScreen(
                 onManualInput = viewModel::onSubStatManualValueEntered
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            if (hasErrors) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Cannot save artifact:",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        state.validationErrors.forEach { error ->
+                            Text(
+                                text = "• $error",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }

@@ -21,6 +21,8 @@ fun UserArtifactComplete.toDomain(): Artifact {
         // Берем имя конкретного куска ("Солнечная реликвия")
         artifactName = this.pieceEntity.name,
 
+        iconUrl = this.pieceEntity.iconUrl,
+
         level = this.userArtifact.level,
         isLocked = this.userArtifact.isLocked,
 

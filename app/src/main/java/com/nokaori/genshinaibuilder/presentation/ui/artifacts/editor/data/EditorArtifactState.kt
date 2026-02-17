@@ -6,6 +6,7 @@ import com.nokaori.genshinaibuilder.domain.model.Rarity
 import com.nokaori.genshinaibuilder.domain.model.StatType
 
 data class EditorArtifactState(
+    val artifactId: Int? = null,
     val selectedSet: ArtifactSet? = null,
     val slot: ArtifactSlot = ArtifactSlot.FLOWER_OF_LIFE,
     val rarity: Rarity = Rarity.FIVE_STARS,
@@ -31,7 +32,7 @@ data class EditorArtifactState(
     val maxRollsPerLine: Int = 6,
     val currentMaxTotalRolls: Int = 9,
 
-    val validationError: List<String>? = null,
+    val validationErrors: List<String> = emptyList(),
     val isSaveSuccess: Boolean = false
 )
 

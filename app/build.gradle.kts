@@ -10,12 +10,21 @@ android {
     namespace = "com.nokaori.genshinaibuilder"
     compileSdk = 36
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("../debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.nokaori.genshinaibuilder"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = if (project.hasProperty("versionCode")) project.property("versionCode").toString().toInt() else 1
+        versionName = "1.0.${versionCode}"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -32,6 +41,12 @@ android {
                 it.maxHeapSize = "2048m"
                 it.jvmArgs("-XX:MaxMetaspaceSize=512m")
             }
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 

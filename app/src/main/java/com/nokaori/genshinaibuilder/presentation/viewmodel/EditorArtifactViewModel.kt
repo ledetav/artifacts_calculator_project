@@ -13,13 +13,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.lifecycle.SavedStateHandle 
 
 @HiltViewModel
 class EditorArtifactViewModel @Inject constructor(
     private val artifactRepository: ArtifactRepository,
     private val calculateMainStatUseCase: CalculateArtifactMainStatUseCase,
     private val calculateSubStatRollsUseCase: CalculateSubStatRollsUseCase,
-    private val validateArtifactUseCase: ValidateArtifactUseCase
+    private val validateArtifactUseCase: ValidateArtifactUseCase,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(EditorArtifactState())
@@ -36,7 +38,26 @@ class EditorArtifactViewModel @Inject constructor(
     private var currentMainStatCurve: StatCurve? = null
 
     init {
-        updateMainStatsForCurrentSlot()
+        val argId = savedStateHandle.get<String>("artifactId")?.toIntOrNull()
+        if (argId != null && argId != -1) {
+            loadArtifact(argId)
+        } else {
+            updateMainStatsForCurrentSlot()
+        }
+
+        viewModelScope.launch {
+            _state.collect { currentState ->
+                val validation = validateArtifactUseCase(currentState)
+                val newErrors = when (validation) {
+                    is ValidateArtifactUseCase.ValidationResult.Error -> validation.messages
+                    is ValidateArtifactUseCase.ValidationResult.Success -> emptyList()
+                }
+
+                if (currentState.validationErrors != newErrors) {
+                    _state.update { it.copy(validationErrors = newErrors) }
+                }
+            }
+        }
     }
 
     fun onSetClicked() { _state.update { it.copy(isSetSelectionDialogOpen = true) } }
@@ -61,7 +82,19 @@ class EditorArtifactViewModel @Inject constructor(
     fun onRarityChanged(rarity: Rarity) {
         val newMaxLevel = when(rarity) { Rarity.FIVE_STARS -> 20; Rarity.FOUR_STARS -> 16; Rarity.THREE_STARS -> 12; else -> 4 }
         val newLevel = if (_state.value.level > newMaxLevel) newMaxLevel else _state.value.level
-        _state.update { it.copy(rarity = rarity, maxLevel = newMaxLevel, level = newLevel) }
+        
+        _state.update { state -> 
+            val newMaxSubStats = getMaxSubStatsFor(rarity, newLevel)
+            val newSubStats = state.subStats.take(newMaxSubStats) // Отсекаем лишнее, если лимит уменьшился
+    
+            state.copy(
+                rarity = rarity, 
+                maxLevel = newMaxLevel, 
+                level = newLevel,
+                maxSubStatsCount = newMaxSubStats,
+                subStats = newSubStats
+            ) 
+        }
         updateMainStatsForCurrentSlot()
         refreshAllSubStatValues()
     }
@@ -85,7 +118,16 @@ class EditorArtifactViewModel @Inject constructor(
     }
 
     fun onLevelChanged(level: Int) {
-        _state.update { it.copy(level = level) }
+        _state.update { state -> 
+            val newMaxSubStats = getMaxSubStatsFor(state.rarity, level)
+            val newSubStats = state.subStats.take(newMaxSubStats)
+    
+            state.copy(
+                level = level,
+                maxSubStatsCount = newMaxSubStats,
+                subStats = newSubStats
+            ) 
+        }
         recalculateMainStatValue()
     }
 
@@ -166,6 +208,68 @@ class EditorArtifactViewModel @Inject constructor(
         }
     }
 
+    private fun loadArtifact(id: Int) {
+        viewModelScope.launch {
+            val artifact = artifactRepository.getArtifactById(id) ?: return@launch
+            
+            // Находим сет по имени (т.к. в Domain модели у нас только имя сета)
+            val allSets = artifactRepository.getAvailableArtifactSets().first()
+            val setInfo = allSets.find { it.name == artifact.setName }
+            val fullSet = setInfo?.let { 
+                try { artifactRepository.getArtifactSetDetails(it.id) } catch (e: Exception) { null } 
+            }
+
+            val newRarities = fullSet?.rarities?.sortedBy { it.stars } ?: listOf(artifact.rarity)
+            val newMaxLevel = when(artifact.rarity) { 
+                Rarity.FIVE_STARS -> 20; Rarity.FOUR_STARS -> 16; Rarity.THREE_STARS -> 12; else -> 4 
+            }
+            
+            // Загружаем сабстаты и восстанавливаем их роллы
+            val loadedSubStats = artifact.subStats.mapIndexed { index, stat ->
+                val tiers = artifactRepository.getArtifactSubStatRolls(artifact.rarity.stars, stat.type) ?: emptyList()
+                val valueFloat = when (val v = stat.value) {
+                    is StatValue.DoubleValue -> v.value.toFloat()
+                    is StatValue.IntValue -> v.value.toFloat()
+                }
+                val rolls = calculateSubStatRollsUseCase(valueFloat, tiers) ?: listOf(valueFloat)
+                
+                SubStatState(
+                    id = System.nanoTime() + index,
+                    type = stat.type,
+                    rollHistory = rolls,
+                    tierValues = tiers
+                )
+            }
+
+            val newMaxSubStats = getMaxSubStatsFor(artifact.rarity, artifact.level)
+
+            _state.update {
+                it.copy(
+                    artifactId = artifact.id,
+                    selectedSet = fullSet,
+                    availableRarities = newRarities,
+                    rarity = artifact.rarity,
+                    slot = artifact.slot,
+                    currentPieceIconUrl = getIconUrlForCurrentSelection(fullSet, artifact.slot),
+                    level = artifact.level,
+                    maxLevel = newMaxLevel,
+                    mainStatType = artifact.mainStat.type,
+                    mainStatValue = when(val v = artifact.mainStat.value) {
+                        is StatValue.DoubleValue -> v.value.toFloat()
+                        is StatValue.IntValue -> v.value.toFloat()
+                    },
+                    maxSubStatsCount = newMaxSubStats,
+                    subStats = loadedSubStats.take(newMaxSubStats),
+                    availableMainStats = ArtifactRules.getAllowedMainStats(artifact.slot)
+                )
+            }
+            
+            // Подгружаем кривую для мейнстата и обновляем списки доступных сабстатов
+            currentMainStatCurve = artifactRepository.getArtifactMainStatCurve(artifact.rarity.stars, artifact.mainStat.type)
+            updateAllSubStatsAvailableTypes()
+        }
+    }
+
     private fun updateMainStatsForCurrentSlot() {
         val slot = _state.value.slot
         val allowedStats = ArtifactRules.getAllowedMainStats(slot)
@@ -231,20 +335,9 @@ class EditorArtifactViewModel @Inject constructor(
     }
 
     fun onSaveClicked() {
-        val validation = validateArtifactUseCase(_state.value)
-
-        when (validation) {
-            is ValidateArtifactUseCase.ValidationResult.Error -> {
-                _state.update { it.copy(validationError = validation.messages) }
-            }
-            is ValidateArtifactUseCase.ValidationResult.Success -> {
-                saveArtifactToDb()
-            }
+        if (_state.value.validationErrors.isEmpty()) {
+            saveArtifactToDb()
         }
-    }
-
-    fun onDismissError() {
-        _state.update { it.copy(validationError = null) }
     }
 
     private fun saveArtifactToDb() {
@@ -254,11 +347,12 @@ class EditorArtifactViewModel @Inject constructor(
             val artifactPieceName = s.selectedSet?.pieces?.find { it.slot == s.slot }?.name ?: "Unknown Piece"
 
             val artifact = Artifact(
-                id = 0,
+                id = s.artifactId ?: 0,
                 slot = s.slot,
                 rarity = s.rarity,
                 setName = s.selectedSet!!.name,
                 artifactName = artifactPieceName,
+                iconUrl = s.currentPieceIconUrl ?: "",
                 level = s.level,
 
                 mainStat = Stat(
@@ -270,7 +364,6 @@ class EditorArtifactViewModel @Inject constructor(
                     }
                 ),
 
-                // --- ИСПРАВЛЕНИЕ ДЛЯ SUB STATS ---
                 subStats = s.subStats.filter { it.type != null }.map { sub ->
                     val type = sub.type!!
                     Stat(
@@ -282,12 +375,26 @@ class EditorArtifactViewModel @Inject constructor(
                         }
                     )
                 },
-
                 isLocked = false
             )
 
-            artifactRepository.addArtifact(artifact)
+            if (s.artifactId != null && s.artifactId != 0) {
+                artifactRepository.updateArtifact(artifact)
+            } else {
+                artifactRepository.addArtifact(artifact)
+            }
+            
             _state.update { it.copy(isSaveSuccess = true) }
         }
+    }
+
+    private fun getMaxSubStatsFor(rarity: Rarity, level: Int): Int {
+        val maxInitial = when (rarity) {
+            Rarity.FIVE_STARS -> 4
+            Rarity.FOUR_STARS -> 3
+            Rarity.THREE_STARS -> 2
+            else -> 0
+        }
+        return minOf(4, maxInitial + (level / 4))
     }
 }

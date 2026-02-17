@@ -185,7 +185,7 @@ fun AppContent() {
                                 actions = {
                                     if (currentRoute == NavigationItem.Artifacts.route) {
                                         IconButton(onClick = {
-                                            navController.navigate("artifact/add")
+                                            navController.navigate("artifact/editor/null")
                                         }) {
                                             Icon(
                                                 Icons.Default.Add,
@@ -223,7 +223,12 @@ fun AppContent() {
                         }
 
                         composable(NavigationItem.Artifacts.route) {
-                            ArtifactScreen(artifactViewModel = artifactViewModel)
+                            ArtifactScreen(
+                                artifactViewModel = artifactViewModel,
+                                onArtifactClick = { artifactId ->
+                                    navController.navigate("artifact/editor/$artifactId")
+                                }
+                            )
                         }
 
                         composable(NavigationItem.Weapons.route) {
@@ -267,9 +272,19 @@ fun AppContent() {
                             WeaponDetailsScreen(onBackClick = { navController.popBackStack() })
                         }
 
-                        composable("artifact/add") {
+                        composable(
+                            route = "artifact/editor/{artifactId}",
+                            arguments = listOf(
+                                navArgument("artifactId") {
+                                    type = NavType.StringType
+                                    nullable = true
+                                    defaultValue = null
+                                }
+                            )
+                        ) { backStackEntry ->
                             EditorArtifactScreen(
-                                onBackClick = { navController.popBackStack() }
+                                onBackClick = { navController.popBackStack() },
+                                artifactId = backStackEntry.arguments?.getString("artifactId")
                             )
                         }
                     }
