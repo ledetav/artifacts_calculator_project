@@ -33,7 +33,7 @@ fun WeaponScreen(
 
     rememberShakeSensor(onShake = {
         if (hasActiveFilters) {
-            weaponViewModel.onResetFilters()
+            weaponViewModel.onFilterIconClicked()
         }
     })
 
@@ -45,7 +45,6 @@ fun WeaponScreen(
             areWeaponFiltersChanged = areWeaponFiltersChanged,
             onDismiss = weaponViewModel::onFilterDialogDismiss,
             onApply = weaponViewModel::onApplyFilters,
-            onReset = weaponViewModel::onResetFilters,
             onWeaponTypeSelected = weaponViewModel::onWeaponTypeSelected,
             onWeaponLevelRangeChanged = weaponViewModel::onWeaponLevelRangeChanged,
             onLevelManualInput = weaponViewModel::onWeaponLevelManualInput,
