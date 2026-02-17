@@ -92,11 +92,14 @@ class ArtifactViewModel @Inject constructor (
         _isFilterDialogShown.value = false
     }
 
-    fun onResetFilters(){
-        val defaultState = ArtifactFilterState()
-        _activeArtifactFilterState.value = defaultState
-        _draftArtifactFilterState.value = defaultState
-        _isFilterDialogShown.value = false
+    fun onResetFilters() {
+        if (_isFilterDialogShown.value) {
+            _draftArtifactFilterState.value = _activeArtifactFilterState.value
+        } else {
+            val defaultState = ArtifactFilterState()
+            _activeArtifactFilterState.value = defaultState
+            _draftArtifactFilterState.value = defaultState
+        }
     }
 
     fun onArtifactSetSelected(artifactSet: ArtifactSet){

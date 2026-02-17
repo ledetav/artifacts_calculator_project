@@ -89,10 +89,13 @@ class CharacterViewModel @Inject constructor(
     }
 
     fun onResetFilters() {
-        val defaultState = CharacterFilterState()
-        _filterState.value = defaultState
-        _draftFilterState.value = defaultState
-        _isFilterDialogShown.value = false
+        if (_isFilterDialogShown.value) {
+            _draftFilterState.value = _filterState.value
+        } else {
+            val defaultState = CharacterFilterState()
+            _filterState.value = defaultState
+            _draftFilterState.value = defaultState
+        }
     }
 
     fun onElementSelected(element: Element) {

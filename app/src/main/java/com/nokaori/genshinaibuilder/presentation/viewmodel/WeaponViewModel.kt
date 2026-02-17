@@ -104,8 +104,12 @@ class WeaponViewModel @Inject constructor (
     }
 
     fun onResetFilters() {
-        _draftWeaponFilterState.value = WeaponFilterState()
-        _weaponFilterState.value = WeaponFilterState()
-        _isFilterDialogShown.value = false
+        if (_isFilterDialogShown.value) {
+            _draftWeaponFilterState.value = _weaponFilterState.value
+        } else {
+            val defaultState = WeaponFilterState()
+            _weaponFilterState.value = defaultState
+            _draftWeaponFilterState.value = defaultState
+        }
     }
 }
