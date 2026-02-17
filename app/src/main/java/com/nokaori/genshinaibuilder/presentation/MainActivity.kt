@@ -58,6 +58,7 @@ import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
 import com.nokaori.genshinaibuilder.presentation.ui.settings.SettingsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.theme.GenshinAIBuilderTheme
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.WeaponScreen
+import com.nokaori.genshinaibuilder.presentation.util.sensor.rememberTiltSensor
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.CharacterViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.EncyclopediaViewModel
@@ -111,34 +112,32 @@ fun AppContent() {
 
     val currentNavItem = allNavItems.find { it.route == currentRoute }
 
-    if (isTopLevelDestination && currentRoute != null) {
-        com.nokaori.genshinaibuilder.presentation.util.sensor.rememberTiltSensor(
-            onSwipeLeft = { 
-                // Свайп влево (наклон телефона вправо) -> следующий экран
-                val currentIndex = topLevelRoutes.indexOf(currentRoute)
-                if (currentIndex < topLevelRoutes.size - 1) {
-                    val nextRoute = topLevelRoutes[currentIndex + 1]
-                    navController.navigate(nextRoute) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            },
-            onSwipeRight = { 
-                // Свайп вправо (наклон телефона влево) -> предыдущий экран
-                val currentIndex = topLevelRoutes.indexOf(currentRoute)
-                if (currentIndex > 0) {
-                    val prevRoute = topLevelRoutes[currentIndex - 1]
-                    navController.navigate(prevRoute) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+    rememberTiltSensor(
+        currentRoute = currentRoute,
+        topLevelRoutes = topLevelRoutes,
+        onSwipeLeft = { 
+            val currentIndex = topLevelRoutes.indexOf(currentRoute)
+            if (currentIndex < topLevelRoutes.size - 1) {
+                val nextRoute = topLevelRoutes[currentIndex + 1]
+                navController.navigate(nextRoute) {
+                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
                 }
             }
-        )
-    }
+        },
+        onSwipeRight = { 
+            val currentIndex = topLevelRoutes.indexOf(currentRoute)
+            if (currentIndex > 0) {
+                val prevRoute = topLevelRoutes[currentIndex - 1]
+                navController.navigate(prevRoute) {
+                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+        }
+    )
 
     GenshinAIBuilderTheme(darkTheme = isDarkTheme) {
         Surface(

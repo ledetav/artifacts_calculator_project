@@ -10,6 +10,8 @@ import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun rememberTiltSensor(
+    currentRoute: String?,
+    topLevelRoutes: List<String>,
     onSwipeLeft: () -> Unit,
     onSwipeRight: () -> Unit
 ) {
@@ -18,19 +20,21 @@ fun rememberTiltSensor(
         context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     }
 
-    val tiltDetector = remember {
+    val tiltDetector = remember(currentRoute) {
         TiltDetector(onSwipeLeft = onSwipeLeft, onSwipeRight = onSwipeRight)
     }
 
-    DisposableEffect(sensorManager) {
+    DisposableEffect(currentRoute) {
         val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         val gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         
-        accelerometer?.let {
-            sensorManager.registerListener(tiltDetector, it, SensorManager.SENSOR_DELAY_GAME)
-        }
-        gyroscope?.let {
-            sensorManager.registerListener(tiltDetector, it, SensorManager.SENSOR_DELAY_GAME)
+        if (currentRoute in topLevelRoutes) {
+            accelerometer?.let {
+                sensorManager.registerListener(tiltDetector, it, SensorManager.SENSOR_DELAY_GAME)
+            }
+            gyroscope?.let {
+                sensorManager.registerListener(tiltDetector, it, SensorManager.SENSOR_DELAY_GAME)
+            }
         }
 
         onDispose {
