@@ -102,4 +102,10 @@ class WeaponViewModel @Inject constructor (
             _draftWeaponFilterState.update { it.copy(levelRange = from.toFloat()..to.toFloat()) }
         }
     }
+
+    fun onResetFilters() {
+        _draftWeaponFilterState.value = WeaponFilterState()
+        _weaponFilterState.value = WeaponFilterState()
+        _isFilterDialogShown.value = false
+    }
 }
