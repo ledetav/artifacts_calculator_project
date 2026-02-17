@@ -43,7 +43,6 @@ fun ArtifactItem(
         colors = CardDefaults.cardColors(containerColor = getRarityBackgroundColor(artifact.rarity))
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -62,7 +61,6 @@ fun ArtifactItem(
                         .aspectRatio(1f)
                 )
             }
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -78,7 +76,6 @@ fun ArtifactItem(
                     )
             )
 
-            // 3. Контент снизу
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -92,7 +89,6 @@ fun ArtifactItem(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    // Уровень слева
                     Text(
                         text = "+${artifact.level}",
                         color = Color(0xFFFFD700),
@@ -101,18 +97,26 @@ fun ArtifactItem(
                         modifier = Modifier.padding(bottom = 2.dp)
                     )
                     
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        StatIcon(
-                            statType = artifact.mainStat.type,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
+                    Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            text = formatStatValue(artifact.mainStat),
-                            color = Color.White,
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 18.sp
+                            text = "⭐".repeat(artifact.rarity.stars),
+                            color = Color(0xFFFFD700),
+                            fontSize = 10.sp,
+                            modifier = Modifier.padding(bottom = 2.dp)
                         )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            StatIcon(
+                                statType = artifact.mainStat.type,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = formatStatValue(artifact.mainStat),
+                                color = Color.White,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 18.sp
+                            )
+                        }
                     }
                 }
 
@@ -154,13 +158,15 @@ fun ArtifactItem(
 
 @Composable
 private fun formatStatValue(stat: Stat): String {
-    val valueString = when (val statValue = stat.value) {
-        is StatValue.IntValue -> statValue.value.toString()
-        is StatValue.DoubleValue -> {
-            val rounded = Math.round(statValue.value * 10.0) / 10.0
-            if (rounded % 1 == 0.0) rounded.toInt().toString() else rounded.toString()
-        }
+    val rawValue = when (val statValue = stat.value) {
+        is StatValue.IntValue -> statValue.value.toDouble()
+        is StatValue.DoubleValue -> statValue.value
     }
+
+    val adjustedValue = if (stat.type.isPercentage) rawValue * 100 else rawValue
+    
+    val rounded = Math.round(adjustedValue * 10.0) / 10.0
+    val valueString = if (rounded % 1 == 0.0) rounded.toInt().toString() else rounded.toString()
 
     return if (stat.type.isPercentage) "$valueString%" else valueString
 }
