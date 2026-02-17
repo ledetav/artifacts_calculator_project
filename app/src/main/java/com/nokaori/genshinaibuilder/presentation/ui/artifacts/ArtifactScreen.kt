@@ -84,18 +84,18 @@ fun ArtifactScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 100.dp), // Задает ширину колонки, создавая сетку
+            columns = GridCells.Adaptive(minSize = 100.dp),
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(
-                items = searchedArtifacts,
-                key = { artifact -> artifact.id }
-            ) { artifact ->
+                count = searchedArtifacts.size,
+                key = { index -> searchedArtifacts[index].id }
+            ) { index ->
                 ArtifactItem(
-                    artifact = artifact,
-                    onClick = { onArtifactClick(artifact.id) }
+                    artifact = searchedArtifacts[index],
+                    onClick = { onArtifactClick(searchedArtifacts[index].id) }
                 )
             }
         }
