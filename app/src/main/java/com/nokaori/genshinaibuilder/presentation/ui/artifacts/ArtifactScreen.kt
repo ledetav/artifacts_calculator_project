@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.*
@@ -84,18 +83,18 @@ fun ArtifactScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 100.dp),
+            columns = GridCells.Adaptive(minSize = 100.dp), 
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(
-                count = searchedArtifacts.size,
-                key = { index -> searchedArtifacts[index].id }
-            ) { index ->
+                searchedArtifacts, 
+                key = { it.id } 
+            ) { artifact ->
                 ArtifactItem(
-                    artifact = searchedArtifacts[index],
-                    onClick = { onArtifactClick(searchedArtifacts[index].id) }
+                    artifact = artifact,
+                    onClick = { onArtifactClick(artifact.id) }
                 )
             }
         }
