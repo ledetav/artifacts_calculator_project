@@ -36,6 +36,7 @@ jobs:
         alias: ${{ secrets.KEY_ALIAS }}
         keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
         keyPassword: ${{ secrets.KEY_PASSWORD }}
+        buildToolsVersion: 36.0.0
 
     - name: Send Signed Release APK to Telegram
       uses: appleboy/telegram-action@master
