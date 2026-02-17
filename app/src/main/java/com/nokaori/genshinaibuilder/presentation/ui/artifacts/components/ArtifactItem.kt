@@ -1,5 +1,3 @@
-// ledetav/artifacts_calculator_project/artifacts_calculator_project-feature-artifact-management-rework/app/src/main/java/com/nokaori/genshinaibuilder/presentation/ui/artifacts/components/ArtifactItem.kt
-
 package com.nokaori.genshinaibuilder.presentation.ui.artifacts.components
 
 import androidx.compose.foundation.background
@@ -141,7 +139,7 @@ fun ArtifactItem(
                                 Text(
                                     text = formatStatValue(stat),
                                     color = Color.White.copy(alpha = 0.9f),
-                                    fontSize = 10.sp
+                                    fontSize = 12.sp
                                 )
                             }
                         }
