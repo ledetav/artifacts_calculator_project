@@ -111,6 +111,35 @@ fun AppContent() {
 
     val currentNavItem = allNavItems.find { it.route == currentRoute }
 
+    if (isTopLevelDestination && currentRoute != null) {
+        com.nokaori.genshinaibuilder.presentation.util.sensor.rememberTiltSensor(
+            onSwipeLeft = { 
+                // Свайп влево (наклон телефона вправо) -> следующий экран
+                val currentIndex = topLevelRoutes.indexOf(currentRoute)
+                if (currentIndex < topLevelRoutes.size - 1) {
+                    val nextRoute = topLevelRoutes[currentIndex + 1]
+                    navController.navigate(nextRoute) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            },
+            onSwipeRight = { 
+                // Свайп вправо (наклон телефона влево) -> предыдущий экран
+                val currentIndex = topLevelRoutes.indexOf(currentRoute)
+                if (currentIndex > 0) {
+                    val prevRoute = topLevelRoutes[currentIndex - 1]
+                    navController.navigate(prevRoute) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            }
+        )
+    }
+
     GenshinAIBuilderTheme(darkTheme = isDarkTheme) {
         Surface(
             modifier = Modifier.fillMaxSize(),
