@@ -127,6 +127,9 @@ dependencies {
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
 
+    // Biometric
+    implementation(libs.androidx.biometric)
+
     // Тестирование
     testImplementation(libs.junit4)
     testImplementation(libs.mockito.core)
