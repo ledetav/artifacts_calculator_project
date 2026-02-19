@@ -1,5 +1,13 @@
 package com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor
 
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.content.Context
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,6 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +37,7 @@ import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.components.
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.components.SubStatsSection
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.components.TopSelectionSection
 import com.nokaori.genshinaibuilder.presentation.viewmodel.EditorArtifactViewModel
+import com.nokaori.genshinaibuilder.presentation.util.sensor.DoubleTapSensorEffect
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,11 +51,51 @@ fun EditorArtifactScreen(
     val isEditingEnabled = state.selectedSet != null
     
     val hasErrors = state.validationErrors.isNotEmpty()
+    val context = LocalContext.current
 
     LaunchedEffect(state.isSaveSuccess) {
         if (state.isSaveSuccess) {
             onBackClick()
         }
+    }
+
+    if (state.showBiometricPrompt) {
+        val activity = context as? FragmentActivity
+        if (activity != null) {
+            LaunchedEffect(Unit) {
+                val executor = ContextCompat.getMainExecutor(activity)
+                val biometricPrompt = BiometricPrompt(activity, executor,
+                    object : BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                            super.onAuthenticationError(errorCode, errString)
+                            viewModel.onBiometricErrorOrCancel()
+                        }
+                        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                            super.onAuthenticationSucceeded(result)
+                            viewModel.onBiometricSuccess()
+                        }
+                    }
+                )
+
+                val promptInfo = BiometricPrompt.PromptInfo.Builder()
+                    .setTitle("Сохранение артефакта")
+                    .setSubtitle("Подтвердите сохранение отпечатком пальца")
+                    .setNegativeButtonText("Отмена")
+                    .build()
+
+                biometricPrompt.authenticate(promptInfo)
+            }
+        } else {
+            LaunchedEffect(Unit) {
+                viewModel.onBiometricSuccess()
+            }
+        }
+    }
+    DoubleTapSensorEffect(
+        enabled = !hasErrors && !state.showBiometricPrompt && !state.isSetSelectionDialogOpen
+    ) {
+        triggerVibration(context)
+        viewModel.onDoubleTapTriggered()
     }
 
     if (state.isSetSelectionDialogOpen) {
@@ -164,6 +214,23 @@ fun EditorArtifactScreen(
             }
 
             Spacer(modifier = Modifier.height(80.dp))
+        }
+    }
+}
+
+private fun triggerVibration(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        val vibrator = vibratorManager.defaultVibrator
+        vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+    } else {
+        @Suppress("DEPRECATION")
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(100)
         }
     }
 }
