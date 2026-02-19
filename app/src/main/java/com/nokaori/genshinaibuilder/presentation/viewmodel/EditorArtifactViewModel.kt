@@ -336,6 +336,21 @@ class EditorArtifactViewModel @Inject constructor(
 
     fun onSaveClicked() {
         if (_state.value.validationErrors.isEmpty()) {
+            _state.update { it.copy(showBiometricPrompt = true) }
+        }
+    }
+
+    fun onBiometricSuccess() {
+        _state.update { it.copy(showBiometricPrompt = false) }
+        saveArtifactToDb()
+    }
+
+    fun onBiometricErrorOrCancel() {
+        _state.update { it.copy(showBiometricPrompt = false) }
+    }
+
+    fun onDoubleTapTriggered() {
+        if (_state.value.validationErrors.isEmpty()) {
             saveArtifactToDb()
         }
     }

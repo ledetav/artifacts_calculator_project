@@ -34,6 +34,7 @@ data class EditorArtifactState(
 
     val validationErrors: List<String> = emptyList(),
     val isSaveSuccess: Boolean = false
+    val showBiometricPrompt: Boolean = false,
 )
 
 data class SubStatState(
