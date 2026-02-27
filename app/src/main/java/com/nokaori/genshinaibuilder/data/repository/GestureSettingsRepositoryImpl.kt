@@ -12,8 +12,6 @@ import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "gesture_settings")
-
 class GestureSettingsRepositoryImpl @Inject constructor(
     private val context: Context
 ) : GestureSettingsRepository {
