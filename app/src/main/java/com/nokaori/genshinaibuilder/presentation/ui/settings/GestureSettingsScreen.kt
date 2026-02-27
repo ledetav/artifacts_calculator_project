@@ -38,7 +38,8 @@ fun GestureSettingsScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
                     }
-                }
+                },
+                windowInsets = WindowInsets(0.dp)
             )
         }
     ) { paddingValues ->
