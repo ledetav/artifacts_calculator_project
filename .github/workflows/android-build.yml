@@ -10,6 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1. Уведомление о старте
+    - name: 🚀 Notify Start
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: "⏳ Запуск Debug сборки #${{ github.run_number }}. Ветка: ${{ github.ref_name }}. Подготовка окружения..."
+
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -23,10 +31,26 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    # 2. Уведомление о начале сборки
+    - name: 🔨 Notify Build Start
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: "⚙️ Окружение готово. Начинаю компиляцию Debug APK (assembleDebug)..."
+
     - name: Build with Gradle
       run: |
         set -o pipefail
         ./gradlew assembleDebug 2>&1 | tee build.log
+
+    # 3. Уведомление об успехе компиляции
+    - name: ✅ Notify Build Success
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: "✅ Компиляция успешна! Подготавливаю APK к отправке..."
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
@@ -37,19 +61,22 @@ jobs:
     - name: Rename APK
       run: mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/app-debug-${{ github.run_number }}.apk
 
+    # 4. Финальный успех (отправка файла)
     - name: Send APK to Telegram
       uses: appleboy/telegram-action@master
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         document: app/build/outputs/apk/debug/app-debug-${{ github.run_number }}.apk
-        message: "🚀 Сборка успешно завершена! Build #${{ github.run_number }}"
+        message: "🚀 Сборка успешно завершена! Ветка: ${{ github.ref_name }} (Build #${{ github.run_number }})"
 
+    # --- БЛОК ОБРАБОТКИ ОШИБОК ---
     - name: Extract Error Log
       if: failure()
       run: |
         echo "ERROR_LOG<<EOF" >> $GITHUB_ENV
-        tail -n 30 build.log >> $GITHUB_ENV
+        # Защита на случай, если сборка упадет до создания build.log
+        tail -n 30 build.log >> $GITHUB_ENV || echo "Лог сборки Gradle недоступен (ошибка на этапе подготовки)" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
 
     - name: Notify Telegram on Failure
