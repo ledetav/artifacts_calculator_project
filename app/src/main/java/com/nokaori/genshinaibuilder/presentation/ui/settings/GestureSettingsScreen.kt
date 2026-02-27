@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nokaori.genshinaibuilder.presentation.viewmodel.GestureSettingsViewModel
+import com.nokaori.genshinaibuilder.presentation.ui.settings.components.DoubleTapCalibrationDialog
+import com.nokaori.genshinaibuilder.presentation.ui.settings.components.ShakeCalibrationDialog
+import com.nokaori.genshinaibuilder.presentation.ui.settings.components.TiltCalibrationDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
