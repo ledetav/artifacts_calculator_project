@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.SyncStatus
+import com.nokaori.genshinaibuilder.domain.model.UiText
 import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
 
 @Composable
@@ -68,32 +69,32 @@ fun SettingsScreen(
 
         when (val status = syncStatus) {
             is SyncStatus.Idle -> Text(stringResource(R.string.settings_status_waiting))
-            
+
             is SyncStatus.InProgress -> {
                 LinearProgressIndicator(
                     progress = { status.progress },
                     modifier = Modifier.fillMaxWidth().height(8.dp),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(status.message, style = MaterialTheme.typography.labelLarge)
-                
+                Text(status.message.asString(), style = MaterialTheme.typography.labelLarge)
+
                 LogConsole(logs = status.logs)
             }
-            
+
             is SyncStatus.Success -> {
-                Text(status.summary, color = Color.Green, style = MaterialTheme.typography.titleMedium)
+                Text(status.summary.asString(), color = Color.Green, style = MaterialTheme.typography.titleMedium)
                 LogConsole(logs = status.fullLogs)
             }
-            
+
             is SyncStatus.Error -> {
-                Text(stringResource(R.string.settings_error_prefix, status.message), color = Color.Red)
+                Text(stringResource(R.string.settings_error_prefix, status.message.asString()), color = Color.Red)
             }
         }
     }
 }
 
 @Composable
-fun LogConsole(logs: List<String>) {
+fun LogConsole(logs: List<UiText>) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.05f)),
         modifier = Modifier.fillMaxWidth().height(200.dp).padding(top = 8.dp)
@@ -102,11 +103,11 @@ fun LogConsole(logs: List<String>) {
         LaunchedEffect(logs.size) {
             scrollState.animateScrollTo(scrollState.maxValue)
         }
-        
+
         Column(modifier = Modifier.padding(8.dp).verticalScroll(scrollState)) {
             logs.forEach { log ->
                 Text(
-                    text = log,
+                    text = log.asString(),
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 10.sp,
                     lineHeight = 12.sp

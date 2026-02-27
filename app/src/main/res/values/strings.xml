@@ -135,4 +135,31 @@
     <!-- Level Slider -->
     <string name="level_current">Ур. %1$d</string>
     <string name="level_max">Макс. %1$d</string>
+
+    <string name="sync_log_curves_start">📥 Загрузка кривых…</string>
+    <string name="sync_log_curves_done">✅ Кривые обновлены (%1$d шт)</string>
+    <string name="sync_log_parallel_start">🚀 Запуск параллельной загрузки…</string>
+    <string name="sync_log_success">✅ Успешно! Заняло: %1$.2fс. Новых: %2$d</string>
+    <string name="sync_error_unknown">Неизвестная ошибка</string>
+    
+    <string name="sync_log_chars_start">👤 [Персонажи] Старт…</string>
+    <string name="sync_log_chars_error">⚠️ Ошибка: %1$s</string>
+    <string name="sync_log_chars_progress">👤 Персонажи: %1$d/%2$d</string>
+    <string name="sync_log_chars_done">✅ [Персонажи] Готово (+%1$d)</string>
+
+    <string name="sync_log_weapons_start">⚔️ [Оружие] Старт…</string>
+    <string name="sync_log_weapons_progress">⚔️ Оружие: %1$d/%2$d</string>
+    <string name="sync_log_weapons_done">✅ [Оружие] Готово (+%1$d)</string>
+
+    <string name="sync_log_artifacts_start">🏺 [Артефакты] Старт…</string>
+    <string name="sync_log_artifacts_done">✅ [Артефакты] Готово (+%1$d)</string>
+
+    <string name="artifact_error_no_set">Пожалуйста, выберите сет артефакта.</string>
+    <string name="artifact_error_no_main_stat">Пожалуйста, выберите главную характеристику.</string>
+    <string name="artifact_error_empty_substats">Некоторые подстаты пустые. Выберите характеристику или удалите их.</string>
+    <string name="artifact_error_zero_substats">Некоторые подстаты имеют значение 0. Введите значение или удалите их.</string>
+    <string name="artifact_error_total_rolls">Артефакт %1$d ур. %2$d★ должен иметь от %3$s общих роллов, но сейчас их %4$d.</string>
+    <string name="artifact_error_line_count">Исходя из количества роллов, этот артефакт должен иметь ровно %1$d открытых подстатов, но сейчас их %2$d.</string>
+    <string name="artifact_error_duplicate_substats">Найдены дублирующиеся подстаты. Каждая характеристика должна быть уникальной.</string>
+    <string name="artifact_error_main_sub_conflict">Подстат не может быть таким же, как главная характеристика.</string>
 </resources>

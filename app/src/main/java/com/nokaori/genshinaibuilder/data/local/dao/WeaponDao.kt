@@ -1,9 +1,8 @@
 package com.nokaori.genshinaibuilder.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import com.nokaori.genshinaibuilder.data.local.entity.WeaponEntity
 import com.nokaori.genshinaibuilder.data.local.entity.WeaponPromotionEntity
 import com.nokaori.genshinaibuilder.data.local.entity.WeaponRefinementEntity
@@ -35,20 +34,20 @@ interface WeaponDao {
     @Query("SELECT id FROM weapons_data")
     suspend fun getAllWeaponIds(): List<Int>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertWeapons(weapons: List<WeaponEntity>)
 
     // --- REFINEMENTS ---
     @Query("SELECT * FROM weapon_refinements WHERE weapon_id = :weaponId")
     suspend fun getWeaponRefinement(weaponId: Int): WeaponRefinementEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertRefinements(refinements: List<WeaponRefinementEntity>)
 
     // --- PROMOTIONS ---
     @Query("SELECT * FROM weapon_promotions WHERE weapon_id = :weaponId AND ascension_level = :ascensionLevel")
     suspend fun getWeaponPromotion(weaponId: Int, ascensionLevel: Int): WeaponPromotionEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertPromotions(promotions: List<WeaponPromotionEntity>)
 }

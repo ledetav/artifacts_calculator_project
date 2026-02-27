@@ -1,9 +1,8 @@
 package com.nokaori.genshinaibuilder.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import com.nokaori.genshinaibuilder.data.local.entity.CharacterConstellationEntity
 import com.nokaori.genshinaibuilder.data.local.entity.CharacterEntity
 import com.nokaori.genshinaibuilder.data.local.entity.CharacterPromotionEntity
@@ -37,14 +36,14 @@ interface CharacterDao {
     @Query("SELECT id FROM characters_data")
     suspend fun getAllCharacterIds(): List<Int>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertCharacters(characters: List<CharacterEntity>)
 
     // --- PROMOTIONS ---
     @Query("SELECT * FROM character_promotions WHERE character_id = :charId AND ascension_level = :ascension")
     suspend fun getPromotionData(charId: Int, ascension: Int): CharacterPromotionEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertPromotions(promotions: List<CharacterPromotionEntity>)
 
     @Query("SELECT * FROM character_promotions WHERE character_id = :charId ORDER BY ascension_level ASC")
@@ -54,13 +53,13 @@ interface CharacterDao {
     @Query("SELECT * FROM character_constellations WHERE character_id = :charId ORDER BY `order` ASC")
     fun getConstellations(charId: Int): Flow<List<CharacterConstellationEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertConstellations(constellations: List<CharacterConstellationEntity>)
 
     // --- TALENTS ---
     @Query("SELECT * FROM character_talents WHERE character_id = :charId")
     fun getTalents(charId: Int): Flow<List<CharacterTalentEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertTalents(talents: List<CharacterTalentEntity>)
 }

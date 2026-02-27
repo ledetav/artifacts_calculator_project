@@ -135,4 +135,31 @@
     <!-- Level Slider -->
     <string name="level_current">Lv. %1$d</string>
     <string name="level_max">Max %1$d</string>
+
+    <string name="sync_log_curves_start">📥 Loading curves…</string>
+    <string name="sync_log_curves_done">✅ Curves updated (%1$d items)</string>
+    <string name="sync_log_parallel_start">🚀 Starting parallel download…</string>
+    <string name="sync_log_success">✅ Success! Took: %1$.2fs. New: %2$d</string>
+    <string name="sync_error_unknown">Unknown error</string>
+    
+    <string name="sync_log_chars_start">👤 [Characters] Start…</string>
+    <string name="sync_log_chars_error">⚠️ Error: %1$s</string>
+    <string name="sync_log_chars_progress">👤 Characters: %1$d/%2$d</string>
+    <string name="sync_log_chars_done">✅ [Characters] Done (+%1$d)</string>
+
+    <string name="sync_log_weapons_start">⚔️ [Weapons] Start…</string>
+    <string name="sync_log_weapons_progress">⚔️ Weapons: %1$d/%2$d</string>
+    <string name="sync_log_weapons_done">✅ [Weapons] Done (+%1$d)</string>
+
+    <string name="sync_log_artifacts_start">🏺 [Artifacts] Start…</string>
+    <string name="sync_log_artifacts_done">✅ [Artifacts] Done (+%1$d)</string>
+
+    <string name="artifact_error_no_set">Please select an Artifact Set.</string>
+    <string name="artifact_error_no_main_stat">Please select a Main Stat.</string>
+    <string name="artifact_error_empty_substats">Some substats are empty. Please select a stat type or remove them.</string>
+    <string name="artifact_error_zero_substats">Some substats have a value of 0. Please enter a value or remove them.</string>
+    <string name="artifact_error_total_rolls">A Lv.%1$d %2$d★ artifact should have %3$s total substat rolls, but currently has %4$d.</string>
+    <string name="artifact_error_line_count">Based on total rolls, this artifact should have exactly %1$d substat lines, but currently has %2$d.</string>
+    <string name="artifact_error_duplicate_substats">Duplicate substats found. Each substat must be unique.</string>
+    <string name="artifact_error_main_sub_conflict">A substat cannot be the same as the Main Stat.</string>
 </resources>
