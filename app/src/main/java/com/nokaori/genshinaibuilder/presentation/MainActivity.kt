@@ -65,6 +65,8 @@ import com.nokaori.genshinaibuilder.presentation.viewmodel.EncyclopediaViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
+import com.nokaori.genshinaibuilder.presentation.ui.settings.GestureSettingsScreen
+import com.nokaori.genshinaibuilder.presentation.viewmodel.GestureSettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -272,7 +274,20 @@ fun AppContent() {
                         }
 
                         composable(NavigationItem.Settings.route) {
-                            SettingsScreen(settingsViewModel = settingsViewModel)
+                            SettingsScreen(
+                                settingsViewModel = settingsViewModel,
+                                onNavigateToGestures = {
+                                    navController.navigate("gesture_settings_route")
+                                }
+                            )
+                        }
+
+                        composable("gesture_settings_route") {
+                            val gestureSettingsViewModel: GestureSettingsViewModel = hiltViewModel()
+                            GestureSettingsScreen(
+                                viewModel = gestureSettingsViewModel,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
 
                         composable(
