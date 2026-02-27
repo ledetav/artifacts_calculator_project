@@ -75,7 +75,6 @@ fun GestureSettingsScreen(
         }
 
         // Вызов диалогов 
-        /*
         if (showShakeCalibration) {
             ShakeCalibrationDialog(
                 currentSensitivity = settings.shakeSensitivity,
@@ -84,8 +83,21 @@ fun GestureSettingsScreen(
             )
         }
         
-        // Аналогичные вызовы будут для DoubleTap и Tilt...
-        */
+        if (showDoubleTapCalibration) {
+            DoubleTapCalibrationDialog(
+                currentSensitivity = settings.doubleTapSensitivity,
+                onDismiss = { showDoubleTapCalibration = false },
+                onSave = { viewModel.setDoubleTapSensitivity(it) }
+            )
+        }
+
+        if (showTiltCalibration) {
+            TiltCalibrationDialog(
+                currentSensitivity = settings.tiltSensitivity,
+                onDismiss = { showTiltCalibration = false },
+                onSave = { viewModel.setTiltSensitivity(it) }
+            )
+        }
     }
 }
 
