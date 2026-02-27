@@ -11,6 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1. Уведомление о старте
+    - name: 🚀 Notify Start
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: "⏳ Запуск сборки Релиза 1.0.${{ github.run_number }}. Подготовка окружения..."
+
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -24,8 +32,26 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    # 2. Уведомление о начале тяжелого процесса (сборки)
+    - name: 🔨 Notify Build Start
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: "⚙️ Окружение готово. Начинаю компиляцию APK (assembleRelease)..."
+
     - name: Build Release APK
-      run: ./gradlew assembleRelease -PversionCode=${{ github.run_number }}
+      run: |
+        set -o pipefail
+        ./gradlew assembleRelease -PversionCode=${{ github.run_number }} 2>&1 | tee build.log
+
+    # 3. Уведомление об успешной сборке и начале подписи
+    - name: 🔑 Notify Sign Start
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: "✅ Компиляция успешна! Начинаю подпись релизного APK..."
 
     - name: Sign APK
       uses: r0adkll/sign-android-release@v1
@@ -38,10 +64,36 @@ jobs:
         keyPassword: ${{ secrets.KEY_PASSWORD }}
         buildToolsVersion: 36.0.0
 
+    # 4. Финальный успех (отправка файла)
     - name: Send Signed Release APK to Telegram
       uses: appleboy/telegram-action@master
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         document: ${{steps.sign_app.outputs.signedReleaseFile}}
-        message: "🎉 Новый Релиз (Версия: 1.0.${{ github.run_number }})!"
+        message: "🎉 Новый Релиз готов и подписан (Версия: 1.0.${{ github.run_number }})!"
+
+    # --- БЛОК ОБРАБОТКИ ОШИБОК ---
+    - name: Extract Error Log
+      if: failure()
+      run: |
+        echo "ERROR_LOG<<EOF" >> $GITHUB_ENV
+        # Если файла лога нет (упало до сборки), выведем заглушку
+        tail -n 30 build.log >> $GITHUB_ENV || echo "Лог сборки Gradle недоступен (ошибка на другом этапе)" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - name: Notify Telegram on Failure
+      if: failure()
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          ❌ Ошибка сборки Релиза! 
+          Версия: 1.0.${{ github.run_number }}
+          Автор: ${{ github.actor }}
+          
+          📝 Последние строки лога:
+          `${{ env.ERROR_LOG }}`
+          
+          🔍 Полные логи: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}

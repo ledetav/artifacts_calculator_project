@@ -33,7 +33,8 @@ data class EditorArtifactState(
     val currentMaxTotalRolls: Int = 9,
 
     val validationErrors: List<String> = emptyList(),
-    val isSaveSuccess: Boolean = false
+    val isSaveSuccess: Boolean = false,
+    val showBiometricPrompt: Boolean = false,
 )
 
 data class SubStatState(
