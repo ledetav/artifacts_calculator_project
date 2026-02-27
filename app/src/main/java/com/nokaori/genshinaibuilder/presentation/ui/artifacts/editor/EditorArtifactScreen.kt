@@ -79,9 +79,9 @@ fun EditorArtifactScreen(
                 )
 
                 val promptInfo = BiometricPrompt.PromptInfo.Builder()
-                    .setTitle("Сохранение артефакта")
-                    .setSubtitle("Подтвердите сохранение отпечатком пальца")
-                    .setNegativeButtonText("Отмена")
+                    .setTitle(context.getString(R.string.editor_biometric_title))
+                    .setSubtitle(context.getString(R.string.editor_biometric_subtitle))
+                    .setNegativeButtonText(context.getString(R.string.editor_biometric_cancel))
                     .build()
 
                 biometricPrompt.authenticate(promptInfo)
@@ -123,7 +123,7 @@ fun EditorArtifactScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.editor_back_description)
                         )
                     }
                 },
@@ -132,7 +132,7 @@ fun EditorArtifactScreen(
                         IconButton(onClick = viewModel::onBiometricSaveClicked) {
                             Icon(
                                 imageVector = Icons.Default.Fingerprint,
-                                contentDescription = "Biometric Save"
+                                contentDescription = stringResource(R.string.editor_biometric_save_description)
                             )
                         }
                     }
@@ -143,7 +143,7 @@ fun EditorArtifactScreen(
             ExtendedFloatingActionButton(
                 onClick = { if (!hasErrors) viewModel.onSaveClicked() },
                 icon = { Icon(Icons.Default.Save, null) },
-                text = { Text("Save Artifact") },
+                text = { Text(stringResource(R.string.editor_save_artifact)) },
                 containerColor = if (hasErrors) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primary,
                 contentColor = if (hasErrors) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onPrimary,
                 elevation = FloatingActionButtonDefaults.elevation(
@@ -207,7 +207,7 @@ fun EditorArtifactScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Cannot save artifact:",
+                            text = stringResource(R.string.editor_cannot_save),
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.onErrorContainer,
                             modifier = Modifier.padding(bottom = 8.dp)

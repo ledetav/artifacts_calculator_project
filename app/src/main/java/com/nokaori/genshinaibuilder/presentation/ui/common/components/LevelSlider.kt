@@ -8,7 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.nokaori.genshinaibuilder.R
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,8 +29,8 @@ fun LevelSlider(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Lv. $value", style = MaterialTheme.typography.labelLarge)
-            Text("Max $maxLevel", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+            Text(stringResource(R.string.level_current, value), style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.level_max, maxLevel), style = MaterialTheme.typography.labelSmall, color = Color.Gray)
         }
 
         Slider(

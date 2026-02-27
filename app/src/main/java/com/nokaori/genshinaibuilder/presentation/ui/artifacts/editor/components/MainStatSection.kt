@@ -11,6 +11,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nokaori.genshinaibuilder.R
@@ -49,7 +50,7 @@ fun MainStatSection(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.weight(1f)) {
                 if (!enabled) {
-                    Text("—", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.editor_main_stat_dash), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else if (availableStats.size > 1) {
                     var expanded by remember { mutableStateOf(false) }
                     SimpleDropdown(
@@ -57,7 +58,7 @@ fun MainStatSection(
                         selectedItem = mainStatType,
                         onItemSelected = onStatSelected,
                         onClearSelection = null,
-                        placeholderText = "Select",
+                        placeholderText = stringResource(R.string.editor_select_placeholder),
                         itemText = { it.toDisplayName() },
                         isExpanded = expanded,
                         onExpandedChange = { expanded = it },
@@ -89,7 +90,7 @@ fun MainStatSection(
                 onValueChange = onLevelChanged
             )
         } else {
-            Text("Lv. ???", style = MaterialTheme.typography.labelLarge, color = Color.Gray)
+            Text(stringResource(R.string.editor_level_unknown), style = MaterialTheme.typography.labelLarge, color = Color.Gray)
         }
     }
 }

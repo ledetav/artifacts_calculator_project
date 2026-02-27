@@ -10,9 +10,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.SyncStatus
 import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
 
@@ -31,7 +33,7 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Настройки",
+            text = stringResource(R.string.settings_title),
             style = MaterialTheme.typography.headlineMedium
         )
 
@@ -41,7 +43,7 @@ fun SettingsScreen(
             onClick = onNavigateToGestures,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Настройки управления (Жесты)")
+            Text(text = stringResource(R.string.settings_gesture_controls))
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -49,7 +51,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Данные приложения",
+            text = stringResource(R.string.settings_app_data),
             style = MaterialTheme.typography.titleLarge
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -59,13 +61,13 @@ fun SettingsScreen(
             enabled = syncStatus !is SyncStatus.InProgress,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Обновить базу персонажей")
+            Text(text = stringResource(R.string.settings_update_database))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         when (val status = syncStatus) {
-            is SyncStatus.Idle -> Text("Ожидание...")
+            is SyncStatus.Idle -> Text(stringResource(R.string.settings_status_waiting))
             
             is SyncStatus.InProgress -> {
                 LinearProgressIndicator(
@@ -84,7 +86,7 @@ fun SettingsScreen(
             }
             
             is SyncStatus.Error -> {
-                Text("Ошибка: ${status.message}", color = Color.Red)
+                Text(stringResource(R.string.settings_error_prefix, status.message), color = Color.Red)
             }
         }
     }

@@ -16,9 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.Rarity
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.data.SubStatState
@@ -52,7 +54,7 @@ fun SubStatsSection(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Substats", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.editor_substats_title), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (canAddMore && enabled) {
                 FilledTonalIconButton(onClick = onAddSubStat, modifier = Modifier.size(32.dp)) {
                     Icon(Icons.Default.Add, null)
@@ -63,7 +65,7 @@ fun SubStatsSection(
         Spacer(modifier = Modifier.height(16.dp))
 
         if (subStats.isEmpty()) {
-            Text("Add substats...", modifier = Modifier.align(Alignment.CenterHorizontally), color = Color.Gray)
+            Text(stringResource(R.string.editor_substats_add_hint), modifier = Modifier.align(Alignment.CenterHorizontally), color = Color.Gray)
         } else {
             subStats.forEachIndexed { index, subStat ->
                 SubStatItem(
@@ -133,7 +135,7 @@ fun SubStatItem(
                             selectedItem = subStat.type,
                             onItemSelected = onTypeChanged,
                             onClearSelection = null,
-                            placeholderText = "Select",
+                            placeholderText = stringResource(R.string.editor_select_placeholder),
                             itemText = { it.toDisplayName() },
                             isExpanded = expanded,
                             onExpandedChange = { expanded = it },
@@ -206,7 +208,7 @@ fun ManualValueDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
     var text by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Enter Value") },
+        title = { Text(stringResource(R.string.editor_manual_value_title)) },
         text = {
             TextField(
                 value = text,
@@ -216,7 +218,7 @@ fun ManualValueDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
                 colors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent)
             )
         },
-        confirmButton = { TextButton(onClick = { onConfirm(text) }) { Text("OK") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        confirmButton = { TextButton(onClick = { onConfirm(text) }) { Text(stringResource(R.string.editor_manual_value_ok)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.editor_manual_value_cancel)) } }
     )
 }

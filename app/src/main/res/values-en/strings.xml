@@ -83,4 +83,56 @@
     <string name="art_section_pieces">%d Set Pieces</string>
     <string name="artifact_substats_title">Artifact Substats</string>
     <string name="artifact_substats_empty_hint">Please add artifact sustats</string>
+    
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_gesture_controls">Gesture Controls Settings</string>
+    <string name="settings_app_data">Application Data</string>
+    <string name="settings_update_database">Update Character Database</string>
+    <string name="settings_status_waiting">Waiting...</string>
+    <string name="settings_error_prefix">Error: %1$s</string>
+    
+    <!-- Gesture Settings Screen -->
+    <string name="gesture_settings_title">Gesture Settings</string>
+    <string name="gesture_shake_title">Shake</string>
+    <string name="gesture_shake_description">Used for quick filter reset or other actions.</string>
+    <string name="gesture_double_tap_title">Double Tap</string>
+    <string name="gesture_double_tap_description">Double tapping on the device.</string>
+    <string name="gesture_tilt_title">Device Tilt</string>
+    <string name="gesture_tilt_description">Tilt left or right to switch tabs.</string>
+    <string name="gesture_calibrate_sensitivity">Adjust Sensitivity</string>
+    
+    <!-- Calibration Dialog -->
+    <string name="calibration_instructions">Settings are applied immediately. Test them right now by performing the gesture.</string>
+    <string name="calibration_sensitivity_hint">If the gesture is recognized when you're doing nothing (false positive) — increase the threshold. If the gesture is not recognized when performing — decrease it.</string>
+    <string name="calibration_gesture_detected">Gesture detected! ✓</string>
+    <string name="calibration_current_threshold">Current threshold: %.1f %1$s</string>
+    <string name="calibration_reset_default">Reset (%.1f %1$s)</string>
+    <string name="calibration_done">Done</string>
+    
+    <!-- Editor Artifact Screen -->
+    <string name="editor_biometric_title">Save Artifact</string>
+    <string name="editor_biometric_subtitle">Confirm saving with fingerprint</string>
+    <string name="editor_biometric_cancel">Cancel</string>
+    <string name="editor_save_artifact">Save Artifact</string>
+    <string name="editor_cannot_save">Cannot save artifact:</string>
+    <string name="editor_back_description">Back</string>
+    <string name="editor_biometric_save_description">Biometric Save</string>
+    
+    <!-- MainActivity -->
+    <string name="builds_coming_soon">Builds Screen (Coming Soon)</string>
+    
+    <!-- Editor Components -->
+    <string name="editor_main_stat_dash">—</string>
+    <string name="editor_level_unknown">Lv. ???</string>
+    <string name="editor_select_placeholder">Select</string>
+    <string name="editor_substats_title">Substats</string>
+    <string name="editor_substats_add_hint">Add substats...</string>
+    <string name="editor_manual_value_title">Enter Value</string>
+    <string name="editor_manual_value_ok">OK</string>
+    <string name="editor_manual_value_cancel">Cancel</string>
+    
+    <!-- Level Slider -->
+    <string name="level_current">Lv. %1$d</string>
+    <string name="level_max">Max %1$d</string>
 </resources>
