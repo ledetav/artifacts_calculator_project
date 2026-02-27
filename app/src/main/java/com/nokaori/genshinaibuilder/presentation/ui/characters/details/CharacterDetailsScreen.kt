@@ -69,7 +69,7 @@ fun CharacterDetailsScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
-                            contentDescription = stringResource(R.string.cd_back))
+                            contentDescription = stringResource(R.string.character_detail_back))
                     }
                 },
                 actions = {
@@ -77,20 +77,20 @@ fun CharacterDetailsScreen(
                         IconButton(onClick = { viewModel.toggleOwnership() }) {
                             Icon(
                                 Icons.Default.Add, 
-                                contentDescription = stringResource(R.string.cd_add_to_collection)
+                                contentDescription = stringResource(R.string.character_detail_add_to_collection)
                             )
                         }
                     } else {
                         IconButton(onClick = { /* Open Edit Dialog */ }) {
                             Icon(
                                 Icons.Default.Edit, 
-                                contentDescription = stringResource(R.string.cd_edit_character)
+                                contentDescription = stringResource(R.string.character_detail_edit)
                             )
                         }
                         IconButton(onClick = { viewModel.toggleOwnership() }) {
                             Icon(
                                 Icons.Default.Delete, 
-                                contentDescription = stringResource(R.string.cd_delete_character)
+                                contentDescription = stringResource(R.string.character_detail_delete)
                             )
                         }
                     }
