@@ -214,7 +214,7 @@ fun EditorArtifactScreen(
                         )
                         state.validationErrors.forEach { error ->
                             Text(
-                                text = "• $error",
+                                text = "• ${error.asString()}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                 modifier = Modifier.padding(bottom = 4.dp)
