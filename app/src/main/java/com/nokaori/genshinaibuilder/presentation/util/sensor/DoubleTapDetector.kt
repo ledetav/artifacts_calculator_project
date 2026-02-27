@@ -16,11 +16,13 @@ class DoubleTapDetector(
     // Линейный акселерометр очищен от гравитации, реагирует только на физическое ускорение устройства
     private val accelerometer: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
 
+    // Теперь порог можно менять на лету
+    var tapThreshold: Float = 3.5f
+
     private var lastTapTime: Long = 0
     private var tapCount: Int = 0
 
     companion object {
-        private const val TAP_THRESHOLD = 3.5f 
         private const val MIN_TIME_BETWEEN_TAPS = 150L 
         private const val MAX_TIME_BETWEEN_TAPS = 600L 
     }
@@ -43,7 +45,7 @@ class DoubleTapDetector(
 
             val acceleration = sqrt((x * x + y * y + z * z).toDouble()).toFloat()
 
-            if (acceleration > TAP_THRESHOLD) {
+            if (acceleration > tapThreshold) {
                 val now = System.currentTimeMillis()
 
                 if (now - lastTapTime > MAX_TIME_BETWEEN_TAPS) {
