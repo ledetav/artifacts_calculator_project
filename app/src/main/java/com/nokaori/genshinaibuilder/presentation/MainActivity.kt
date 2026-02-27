@@ -268,7 +268,7 @@ fun AppContent() {
                         composable(NavigationItem.Builds.route) {
                             Surface(modifier = Modifier.fillMaxSize()) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Text("Builds Screen (Coming Soon)")
+                                    Text(stringResource(R.string.builds_coming_soon))
                                 }
                             }
                         }

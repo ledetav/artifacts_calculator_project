@@ -83,4 +83,83 @@
     <string name="art_section_pieces">%d куска сета</string>
     <string name="artifact_substats_title">Подстаты артефакта</string>
     <string name="artifact_substats_empty_hint">Добавьте подстаты артефакта</string>
+    
+    <!-- Settings Screen -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_gesture_controls">Настройки управления (Жесты)</string>
+    <string name="settings_app_data">Данные приложения</string>
+    <string name="settings_update_database">Обновить базу персонажей</string>
+    <string name="settings_status_waiting">Ожидание...</string>
+    <string name="settings_error_prefix">Ошибка: %1$s</string>
+    
+    <!-- Gesture Settings Screen -->
+    <string name="gesture_settings_title">Настройки жестов</string>
+    <string name="gesture_shake_title">Встряхивание</string>
+    <string name="gesture_shake_description">Используется для быстрого сброса фильтров или других действий.</string>
+    <string name="gesture_double_tap_title">Двойной тап</string>
+    <string name="gesture_double_tap_description">Двойное постукивание по устройству.</string>
+    <string name="gesture_tilt_title">Наклон устройства</string>
+    <string name="gesture_tilt_description">Наклон влево или вправо для переключения вкладок.</string>
+    <string name="gesture_calibrate_sensitivity">Настроить чувствительность</string>
+    
+    <!-- Calibration Dialog -->
+    <string name="calibration_instructions">Настройка применяется сразу. Проверьте её прямо сейчас, выполнив жест.</string>
+    <string name="calibration_sensitivity_hint">Если жест распознается, когда вы ничего не делаете (ложное срабатывание) — увеличьте порог. Если жест не распознается при выполнении — уменьшите.</string>
+    <string name="calibration_gesture_detected">Жест распознан! ✓</string>
+    <string name="calibration_current_threshold" formatted="false">Текущий порог: %.1f %s</string>
+    <string name="calibration_reset_default" formatted="false">Сбросить (%.1f %s)</string>
+    <string name="calibration_done">Готово</string>
+    
+    <!-- Editor Artifact Screen -->
+    <string name="editor_biometric_title">Сохранение артефакта</string>
+    <string name="editor_biometric_subtitle">Подтвердите сохранение отпечатком пальца</string>
+    <string name="editor_biometric_cancel">Отмена</string>
+    <string name="editor_save_artifact">Сохранить артефакт</string>
+    <string name="editor_cannot_save">Невозможно сохранить артефакт:</string>
+    <string name="editor_back_description">Назад</string>
+    <string name="editor_biometric_save_description">Биометрическое сохранение</string>
+    
+    <!-- MainActivity -->
+    <string name="builds_coming_soon">Экран билдов (скоро появится)</string>
+    
+    <!-- Editor Components -->
+    <string name="editor_main_stat_dash">—</string>
+    <string name="editor_level_unknown">Ур. ???</string>
+    <string name="editor_select_placeholder">Выбрать</string>
+    <string name="editor_substats_title">Подстаты</string>
+    <string name="editor_substats_add_hint">Добавьте подстат...</string>
+    <string name="editor_manual_value_title">Введите значения</string>
+    <string name="editor_manual_value_ok">ОК</string>
+    <string name="editor_manual_value_cancel">Отмена</string>
+    
+    <!-- Level Slider -->
+    <string name="level_current">Ур. %1$d</string>
+    <string name="level_max">Макс. %1$d</string>
+
+    <string name="sync_log_curves_start">📥 Загрузка кривых…</string>
+    <string name="sync_log_curves_done">✅ Кривые обновлены (%1$d шт)</string>
+    <string name="sync_log_parallel_start">🚀 Запуск параллельной загрузки…</string>
+    <string name="sync_log_success">✅ Успешно! Заняло: %1$.2fс. Новых: %2$d</string>
+    <string name="sync_error_unknown">Неизвестная ошибка</string>
+    
+    <string name="sync_log_chars_start">👤 [Персонажи] Старт…</string>
+    <string name="sync_log_chars_error">⚠️ Ошибка: %1$s</string>
+    <string name="sync_log_chars_progress">👤 Персонажи: %1$d/%2$d</string>
+    <string name="sync_log_chars_done">✅ [Персонажи] Готово (+%1$d)</string>
+
+    <string name="sync_log_weapons_start">⚔️ [Оружие] Старт…</string>
+    <string name="sync_log_weapons_progress">⚔️ Оружие: %1$d/%2$d</string>
+    <string name="sync_log_weapons_done">✅ [Оружие] Готово (+%1$d)</string>
+
+    <string name="sync_log_artifacts_start">🏺 [Артефакты] Старт…</string>
+    <string name="sync_log_artifacts_done">✅ [Артефакты] Готово (+%1$d)</string>
+
+    <string name="artifact_error_no_set">Пожалуйста, выберите сет артефакта.</string>
+    <string name="artifact_error_no_main_stat">Пожалуйста, выберите главную характеристику.</string>
+    <string name="artifact_error_empty_substats">Некоторые подстаты пустые. Выберите характеристику или удалите их.</string>
+    <string name="artifact_error_zero_substats">Некоторые подстаты имеют значение 0. Введите значение или удалите их.</string>
+    <string name="artifact_error_total_rolls">Артефакт %1$d ур. %2$d★ должен иметь от %3$s общих роллов, но сейчас их %4$d.</string>
+    <string name="artifact_error_line_count">Исходя из количества роллов, этот артефакт должен иметь ровно %1$d открытых подстатов, но сейчас их %2$d.</string>
+    <string name="artifact_error_duplicate_substats">Найдены дублирующиеся подстаты. Каждая характеристика должна быть уникальной.</string>
+    <string name="artifact_error_main_sub_conflict">Подстат не может быть таким же, как главная характеристика.</string>
 </resources>

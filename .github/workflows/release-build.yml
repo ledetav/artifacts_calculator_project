@@ -45,6 +45,9 @@ jobs:
         set -o pipefail
         ./gradlew assembleRelease -PversionCode=${{ github.run_number }} 2>&1 | tee build.log
 
+    - name: Install Android Build Tools 29.0.3
+      run: echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;29.0.3"
+      
     # 3. Уведомление об успешной сборке и начале подписи
     - name: 🔑 Notify Sign Start
       uses: appleboy/telegram-action@master
@@ -62,7 +65,6 @@ jobs:
         alias: ${{ secrets.KEY_ALIAS }}
         keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
         keyPassword: ${{ secrets.KEY_PASSWORD }}
-        buildToolsVersion: 36.0.0
 
     # 4. Финальный успех (отправка файла)
     - name: Send Signed Release APK to Telegram

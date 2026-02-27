@@ -12,10 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.nokaori.genshinaibuilder.R
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 import kotlin.math.asin
@@ -55,7 +57,7 @@ fun BaseCalibrationDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = "Настройка применяется сразу. Проверьте её прямо сейчас, выполнив жест.",
+                    text = stringResource(R.string.calibration_instructions),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center
                 )
@@ -63,7 +65,7 @@ fun BaseCalibrationDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
-                    text = "Если жест распознается, когда вы ничего не делаете (ложное срабатывание) — увеличьте порог. Если жест не распознается при выполнении — уменьшите.",
+                    text = stringResource(R.string.calibration_sensitivity_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -80,7 +82,7 @@ fun BaseCalibrationDialog(
                 ) {
                     if (isGestureDetected) {
                         Text(
-                            text = "Жест распознан! ✓",
+                            text = stringResource(R.string.calibration_gesture_detected),
                             color = Color(0xFF4CAF50), // Зеленый цвет
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
@@ -97,7 +99,7 @@ fun BaseCalibrationDialog(
                 )
                 
                 Text(
-                    text = "Текущий порог: ${String.format("%.1f", currentValue)} $unit",
+                    text = stringResource(R.string.calibration_current_threshold, String.format("%.1f", currentValue), unit),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -106,7 +108,7 @@ fun BaseCalibrationDialog(
                     onClick = { onValueChange(defaultValue) },
                     modifier = Modifier.padding(top = 8.dp)
                 ) {
-                    Text("Сбросить (${String.format("%.1f", defaultValue)} $unit)")
+                    Text(stringResource(R.string.calibration_reset_default, String.format("%.1f", defaultValue), unit))
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -115,7 +117,7 @@ fun BaseCalibrationDialog(
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Готово")
+                    Text(stringResource(R.string.calibration_done))
                 }
             }
         }
@@ -178,7 +180,7 @@ fun ShakeCalibrationDialog(
     }
 
     BaseCalibrationDialog(
-        title = "Встряхивание",
+        title = stringResource(R.string.gesture_shake_title),
         currentValue = currentSensitivity,
         defaultValue = 1.5f,
         valueRange = 1.1f..4.0f,
@@ -250,7 +252,7 @@ fun DoubleTapCalibrationDialog(
     }
 
     BaseCalibrationDialog(
-        title = "Двойной тап",
+        title = stringResource(R.string.gesture_double_tap_title),
         currentValue = currentSensitivity,
         defaultValue = 3.5f,
         valueRange = 1.0f..8.0f,
@@ -314,7 +316,7 @@ fun TiltCalibrationDialog(
     }
 
     BaseCalibrationDialog(
-        title = "Наклон устройства",
+        title = stringResource(R.string.gesture_tilt_title),
         currentValue = currentSensitivity,
         defaultValue = 45.0f,
         valueRange = 15f..75f,

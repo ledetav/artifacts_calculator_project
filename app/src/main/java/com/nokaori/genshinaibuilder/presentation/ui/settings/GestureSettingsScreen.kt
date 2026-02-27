@@ -10,8 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.viewmodel.GestureSettingsViewModel
 import com.nokaori.genshinaibuilder.presentation.ui.settings.components.DoubleTapCalibrationDialog
 import com.nokaori.genshinaibuilder.presentation.ui.settings.components.ShakeCalibrationDialog
@@ -33,10 +35,10 @@ fun GestureSettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Настройки жестов") },
+                title = { Text(stringResource(R.string.gesture_settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
                     }
                 },
                 windowInsets = WindowInsets(0.dp)
@@ -50,8 +52,8 @@ fun GestureSettingsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             GestureSettingItem(
-                title = "Встряхивание",
-                description = "Используется для быстрого сброса фильтров или других действий.",
+                title = stringResource(R.string.gesture_shake_title),
+                description = stringResource(R.string.gesture_shake_description),
                 isChecked = settings.isShakeEnabled,
                 onCheckedChange = { viewModel.setShakeEnabled(it) },
                 onCalibrateClick = { showShakeCalibration = true }
@@ -60,8 +62,8 @@ fun GestureSettingsScreen(
             HorizontalDivider()
 
             GestureSettingItem(
-                title = "Двойной тап",
-                description = "Двойное постукивание по устройству.",
+                title = stringResource(R.string.gesture_double_tap_title),
+                description = stringResource(R.string.gesture_double_tap_description),
                 isChecked = settings.isDoubleTapEnabled,
                 onCheckedChange = { viewModel.setDoubleTapEnabled(it) },
                 onCalibrateClick = { showDoubleTapCalibration = true }
@@ -70,8 +72,8 @@ fun GestureSettingsScreen(
             HorizontalDivider()
 
             GestureSettingItem(
-                title = "Наклон устройства",
-                description = "Наклон влево или вправо для переключения вкладок.",
+                title = stringResource(R.string.gesture_tilt_title),
+                description = stringResource(R.string.gesture_tilt_description),
                 isChecked = settings.isTiltEnabled,
                 onCheckedChange = { viewModel.setTiltEnabled(it) },
                 onCalibrateClick = { showTiltCalibration = true }
@@ -147,7 +149,7 @@ fun GestureSettingItem(
                 onClick = onCalibrateClick,
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("Настроить чувствительность")
+                Text(stringResource(R.string.gesture_calibrate_sensitivity))
             }
         }
     }

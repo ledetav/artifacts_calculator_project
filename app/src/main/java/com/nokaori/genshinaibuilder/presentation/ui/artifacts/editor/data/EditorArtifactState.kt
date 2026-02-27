@@ -4,6 +4,7 @@ import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.Rarity
 import com.nokaori.genshinaibuilder.domain.model.StatType
+import com.nokaori.genshinaibuilder.domain.model.UiText
 
 data class EditorArtifactState(
     val artifactId: Int? = null,
@@ -32,7 +33,7 @@ data class EditorArtifactState(
     val maxRollsPerLine: Int = 6,
     val currentMaxTotalRolls: Int = 9,
 
-    val validationErrors: List<String> = emptyList(),
+    val validationErrors: List<UiText> = emptyList(),
     val isSaveSuccess: Boolean = false,
     val showBiometricPrompt: Boolean = false,
 )
