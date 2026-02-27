@@ -103,6 +103,7 @@ class ArtifactRepositoryImpl @Inject constructor (
         return when(type) {
             StatType.HP -> "FIGHT_PROP_HP"
             StatType.ATK -> "FIGHT_PROP_ATTACK"
+            StatType.DEF -> "FIGHT_PROP_DEFENSE"
             StatType.HP_PERCENT -> "FIGHT_PROP_HP_PERCENT"
             StatType.ATK_PERCENT -> "FIGHT_PROP_ATTACK_PERCENT"
             StatType.DEF_PERCENT -> "FIGHT_PROP_DEFENSE_PERCENT"
