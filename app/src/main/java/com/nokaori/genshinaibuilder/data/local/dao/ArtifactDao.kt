@@ -1,9 +1,8 @@
 package com.nokaori.genshinaibuilder.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import com.nokaori.genshinaibuilder.data.local.entity.ArtifactPieceEntity
 import com.nokaori.genshinaibuilder.data.local.entity.ArtifactSetEntity
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
@@ -31,17 +30,16 @@ interface ArtifactDao {
     @Query("SELECT id FROM artifact_sets_data")
     suspend fun getAllArtifactSetIds(): List<Int>
 
-    // Критически важно для добавления артефакта вручную (поиск ID по имени)
     @Query("SELECT * FROM artifact_sets_data WHERE name = :name LIMIT 1")
     suspend fun getSetByName(name: String): ArtifactSetEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertArtifactSets(sets: List<ArtifactSetEntity>)
 
     // --- PIECES ---
     @Query("SELECT * FROM artifact_pieces_data WHERE set_id = :setId")
     fun getPiecesBySetId(setId: Int): Flow<List<ArtifactPieceEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertArtifactPieces(pieces: List<ArtifactPieceEntity>)
 }
