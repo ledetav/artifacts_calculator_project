@@ -104,10 +104,10 @@
     
     <!-- Calibration Dialog -->
     <string name="calibration_instructions">Settings are applied immediately. Test them right now by performing the gesture.</string>
-    <string name="calibration_sensitivity_hint">If the gesture is recognized when you're doing nothing (false positive) — increase the threshold. If the gesture is not recognized when performing — decrease it.</string>
+    <string name="calibration_sensitivity_hint">If the gesture is recognized when you\'re doing nothing (false positive) — increase the threshold. If the gesture is not recognized when performing — decrease it.</string>
     <string name="calibration_gesture_detected">Gesture detected! ✓</string>
-    <string name="calibration_current_threshold">Current threshold: %.1f %1$s</string>
-    <string name="calibration_reset_default">Reset (%.1f %1$s)</string>
+    <string name="calibration_current_threshold" formatted="false">Current threshold: %.1f %s</string>
+    <string name="calibration_reset_default" formatted="false">Reset (%.1f %s)</string>
     <string name="calibration_done">Done</string>
     
     <!-- Editor Artifact Screen -->

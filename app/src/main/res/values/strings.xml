@@ -106,8 +106,8 @@
     <string name="calibration_instructions">Настройка применяется сразу. Проверьте её прямо сейчас, выполнив жест.</string>
     <string name="calibration_sensitivity_hint">Если жест распознается, когда вы ничего не делаете (ложное срабатывание) — увеличьте порог. Если жест не распознается при выполнении — уменьшите.</string>
     <string name="calibration_gesture_detected">Жест распознан! ✓</string>
-    <string name="calibration_current_threshold">Текущий порог: %.1f %1$s</string>
-    <string name="calibration_reset_default">Сбросить (%.1f %1$s)</string>
+    <string name="calibration_current_threshold" formatted="false">Текущий порог: %.1f %s</string>
+    <string name="calibration_reset_default" formatted="false">Сбросить (%.1f %s)</string>
     <string name="calibration_done">Готово</string>
     
     <!-- Editor Artifact Screen -->
