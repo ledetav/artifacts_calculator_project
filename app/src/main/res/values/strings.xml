@@ -153,4 +153,13 @@
 
     <string name="sync_log_artifacts_start">🏺 [Артефакты] Старт…</string>
     <string name="sync_log_artifacts_done">✅ [Артефакты] Готово (+%1$d)</string>
+
+    <string name="artifact_error_no_set">Пожалуйста, выберите сет артефакта.</string>
+    <string name="artifact_error_no_main_stat">Пожалуйста, выберите главную характеристику.</string>
+    <string name="artifact_error_empty_substats">Некоторые подстаты пустые. Выберите характеристику или удалите их.</string>
+    <string name="artifact_error_zero_substats">Некоторые подстаты имеют значение 0. Введите значение или удалите их.</string>
+    <string name="artifact_error_total_rolls">Артефакт %1$d ур. %2$d★ должен иметь от %3$s общих роллов, но сейчас их %4$d.</string>
+    <string name="artifact_error_line_count">Исходя из количества роллов, этот артефакт должен иметь ровно %1$d открытых подстатов, но сейчас их %2$d.</string>
+    <string name="artifact_error_duplicate_substats">Найдены дублирующиеся подстаты. Каждая характеристика должна быть уникальной.</string>
+    <string name="artifact_error_main_sub_conflict">Подстат не может быть таким же, как главная характеристика.</string>
 </resources>
