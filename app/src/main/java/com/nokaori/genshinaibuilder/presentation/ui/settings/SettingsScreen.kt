@@ -18,7 +18,8 @@ import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    onNavigateToGestures: () -> Unit
 ) {
     val syncStatus by settingsViewModel.syncStatus.collectAsStateWithLifecycle()
 
@@ -30,15 +31,33 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Настройки данных",
+            text = "Настройки",
             style = MaterialTheme.typography.headlineMedium
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
+            onClick = onNavigateToGestures,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Настройки управления (Жесты)")
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+        HorizontalDivider()
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Данные приложения",
+            style = MaterialTheme.typography.titleLarge
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
             onClick = { settingsViewModel.updateDatabase() },
-            enabled = syncStatus !is SyncStatus.InProgress
+            enabled = syncStatus !is SyncStatus.InProgress,
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Обновить базу персонажей")
         }
@@ -56,7 +75,6 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(status.message, style = MaterialTheme.typography.labelLarge)
                 
-                // Консоль (последние 3 лога)
                 LogConsole(logs = status.logs)
             }
             

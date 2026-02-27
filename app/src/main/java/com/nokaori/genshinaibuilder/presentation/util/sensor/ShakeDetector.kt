@@ -10,21 +10,17 @@ class ShakeDetector(
     private val onShake: () -> Unit
 ) : SensorEventListener {
 
-    // Порог ускорения (в G). 1.5G - оптимальный порог для обнаружения встряхивания
-    private val SHAKE_THRESHOLD_GRAVITY = 1.5F
+    var thresholdGravity: Float = 1.5f
     
-    // Минимальное время между отдельными встряхиваниями (миллисекунды), 
-    // чтобы предотвратить множественные срабатывания за один раз
     private val SHAKE_SLOP_TIME_MS = 500
     
-    // Время до сброса счетчика встряхиваний
     private val SHAKE_COUNT_RESET_TIME_MS = 3000
 
     private var shakeTimestamp: Long = 0
     private var shakeCount: Int = 0
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // ???
+        // Не используется
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
@@ -38,7 +34,7 @@ class ShakeDetector(
 
             val gForce = sqrt((gX * gX + gY * gY + gZ * gZ).toDouble()).toFloat()
 
-            if (gForce > SHAKE_THRESHOLD_GRAVITY) {
+            if (gForce > thresholdGravity) {
                 val now = System.currentTimeMillis()
                 
                 if (shakeTimestamp + SHAKE_SLOP_TIME_MS > now) {

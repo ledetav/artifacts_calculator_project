@@ -41,4 +41,10 @@ abstract class RepositoryModule {
     abstract fun bindThemeRepository(
         impl: ThemeRepositoryImpl
     ): ThemeRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGestureSettingsRepository(
+        impl: GestureSettingsRepositoryImpl
+    ): GestureSettingsRepository
 }
