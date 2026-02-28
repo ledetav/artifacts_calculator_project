@@ -2,9 +2,11 @@ package com.nokaori.genshinaibuilder.presentation
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.fragment.app.FragmentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +30,10 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -36,6 +41,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
@@ -46,6 +52,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.ArtifactScreen
+import com.nokaori.genshinaibuilder.presentation.ui.artifacts.components.AddArtifactSelectionSheet
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.EditorArtifactScreen
 import com.nokaori.genshinaibuilder.presentation.ui.characters.CharacterScreen
 import com.nokaori.genshinaibuilder.presentation.ui.characters.details.CharacterDetailsScreen
@@ -55,6 +62,7 @@ import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.EncyclopediaScr
 import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.details.ArtifactSetDetailsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.encyclopedia.details.WeaponDetailsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.navigation.NavigationItem
+import com.nokaori.genshinaibuilder.presentation.ui.settings.GestureSettingsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.settings.SettingsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.theme.GenshinAIBuilderTheme
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.WeaponScreen
@@ -62,12 +70,13 @@ import com.nokaori.genshinaibuilder.presentation.util.sensor.rememberTiltSensor
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.CharacterViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.EncyclopediaViewModel
+import com.nokaori.genshinaibuilder.presentation.viewmodel.GestureSettingsViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
-import com.nokaori.genshinaibuilder.presentation.ui.settings.GestureSettingsScreen
-import com.nokaori.genshinaibuilder.presentation.viewmodel.GestureSettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -98,6 +107,19 @@ fun AppContent() {
     val settingsViewModel: SettingsViewModel = hiltViewModel()
 
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
+
+    var showAddArtifactSheet by remember { mutableStateOf(false) }
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                // Кодируем URI, так как в нем могут быть слэши, ломающие навигацию
+                val encodedUri = URLEncoder.encode(uri.toString(), StandardCharsets.UTF_8.toString())
+                navController.navigate("artifact/scanner/$encodedUri")
+            }
+        }
+    )
 
     val allNavItems = listOf(
         NavigationItem.Encyclopedia,
@@ -202,6 +224,23 @@ fun AppContent() {
                     }
                 }
             ) {
+                if (showAddArtifactSheet) {
+                    AddArtifactSelectionSheet(
+                        onDismiss = { showAddArtifactSheet = false },
+                        onManualClick = {
+                            showAddArtifactSheet = false
+                            navController.navigate("artifact/editor/null")
+                        },
+                        onScanClick = {
+                            showAddArtifactSheet = false
+                            // Запускаем системную галерею только для изображений
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
+                    )
+                }
+
                 Scaffold(
                     topBar = {
                         if (isTopLevelDestination) {
@@ -215,7 +254,7 @@ fun AppContent() {
                                 actions = {
                                     if (currentRoute == NavigationItem.Artifacts.route) {
                                         IconButton(onClick = {
-                                            navController.navigate("artifact/editor/null")
+                                            showAddArtifactSheet = true 
                                         }) {
                                             Icon(
                                                 Icons.Default.Add,
@@ -329,6 +368,16 @@ fun AppContent() {
                                 onBackClick = { navController.popBackStack() },
                                 artifactId = backStackEntry.arguments?.getString("artifactId")
                             )
+                        }
+
+                        composable(
+                            route = "artifact/scanner/{imageUri}",
+                            arguments = listOf(navArgument("imageUri") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val imageUri = backStackEntry.arguments?.getString("imageUri")
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text("Экран сканера. URI: $imageUri")
+                            }
                         }
                     }
                 }
