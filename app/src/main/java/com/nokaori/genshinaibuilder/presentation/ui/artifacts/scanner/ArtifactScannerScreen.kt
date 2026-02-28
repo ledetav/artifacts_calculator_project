@@ -25,42 +25,47 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.util.ArtifactTextRecognizer
-import java.net.URLDecoder
 import kotlinx.coroutines.delay
+import java.net.URLDecoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtifactScannerScreen(
     imageUriString: String?,
-    onScanComplete: (String) -> Unit, 
+    onScanComplete: (String) -> Unit, // В будущем здесь будет data class Artifact
     onBackClick: () -> Unit
 ) {
     val context = LocalContext.current
     var isPreparing by remember { mutableStateOf(true) }
     var imageSize by remember { mutableStateOf(IntSize.Zero) }
+    var showTextDialog by remember { mutableStateOf(false) }
     
-    // Переменная для хранения текста для проверки
+    // Состояние для хранения текста от PaddleOCR
     var extractedText by remember { mutableStateOf("") }
 
-    // Декодируем URI обратно
+    // Декодируем URI обратно (чтобы убрать экранирование символов)
     val decodedUri = remember(imageUriString) {
         imageUriString?.let { Uri.parse(URLDecoder.decode(it, "UTF-8")) }
     }
 
-    // РЕАЛЬНОЕ СКАНИРОВАНИЕ
+    // Запускаем процесс распознавания, когда экран открывается
     LaunchedEffect(decodedUri) {
         if (decodedUri != null) {
             isPreparing = true
             
-            // Маленькая пауза для плавности старта анимации
+            // Задержка чисто для красоты UI, чтобы юзер успел увидеть лоадер
             delay(500) 
             
+            // Инициализируем наш самурайский PaddleOCR
             val recognizer = ArtifactTextRecognizer(context)
             val result = recognizer.extractTextFromUri(decodedUri)
             
-            extractedText = result ?: "Ошибка распознавания или текст не найден"
             if (result != null) {
-                Log.d("ArtifactScanner", "Распознанный текст:\n$result")
+                extractedText = result
+                Log.d("ArtifactScanner", "PaddleOCR результат:\n$result")
+            } else {
+                extractedText = "Ошибка распознавания или текст не найден"
+                Log.e("ArtifactScanner", "PaddleOCR вернул null")
             }
             
             isPreparing = false
@@ -70,20 +75,10 @@ fun ArtifactScannerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        stringResource(
-                            if (isPreparing) R.string.scanner_preparing
-                            else R.string.scanner_scanning
-                        )
-                    )
-                },
+                title = { Text(stringResource(if (isPreparing) R.string.scanner_preparing else R.string.scanner_scanning)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -115,7 +110,7 @@ fun ArtifactScannerScreen(
                             imageSize = coordinates.size
                         }
                 ) {
-                    // Картинка со скриншотом пользователя
+                    // Отрисовка скриншота через coil3
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(decodedUri)
@@ -125,23 +120,20 @@ fun ArtifactScannerScreen(
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    // Анимация бегающего лазера
+                    // Анимация бегающего лазера поверх скриншота
                     if (imageSize.height > 0) {
                         val infiniteTransition = rememberInfiniteTransition(label = "scanner")
                         val laserY by infiniteTransition.animateFloat(
                             initialValue = 0f,
                             targetValue = imageSize.height.toFloat(),
                             animationSpec = infiniteRepeatable(
-                                animation = tween(
-                                    durationMillis = 2000,
-                                    easing = LinearEasing
-                                ),
+                                animation = tween(durationMillis = 2000, easing = LinearEasing),
                                 repeatMode = RepeatMode.Reverse
                             ),
                             label = "laser_y"
                         )
 
-                        // Сам лазер
+                        // Линия лазера
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -152,18 +144,18 @@ fun ArtifactScannerScreen(
                                         colors = listOf(
                                             Color(0xFFFF4081),
                                             Color(0xFFD500F9),
-                                            Color(0xFF00E5FF)
+                                            Color(0xFF00E5FF) 
                                         )
                                     )
                                 )
                         )
-
-                        // Мягкое свечение под лазером
+                        
+                        // Мягкое неоновое свечение под/над лазером
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(40.dp)
-                                .offset(y = with(LocalDensity.current) { (laserY - 40).toDp() })
+                                .offset(y = with(LocalDensity.current) { (laserY - 40).toDp() }) 
                                 .background(
                                     brush = Brush.verticalGradient(
                                         colors = listOf(
@@ -174,31 +166,64 @@ fun ArtifactScannerScreen(
                                     )
                                 )
                         )
-
-                        // ВРЕМЕННО: Выводим текст, чтобы убедиться, что Huawei все читает
-                        Text(
-                            text = "Распознано символов: ${extractedText.length}\nПосмотри Logcat (тег ArtifactScanner)!",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        Button(onClick = { 
-                            // Передаем сырой текст дальше
-                            onScanComplete(extractedText) 
-                        }) {
-                            Text("Перейти к парсингу")
-                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
+                
+                // Временный блок для отладки — покажет, сколько символов нашел OCR
+                Text(
+                    text = "Распознано: ${extractedText.length} символов.\nИщи тег 'ArtifactScanner' в Logcat!",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
 
-                Button(onClick = { onScanComplete("dummy_data") }) {
-                    Text("Симулировать завершение сканирования")
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Button(onClick = { 
+                    // Передаем текст в навигацию (Пока просто строка, потом будет парсинг)
+                    onScanComplete(extractedText) 
+                }) {
+                    Text("Парсить данные")
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Button(
+                    onClick = { showTextDialog = true },
+                    colors = ButtonDefaults.outlinedButtonColors()
+                ) {
+                    Text("Показать текст")
                 }
             }
         }
+    }
+    
+    // Диалоговое окно с распознанным текстом
+    if (showTextDialog) {
+        AlertDialog(
+            onDismissRequest = { showTextDialog = false },
+            title = { Text("Распознанный текст") },
+            text = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 300.dp)
+                        .background(Color.Black.copy(alpha = 0.05f), MaterialTheme.shapes.small)
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = extractedText.ifEmpty { "Текст не найден" },
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showTextDialog = false }) {
+                    Text("Закрыть")
+                }
+            }
+        )
     }
 }
