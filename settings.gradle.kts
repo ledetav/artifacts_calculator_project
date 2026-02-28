@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "GenshinAIBuilder"
 include(":app")
- 
+include(":PaddleOCR4Android")
