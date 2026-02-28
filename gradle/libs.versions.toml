@@ -39,7 +39,7 @@ paging = "3.3.6"
 runtime = "1.10.0"
 biometric = "1.1.0"
 mlkit = "16.0.0-beta1"
-paddleocr = "840ee30"
+paddleocr = "1.2.9"
 
 [libraries]
 
@@ -127,7 +127,7 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 androidx-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkit" }
-paddleocr4android = { group = "com.github.equationl", name = "PaddleOCR4Android", version.ref = "paddleocr" }
+paddleocr4android = { group = "com.github.equationl.PaddleOCR4Android", name = "paddleocr4android", version.ref = "paddleocr" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
