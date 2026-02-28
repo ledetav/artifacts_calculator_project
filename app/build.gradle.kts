@@ -130,6 +130,9 @@ dependencies {
     // Biometric
     implementation(libs.androidx.biometric)
 
+    // ML Kit Text Recognition
+    implementation(libs.google.mlkit.text.recognition.cyrillic)
+
     // Тестирование
     testImplementation(libs.junit4)
     testImplementation(libs.mockito.core)
