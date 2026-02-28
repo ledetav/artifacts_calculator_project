@@ -130,8 +130,8 @@ dependencies {
     // Biometric
     implementation(libs.androidx.biometric)
 
-    // ML Kit Text Recognition
-    implementation(libs.google.mlkit.text.recognition.cyrillic)
+    // Huawei ML Kit Text Recognition
+    implementation(libs.huawei.ml.computer.vision.ocr)
 
     // Тестирование
     testImplementation(libs.junit4)

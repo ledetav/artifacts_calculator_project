@@ -7,6 +7,10 @@
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <meta-data
+        android:name="com.huawei.hms.ml.DEPENDENCY"
+        android:value="ocr"/>
+
     <application
         android:name=".GenshinBuilderApplication"
         android:allowBackup="true"
