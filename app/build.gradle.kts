@@ -130,8 +130,8 @@ dependencies {
     // Biometric
     implementation(libs.androidx.biometric)
 
-    // Huawei ML Kit Text Recognition
-    implementation(libs.huawei.ml.computer.vision.ocr)
+    // PaddleOCR для Android (Локальная модель)
+    implementation("com.github.equationl:paddleocr4android:1.1.1")
 
     // Тестирование
     testImplementation(libs.junit4)
