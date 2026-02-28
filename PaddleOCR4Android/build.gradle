@@ -1,10 +1,10 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
-    id 'maven-publish'
 }
 
 android {
+    namespace 'com.equationl.paddleocr4android'
     compileSdk 31
     ndkVersion '21.1.6352462'
 
@@ -45,19 +45,6 @@ android {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
             version "3.10.2"
-        }
-    }
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication){
-                from components.release
-                groupId = 'com.equationl.paddleocr4android'
-                artifactId = 'paddleocr4android'
-                version = 'V1.2.0'
-            }
         }
     }
 }
