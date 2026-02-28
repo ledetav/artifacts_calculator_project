@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.nokaori.genshinaibuilder.R
+import com.nokaori.genshinaibuilder.domain.util.ArtifactTextRecognizer
 import java.net.URLDecoder
 import kotlinx.coroutines.delay
 
@@ -57,11 +58,9 @@ fun ArtifactScannerScreen(
             val recognizer = ArtifactTextRecognizer(context)
             val result = recognizer.extractTextFromUri(decodedUri)
             
+            extractedText = result ?: "Ошибка распознавания или текст не найден"
             if (result != null) {
-                extractedText = result
                 Log.d("ArtifactScanner", "Распознанный текст:\n$result")
-            } else {
-                extractedText = "Ошибка распознавания или текст не найден"
             }
             
             isPreparing = false
