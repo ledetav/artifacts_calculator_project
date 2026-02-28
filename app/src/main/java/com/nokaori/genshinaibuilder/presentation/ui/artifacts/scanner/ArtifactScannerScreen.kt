@@ -90,7 +90,6 @@ fun ArtifactScannerScreen(
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(decodedUri)
-                            .crossfade(true)
                             .build(),
                         contentDescription = "Artifact Screenshot",
                         contentScale = ContentScale.Fit,
