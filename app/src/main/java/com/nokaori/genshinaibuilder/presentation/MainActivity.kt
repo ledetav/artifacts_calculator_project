@@ -54,6 +54,7 @@ import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.ArtifactScreen
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.components.AddArtifactSelectionSheet
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.EditorArtifactScreen
+import com.nokaori.genshinaibuilder.presentation.ui.artifacts.scanner.ArtifactScannerScreen
 import com.nokaori.genshinaibuilder.presentation.ui.characters.CharacterScreen
 import com.nokaori.genshinaibuilder.presentation.ui.characters.details.CharacterDetailsScreen
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.AppDrawer
@@ -375,9 +376,15 @@ fun AppContent() {
                             arguments = listOf(navArgument("imageUri") { type = NavType.StringType })
                         ) { backStackEntry ->
                             val imageUri = backStackEntry.arguments?.getString("imageUri")
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("Экран сканера. URI: $imageUri")
-                            }
+                            
+                            ArtifactScannerScreen(
+                                imageUriString = imageUri,
+                                onScanComplete = { scannedData ->
+                                    // Пока просто возвращаемся назад.
+                                    navController.popBackStack()
+                                },
+                                onBackClick = { navController.popBackStack() }
+                            )
                         }
                     }
                 }
