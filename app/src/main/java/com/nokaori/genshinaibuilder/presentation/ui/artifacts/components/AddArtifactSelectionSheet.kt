@@ -45,7 +45,7 @@ fun AddArtifactSelectionSheet(
             Text(
                 text = stringResource(R.string.add_artifact_title),
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
             
             Spacer(modifier = Modifier.height(8.dp))
