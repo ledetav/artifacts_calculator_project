@@ -286,15 +286,15 @@ class OCR(private val context: Context) {
                         )
                     }
 
-                    val clsLabel = rawResult.mClsLabels.getOrNull(index)
+                    val clsLabel = rawResult.mClsLabels?.getOrNull(index)
 
                     rawResultList.add(
                         OcrResultModel(
                             point,
                             s,
-                            rawResult.mRecScores.getOrElse(index) { -1f },
+                            rawResult.mRecScores?.getOrElse(index) { -1f } ?: -1f,
                             if (clsLabel == null) "-1" else if (clsLabel == 0) "0" else "180",
-                            rawResult.mClsScores.getOrElse(index) { -1f }
+                            rawResult.mClsScores?.getOrElse(index) { -1f } ?: -1f
                         )
                     )
                 }
