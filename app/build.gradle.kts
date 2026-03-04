@@ -134,7 +134,7 @@ dependencies {
     // Biometric
     implementation(libs.androidx.biometric)
 
-    implementation files('libs/PaddleOCR4Android-release.aar')
+    implementation(files("libs/PaddleOCR4Android-release.aar"))
 
     // Тестирование
     testImplementation(libs.junit4)
