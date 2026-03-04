@@ -59,11 +59,11 @@ jobs:
         sudo apt-get install tree -y
         tree app/build/outputs || echo "Директория outputs не найдена"
 
-    # Находим APK, переименовываем и проверяем размер
+    # Находим конкретно arm64-v8a APK, переименовываем и проверяем размер
     - name: 🔎 Find, Rename and Check Size
       id: prepare_apk
       run: |
-        # Ищем конкретно arm64-v8a APK (для современных смартфонов)
+        # Ищем файл arm64-v8a (он легче universal и скорее всего уложится в 50 МБ)
         APK_OLD_PATH=$(find app/build/outputs/apk -name "*arm64-v8a*.apk" | head -n 1)
         
         if [ -z "$APK_OLD_PATH" ]; then
@@ -107,13 +107,20 @@ jobs:
         document: ${{ env.APK_FINAL_PATH }}
         message: "🚀 Сборка успешно завершена! Ветка: ${{ github.ref_name }} (Build #${{ github.run_number }})"
 
-    # 4b. Загрузка большого APK на временный сервер (если размер > 50 МБ)
+    # 4b. Загрузка большого APK на временный сервер transfer.sh (если размер > 50 МБ)
     - name: ☁️ Upload Large APK to Temporary Storage
       if: env.IS_LARGE_APK == 'true'
       id: upload_temp
       run: |
-        echo "Загружаю APK на bashupload.com..."
-        DIRECT_LINK=$(curl -s -T ${{ env.APK_FINAL_PATH }} bashupload.com | grep -o 'http.*')
+        echo "Загружаю APK на transfer.sh..."
+        
+        DIRECT_LINK=$(curl -s --fail --upload-file ${{ env.APK_FINAL_PATH }} https://transfer.sh/app-debug-${{ github.run_number }}.apk)
+        
+        if [ -z "$DIRECT_LINK" ]; then
+          echo "❌ Ошибка: Не удалось получить ссылку от transfer.sh"
+          exit 1
+        fi
+        
         echo "Прямая ссылка: $DIRECT_LINK"
         echo "DIRECT_LINK=$DIRECT_LINK" >> $GITHUB_ENV
 
@@ -128,7 +135,7 @@ jobs:
           🚀 Сборка успешно завершена! Ветка: ${{ github.ref_name }} (Build #${{ github.run_number }})
           
           ⚠️ Размер APK превышает лимит Telegram (50 МБ).
-          📥 Прямая ссылка на скачивание APK (действительна 3 дня):
+          📥 Прямая ссылка на скачивание APK (действительна 14 дней):
           ${{ env.DIRECT_LINK }}
           
           📦 Резервный ZIP-архив всегда доступен в GitHub Actions:
