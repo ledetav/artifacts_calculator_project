@@ -63,6 +63,7 @@ jobs:
     - name: 🔎 Find, Rename and Check Size
       id: prepare_apk
       run: |
+        # Ищем файл arm64-v8a (он легче universal и скорее всего уложится в 50 МБ)
         APK_OLD_PATH=$(find app/build/outputs/apk -name "*arm64-v8a*.apk" | head -n 1)
         
         if [ -z "$APK_OLD_PATH" ]; then
@@ -70,12 +71,14 @@ jobs:
           exit 1
         fi
         
+        # Переименовываем
         DIR_NAME=$(dirname "$APK_OLD_PATH")
         APK_NEW_PATH="$DIR_NAME/app-debug-${{ github.run_number }}.apk"
         mv "$APK_OLD_PATH" "$APK_NEW_PATH"
         
         echo "APK_FINAL_PATH=$APK_NEW_PATH" >> $GITHUB_ENV
         
+        # Проверяем размер файла (в байтах). 50 МБ = 52428800 байт
         FILE_SIZE=$(stat -c%s "$APK_NEW_PATH")
         echo "Размер APK: $FILE_SIZE байт"
         
@@ -111,39 +114,7 @@ jobs:
       run: |
         echo "Загружаю APK на сервер Litterbox (до 1 ГБ)..."
         
-        DIRECT_LINK=$(curl -s -F "reqtype=fileupload" -F "time=72h" -F "fileToUpload=@${{ env.APK_FINAL_PATH }}" https://litterbox.catbox.moe/resources/internals/api.php)
-        
-        if [[ ! "$DIRECT_LINK" == http* ]]; then
-          echo "❌ Ошибка загрузки: $DIRECT_LINK"
-          exit 1
-        fi
-        
-        echo "Прямая ссылка: $DIRECT_LINK"
-        echo "DIRECT_LINK=$DIRECT_LINK" >> $GITHUB_ENV
-
-    # 4c. Финальный успех (отправка ССЫЛКИ, если размер > 50 МБ)
-    - name: 🔗 Send Direct APK Link to Telegram
-      if: env.IS_LARGE_APK == 'true'
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_TO }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: |
-          🚀 Сборка успешно завершена! Ветка: ${{ github.ref_name }} (Build #${{ github.run_number }})
-          
-          ⚠️ Размер APK превышает лимит Telegram (50 МБ).
-          📥 Прямая ссылка на скачивание APK (действительна 3 дня):
-          ${{ env.DIRECT_LINK }}
-          
-          📦 Резервный ZIP-архив всегда доступен в GitHub Actions:
-          https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-    # --- БЛОК ОБРАБОТКИ ОШИБОК ---
-    - name: Extract Error Log
-      if: failure()
-      run: |
-        echo "ERROR_LOG<<EOF" >> $GITHUB_ENV
-        tail -n 30 build.log >> $GITHUB_ENV || echo "Лог сборки        # Загружаем файл (time=72h означает, что ссылка сгорит через 3 дня)
+        # Загружаем файл (time=72h означает, что ссылка сгорит через 3 дня)
         DIRECT_LINK=$(curl -s -F "reqtype=fileupload" -F "time=72h" -F "fileToUpload=@${{ env.APK_FINAL_PATH }}" https://litterbox.catbox.moe/resources/internals/api.php)
         
         # Проверяем, что ответ начинается с "http" (успех)
@@ -167,55 +138,6 @@ jobs:
           
           ⚠️ Размер APK превышает лимит Telegram (50 МБ).
           📥 Прямая ссылка на скачивание APK (действительна 3 дня):
-          ${{ env.DIRECT_LINK }}
-          
-          📦 Резервный ZIP-архив всегда доступен в GitHub Actions:
-          https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-    # --- БЛОК ОБРАБОТКИ ОШИБОК ---
-    - name: Extract Error Log
-      if: failure()
-      run: |
-        echo "ERROR_LOG<<EOF" >> $GITHUB_ENV
-        tail -n 30 build.log >> $GITHUB_ENV || echo "Лог сборки Gradle недоступен" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-
-    - name: Notify Telegram on Failure
-      if: failure()
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_TO }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: |
-          ❌ Ошибка сборки Debug!
-          Ветка: ${{ github.ref_name }} (Build #${{ github.run_number }})
-          Автор: ${{ github.actor }}
-          
-          📝 Последние строки лога:
-          `${{ env.ERROR_LOG }}`
-          
-          🔍 Полные логи: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}        DIRECT_LINK=$(curl -s --fail --upload-file ${{ env.APK_FINAL_PATH }} https://transfer.sh/app-debug-${{ github.run_number }}.apk)
-        
-        if [ -z "$DIRECT_LINK" ]; then
-          echo "❌ Ошибка: Не удалось получить ссылку от transfer.sh"
-          exit 1
-        fi
-        
-        echo "Прямая ссылка: $DIRECT_LINK"
-        echo "DIRECT_LINK=$DIRECT_LINK" >> $GITHUB_ENV
-
-    # 4c. Финальный успех (отправка ССЫЛКИ, если размер > 50 МБ)
-    - name: 🔗 Send Direct APK Link to Telegram
-      if: env.IS_LARGE_APK == 'true'
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_TO }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: |
-          🚀 Сборка успешно завершена! Ветка: ${{ github.ref_name }} (Build #${{ github.run_number }})
-          
-          ⚠️ Размер APK превышает лимит Telegram (50 МБ).
-          📥 Прямая ссылка на скачивание APK (действительна 14 дней):
           ${{ env.DIRECT_LINK }}
           
           📦 Резервный ZIP-архив всегда доступен в GitHub Actions:
