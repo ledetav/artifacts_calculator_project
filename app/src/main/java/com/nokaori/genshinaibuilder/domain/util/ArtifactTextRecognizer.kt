@@ -7,8 +7,8 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
-import com.equationl.paddleocr4android.OCR
-import com.equationl.paddleocr4android.OcrConfig
+import com.equationl.fastdeployOCR.OCR
+import com.equationl.fastdeployOCR.OcrConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
