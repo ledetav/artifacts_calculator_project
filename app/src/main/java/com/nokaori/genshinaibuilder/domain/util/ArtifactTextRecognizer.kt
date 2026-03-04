@@ -15,9 +15,14 @@ import kotlinx.coroutines.withContext
 class ArtifactTextRecognizer(private val context: Context) {
 
     private val config = OcrConfig().apply {
-        isRunDet = true
-        isRunCls = true
-        isRunRec = true
+        modelPath = "models"
+        
+        // Указываем имена файлов (без расширений, библиотека сама подставит .pdmodel и .pdiparams)
+        detModelFileName = "det"
+        clsModelFileName = "cls"
+        recModelFileName = "rec"
+
+        labelPath = "models/dict.txt" 
     }
 
     suspend fun extractTextFromUri(uri: Uri): String? = withContext(Dispatchers.IO) {
