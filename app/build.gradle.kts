@@ -6,12 +6,6 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
-repositories {
-    flatDir {
-        dirs("libs")
-    }
-}
-
 android {
     namespace = "com.nokaori.genshinaibuilder"
     compileSdk = 36
@@ -140,7 +134,7 @@ dependencies {
     // Biometric
     implementation(libs.androidx.biometric)
 
-    implementation("com.equationl:paddleocr4android:release@aar")
+    implementation(files("libs/PaddleOCR4Android-release.aar"))
 
     // Тестирование
     testImplementation(libs.junit4)
