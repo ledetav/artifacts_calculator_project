@@ -7,7 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import com.equationl.paddleocr4android.OCR
-import com.equationl.paddleocr4android.bean.OcrConfig
+import com.equationl.paddleocr4android.OcrConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -23,15 +23,15 @@ class ArtifactTextRecognizer(private val context: Context) {
         val ocr = OCR(context)
         
         return@withContext try {
-            val initResult = ocr.initModelSync(config)
+            val isInitialized = ocr.initModelSync(config).getOrNull() ?: false
             
-            if (initResult.isFailure || initResult.getOrNull() == false) {
-                return@withContext "Ошибка: Не удалось инициализировать PaddleOCR. ${initResult.exceptionOrNull()?.message}"
+            if (!isInitialized) {
+                return@withContext "Ошибка: Не удалось инициализировать PaddleOCR"
             }
 
             val bitmap = uriToBitmap(uri) ?: return@withContext "Ошибка: Не удалось прочитать картинку"
 
-            val result = ocr.runSync(bitmap)
+            val result = ocr.runSync(bitmap).getOrNull() ?: return@withContext "Ошибка: Не удалось распознать текст"
 
             result.simpleText
         } catch (e: Exception) {
