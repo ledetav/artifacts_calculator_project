@@ -22,7 +22,7 @@ class ArtifactTextRecognizer(private val context: Context) {
         clsModelFileName = "cls"
         recModelFileName = "rec"
 
-        labelPath = "models/dict.txt" 
+        labelPath = "dict.txt" 
     }
 
     suspend fun extractTextFromUri(uri: Uri): String? = withContext(Dispatchers.IO) {
