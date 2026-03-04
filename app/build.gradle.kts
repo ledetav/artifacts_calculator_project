@@ -134,8 +134,7 @@ dependencies {
     // Biometric
     implementation(libs.androidx.biometric)
 
-    // PaddleOCR для Android (Локальный модуль)
-    implementation(project(":PaddleOCR4Android"))
+    implementation files('libs/PaddleOCR4Android-release.aar')
 
     // Тестирование
     testImplementation(libs.junit4)
