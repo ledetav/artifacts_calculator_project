@@ -95,9 +95,6 @@ android {
             excludes += "/META-INF/proguard/androidx-*.pro"
             excludes += "/META-INF/MANIFEST.MF"
         }
-        dex {
-            useLegacyMultidex = false
-        }
     }
 }
 
