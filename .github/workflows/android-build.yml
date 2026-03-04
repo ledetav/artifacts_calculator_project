@@ -44,7 +44,7 @@ jobs:
     - name: Build with Gradle
       run: |
         set -o pipefail
-        ./gradlew assembleDebug 2>&1 | tee build.log
+        ./gradlew assembleDebug --parallel --build-cache 2>&1 | tee build.log
 
     # 3. Уведомление об успехе компиляции
     - name: ✅ Notify Build Success

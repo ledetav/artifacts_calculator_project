@@ -41,7 +41,7 @@ jobs:
     - name: Build Release APK
       run: |
         set -o pipefail
-        ./gradlew assembleRelease -PversionCode=${{ github.run_number }} 2>&1 | tee build.log
+        ./gradlew assembleRelease -PversionCode=${{ github.run_number }} --parallel --build-cache 2>&1 | tee build.log
 
     - name: Install Android Build Tools 29.0.3
       run: echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;29.0.3"
