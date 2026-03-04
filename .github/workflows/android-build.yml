@@ -54,22 +54,46 @@ jobs:
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: "✅ Компиляция успешна! Подготавливаю APK к отправке..."
 
-    - name: Upload APK
+    # Шаг для дебага: выводит структуру папок, чтобы визуально видеть, где лежит APK
+    - name: 📂 Show outputs directory tree
+      run: |
+        sudo apt-get install tree -y
+        tree app/build/outputs || echo "Директория outputs не найдена"
+
+    # Находим APK, переименовываем и сохраняем путь
+    - name: 🔎 Find and Rename APK
+      id: prepare_apk
+      run: |
+        # Ищем любой .apk файл в папке outputs
+        APK_OLD_PATH=$(find app/build/outputs/apk -name "*.apk" | head -n 1)
+        
+        # Если файл не найден, роняем сборку с понятной ошибкой
+        if [ -z "$APK_OLD_PATH" ]; then
+          echo "❌ APK файл не найден! Проверь логи шага 'Show outputs directory tree'."
+          exit 1
+        fi
+        
+        # Переименовываем
+        DIR_NAME=$(dirname "$APK_OLD_PATH")
+        APK_NEW_PATH="$DIR_NAME/app-debug-${{ github.run_number }}.apk"
+        mv "$APK_OLD_PATH" "$APK_NEW_PATH"
+        
+        # Сохраняем новый путь в переменные окружения для следующих шагов
+        echo "APK_FINAL_PATH=$APK_NEW_PATH" >> $GITHUB_ENV
+
+    - name: 📦 Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug
-        path: app/build/outputs/apk/debug/app-debug.apk
-        
-    - name: Rename APK
-      run: mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/app-debug-${{ github.run_number }}.apk
+        name: app-debug-${{ github.run_number }}
+        path: ${{ env.APK_FINAL_PATH }}
+        if-no-files-found: error # Теперь шаг упадет, если файла нет!
 
-    # 4. Финальный успех (отправка файла)
-    - name: Send APK to Telegram
+    - name: 🚀 Send APK to Telegram
       uses: appleboy/telegram-action@master
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
-        document: app/build/outputs/apk/debug/app-debug-${{ github.run_number }}.apk
+        document: ${{ env.APK_FINAL_PATH }}
         message: "🚀 Сборка успешно завершена! Ветка: ${{ github.ref_name }} (Build #${{ github.run_number }})"
 
     # --- БЛОК ОБРАБОТКИ ОШИБОК ---
