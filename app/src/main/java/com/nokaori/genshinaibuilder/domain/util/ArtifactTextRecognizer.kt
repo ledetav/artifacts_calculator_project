@@ -13,37 +13,32 @@ import kotlinx.coroutines.withContext
 
 class ArtifactTextRecognizer(private val context: Context) {
 
-    // Инициализируем конфиг PaddleOCR. 
-    // По умолчанию обертка сама использует зашитые в нее легковесные модели PP-OCRv4
     private val config = OcrConfig().apply {
-        // Здесь можно будет покрутить настройки, если на сложном фоне будет плохо читать
         isRunDet = true
         isRunCls = true
         isRunRec = true
     }
 
     suspend fun extractTextFromUri(uri: Uri): String? = withContext(Dispatchers.IO) {
+        val ocr = OCR(context)
+        
         return@withContext try {
-            val ocr = OCR.getInstance(context)
-            val initResult = ocr.initEngine(config)
+            val initResult = ocr.initModelSync(config)
             
-            if (!initResult) {
-                return@withContext "Ошибка: Не удалось инициализировать PaddleOCR"
+            if (initResult.isFailure || initResult.getOrNull() == false) {
+                return@withContext "Ошибка: Не удалось инициализировать PaddleOCR. ${initResult.exceptionOrNull()?.message}"
             }
 
-            // 2. Превращаем Uri в Bitmap
-            val bitmap = uriToBitmap(uri) ?: return@withContext "Ошибка: Не удалось получить картинку"
+            val bitmap = uriToBitmap(uri) ?: return@withContext "Ошибка: Не удалось прочитать картинку"
 
-            // работает синхронно, поэтому мы внутри Dispatchers.IO
             val result = ocr.runSync(bitmap)
-
-            // Освобождаем память (важно для C++ библиотек!)
-            ocr.releaseEngine()
 
             result.simpleText
         } catch (e: Exception) {
             e.printStackTrace()
-            "Ошибка при распознавании: ${e.message}"
+            "Ошибка во время распознавания: ${e.message}"
+        } finally {
+            ocr.releaseModel()
         }
     }
 
@@ -52,8 +47,9 @@ class ArtifactTextRecognizer(private val context: Context) {
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 val source = ImageDecoder.createSource(context.contentResolver, uri)
-                // Обязательно копируем в ARGB_8888, так как C++ модели обычно требуют этот формат
                 ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
+                    // Выделяем память в программной области, так как C++ (NDK) 
+                    // часто не умеет читать напрямую из аппаратной памяти видеоускорителя (Hardware Bitmap)
                     decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
                     decoder.isMutableRequired = true
                 }
