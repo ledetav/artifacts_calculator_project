@@ -1,123 +1,38 @@
 package com.nokaori.genshinaibuilder.domain.util
 
 import android.content.Context
+import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Log
-import com.baidu.paddle.fastdeploy.LitePowerMode
-import com.equationl.fastdeployocr.OCR
-import com.equationl.fastdeployocr.OcrConfig
-import com.equationl.fastdeployocr.RunType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import android.graphics.Canvas
-import android.graphics.ColorMatrix
-import android.graphics.ColorMatrixColorFilter
-import android.graphics.Paint
 
 class ArtifactTextRecognizer(private val context: Context) {
 
-    private val config = OcrConfig().apply {
-        modelPath = "models"
-        
-        detModelFileName = "det"
-        recModelFileName = "rec"
-        labelPath = "dict.txt" 
-        
-        // ВАЖНО: Используем WithDet вместо All. 
-        // Это отключает классификатор переворота (cls), из-за которого текст часто читается "вверх ногами"
-        runType = RunType.WithDet 
-        
-        cpuPowerMode = LitePowerMode.LITE_POWER_FULL
+    // Загружаем нашу скомпилированную C++ библиотеку
+    init {
+        System.loadLibrary("genshin_ocr")
     }
 
-    private fun preprocessBitmap(original: Bitmap): Bitmap {
-        val bmpProcessed = Bitmap.createBitmap(original.width, original.height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bmpProcessed)
-        val paint = Paint()
-    
-        // 1. Делаем картинку черно-белой
-        val colorMatrix = ColorMatrix()
-        colorMatrix.setSaturation(0f)
-    
-        // 2. Увеличиваем контраст (делаем фон темнее, а текст ярче)
-        val contrast = 1.5f // Коэффициент контраста
-        val brightness = -30f // Делаем чуть темнее
-        val contrastMatrix = ColorMatrix(
-            floatArrayOf(
-                contrast, 0f, 0f, 0f, brightness,
-                0f, contrast, 0f, 0f, brightness,
-                0f, 0f, contrast, 0f, brightness,
-                0f, 0f, 0f, 1f, 0f
-            )
-        )
-        colorMatrix.postConcat(contrastMatrix)
-    
-        paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
-        canvas.drawBitmap(original, 0f, 0f, paint)
-    
-        return bmpProcessed
-    }
+    // Объявляем нативные методы, реализация которых лежит в ocr_jni.cpp
+    private external fun initModel(assetManager: AssetManager): Boolean
+    private external fun recognizeText(bitmap: Bitmap): String
+
+    private var isInitialized = false
 
     suspend fun extractTextFromUri(uri: Uri): String? = withContext(Dispatchers.IO) {
-        val ocr = OCR(context)
+        if (!isInitialized) {
+            isInitialized = initModel(context.assets)
+            if (!isInitialized) return@withContext "Ошибка: Не удалось инициализировать C++ ядро"
+        }
+
+        val bitmap = uriToBitmap(uri) ?: return@withContext "Ошибка: Не удалось прочитать картинку"
         
-        return@withContext try {
-            val initResult = ocr.initModelSync(config)
-            val isInitialized = initResult.getOrNull() ?: false
-            
-            if (!isInitialized) {
-                val error = initResult.exceptionOrNull()?.message ?: "Unknown error"
-                Log.e("ArtifactTextRecognizer", "Init failed: $error")
-                return@withContext "Ошибка: Не удалось инициализировать PaddleOCR. $error"
-            }
-
-            val originalBitmap = uriToBitmap(uri) ?: return@withContext "Ошибка: Не удалось прочитать картинку"
-            
-            // Сжимаем скриншот для лучшего распознавания
-            val scaledBitmap = scaleBitmapDown(originalBitmap, 1440)
-            val preprocessedBitmap = preprocessBitmap(scaledBitmap)
-            
-            val runResult = ocr.runSync(preprocessedBitmap)
-            val result = runResult.getOrNull() ?: run {
-                val error = runResult.exceptionOrNull()?.message ?: "Unknown error"
-                Log.e("ArtifactTextRecognizer", "Run failed: $error")
-                return@withContext "Ошибка: Не удалось распознать текст. $error"
-            }
-
-            result.simpleText
-        } catch (e: Exception) {
-            e.printStackTrace()
-            "Ошибка во время распознавания: ${e.message}"
-        } finally {
-            ocr.releaseModel()
-        }
-    }
-
-    private fun scaleBitmapDown(bitmap: Bitmap, maxDimension: Int): Bitmap {
-        val originalWidth = bitmap.width
-        val originalHeight = bitmap.height
-        var newWidth = originalWidth
-        var newHeight = originalHeight
-
-        if (originalWidth > maxDimension || originalHeight > maxDimension) {
-            if (originalWidth > originalHeight) {
-                newWidth = maxDimension
-                newHeight = (newWidth * originalHeight) / originalWidth
-            } else {
-                newHeight = maxDimension
-                newWidth = (newHeight * originalWidth) / originalHeight
-            }
-        }
-        
-        return if (newWidth != originalWidth || newHeight != originalHeight) {
-            Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
-        } else {
-            bitmap
-        }
+        // Вызываем нативный метод (пока он вернет тестовую строку)
+        return@withContext recognizeText(bitmap)
     }
 
     @Suppress("DEPRECATION")
@@ -127,7 +42,7 @@ class ArtifactTextRecognizer(private val context: Context) {
                 val source = ImageDecoder.createSource(context.contentResolver, uri)
                 ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
                     decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-                    decoder.isMutableRequired = true
+                    decoder.isMutableRequired = true // Bitmap должен быть изменяемым для C++
                 }
             } else {
                 MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
