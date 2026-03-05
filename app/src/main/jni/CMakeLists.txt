@@ -18,6 +18,7 @@ target_link_options(genshin_ocr PRIVATE -fopenmp)
 target_link_libraries(genshin_ocr PRIVATE 
     ncnn 
     ${OpenCV_LIBS} 
+    omp
     ${log-lib} 
     ${jnigraphics-lib}
 )
