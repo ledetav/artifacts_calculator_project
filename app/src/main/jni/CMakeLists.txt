@@ -14,11 +14,11 @@ find_library(jnigraphics-lib jnigraphics)
 
 target_compile_options(genshin_ocr PRIVATE -fopenmp)
 
-target_link_options(genshin_ocr PRIVATE -fopenmp -static-openmp)
-
 target_link_libraries(genshin_ocr PRIVATE 
     ncnn 
     ${OpenCV_LIBS} 
+    "-fopenmp" 
+    "-static-openmp"
     ${log-lib} 
     ${jnigraphics-lib}
 )
