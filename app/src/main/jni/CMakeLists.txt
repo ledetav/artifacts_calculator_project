@@ -7,21 +7,18 @@ set(OpenCV_DIR ${CMAKE_SOURCE_DIR}/opencv/sdk/native/jni)
 find_package(ncnn REQUIRED)
 find_package(OpenCV REQUIRED core imgproc)
 
-find_package(OpenMP REQUIRED)
-
 add_library(genshin_ocr SHARED ocr_jni.cpp ppocrv5.cpp)
 
 find_library(log-lib log)
 find_library(jnigraphics-lib jnigraphics)
 
-# для Android заставляем статически слинковать OpenMP, 
-# чтобы избежать вылетов (Crash) на реальных устройствах
-target_link_options(genshin_ocr PRIVATE -static-openmp)
+target_compile_options(genshin_ocr PRIVATE -fopenmp)
+
+target_link_options(genshin_ocr PRIVATE -fopenmp -static-openmp)
 
 target_link_libraries(genshin_ocr PRIVATE 
     ncnn 
     ${OpenCV_LIBS} 
     ${log-lib} 
-    ${jnigraphics-lib} 
-    OpenMP::OpenMP_CXX
+    ${jnigraphics-lib}
 )
