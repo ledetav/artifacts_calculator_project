@@ -5,11 +5,14 @@
 #include <string>
 #include <vector>
 
+// Подключаем нейросеть и зашитый словарь
 #include "ppocrv5.h"
+#include "ppocrv5_dict.h"
 
 #define TAG "GenshinOcrCpp"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__)
 
+// Глобальный экземпляр нашей нейросети
 static PPOCRv5* ppocr = nullptr;
 
 extern "C" {
@@ -23,11 +26,25 @@ Java_com_nokaori_genshinaibuilder_domain_util_ArtifactTextRecognizer_initModel(J
 
     AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
 
-    // Загружаем модели. Выбираем server (они точнее для скриншотов). 
-    bool has_gpu = true; // Используем Vulkan GPU для максимальной скорости!
-    int ret = ppocr->load(mgr, "PP_OCRv5_server_det", "PP_OCRv5_server_rec", has_gpu); 
+    // Настройки для серверной модели
+    bool use_fp16 = false; // FP16 для server модели иногда дает NaN, поэтому false
+    bool use_gpu = true;   // Используем Vulkan для ускорения
 
-    if (ret == 0) { 
+    // Вызываем load с правильными параметрами (как в оригинальном файле)
+    int ret = ppocr->load(
+        mgr, 
+        "PP_OCRv5_server_det.ncnn.param", 
+        "PP_OCRv5_server_det.ncnn.bin", 
+        "PP_OCRv5_server_rec.ncnn.param", 
+        "PP_OCRv5_server_rec.ncnn.bin", 
+        use_fp16, 
+        use_gpu
+    );
+
+    // Оптимальный размер картинки для детекта (из оригинального файла)
+    ppocr->set_target_size(640);
+
+    if (ret == 0) {
         LOGD("Model initialized successfully!");
         return JNI_TRUE;
     } else {
@@ -52,21 +69,28 @@ Java_com_nokaori_genshinaibuilder_domain_util_ArtifactTextRecognizer_recognizeTe
     void* indata;
     AndroidBitmap_lockPixels(env, bitmap, &indata);
 
-    // Конвертируем Android Bitmap (RGBA) в OpenCV Mat (BGR)
-    cv::Mat rgba(info.height, info.width, CV_8UC4, indata);
+    // Конвертируем Android Bitmap в OpenCV BGR
+    cv::Mat rgb(info.height, info.width, CV_8UC4, indata);
     cv::Mat bgr;
-    cv::cvtColor(rgba, bgr, cv::COLOR_RGBA2BGR);
+    cv::cvtColor(rgb, bgr, cv::COLOR_RGBA2BGR);
 
     AndroidBitmap_unlockPixels(env, bitmap);
 
     // Вызываем детекцию
-    std::vector<PPOCRText> objects; 
-    ppocr->detect(bgr, objects);
+    std::vector<Object> objects;
+    ppocr->detect_and_recognize(bgr, objects);
 
-    // Собираем результаты в одну строку
+    // Собираем результаты в одну строку, используя словарь
     std::string full_text = "";
-    for (size_t i = 0; i < objects.size(); i++) {
-        full_text += objects[i].text + "\n";
+    for(size_t i = 0; i < objects.size(); i++) {
+        std::string line_text;
+        // Переводим ID символов в реальный текст из словаря
+        for (const auto& character : objects[i].text) {
+            if (character.id >= 0 && character.id < character_dict_size) {
+                line_text += character_dict[character.id];
+            }
+        }
+        full_text += line_text + "\n";
     }
 
     return env->NewStringUTF(full_text.c_str());
