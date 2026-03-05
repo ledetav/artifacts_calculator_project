@@ -13,6 +13,10 @@ import com.equationl.fastdeployocr.OcrConfig
 import com.equationl.fastdeployocr.RunType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import android.graphics.Canvas
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
 
 class ArtifactTextRecognizer(private val context: Context) {
 
@@ -28,6 +32,34 @@ class ArtifactTextRecognizer(private val context: Context) {
         runType = RunType.WithDet 
         
         cpuPowerMode = LitePowerMode.LITE_POWER_FULL
+    }
+
+    private fun preprocessBitmap(original: Bitmap): Bitmap {
+        val bmpProcessed = Bitmap.createBitmap(original.width, original.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bmpProcessed)
+        val paint = Paint()
+    
+        // 1. Делаем картинку черно-белой
+        val colorMatrix = ColorMatrix()
+        colorMatrix.setSaturation(0f)
+    
+        // 2. Увеличиваем контраст (делаем фон темнее, а текст ярче)
+        val contrast = 1.5f // Коэффициент контраста
+        val brightness = -30f // Делаем чуть темнее
+        val contrastMatrix = ColorMatrix(
+            floatArrayOf(
+                contrast, 0f, 0f, 0f, brightness,
+                0f, contrast, 0f, 0f, brightness,
+                0f, 0f, contrast, 0f, brightness,
+                0f, 0f, 0f, 1f, 0f
+            )
+        )
+        colorMatrix.postConcat(contrastMatrix)
+    
+        paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
+        canvas.drawBitmap(original, 0f, 0f, paint)
+    
+        return bmpProcessed
     }
 
     suspend fun extractTextFromUri(uri: Uri): String? = withContext(Dispatchers.IO) {
@@ -46,9 +78,10 @@ class ArtifactTextRecognizer(private val context: Context) {
             val originalBitmap = uriToBitmap(uri) ?: return@withContext "Ошибка: Не удалось прочитать картинку"
             
             // Сжимаем скриншот для лучшего распознавания
-            val scaledBitmap = scaleBitmapDown(originalBitmap, 1024)
-
-            val runResult = ocr.runSync(scaledBitmap)
+            val scaledBitmap = scaleBitmapDown(originalBitmap, 1440)
+            val preprocessedBitmap = preprocessBitmap(scaledBitmap)
+            
+            val runResult = ocr.runSync(preprocessedBitmap)
             val result = runResult.getOrNull() ?: run {
                 val error = runResult.exceptionOrNull()?.message ?: "Unknown error"
                 Log.e("ArtifactTextRecognizer", "Run failed: $error")
