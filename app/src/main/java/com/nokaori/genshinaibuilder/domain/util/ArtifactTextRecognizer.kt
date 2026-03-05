@@ -44,8 +44,8 @@ class ArtifactTextRecognizer(private val context: Context) {
         colorMatrix.setSaturation(0f)
     
         // 2. Увеличиваем контраст (делаем фон темнее, а текст ярче)
-        val contrast = 2f // Коэффициент контраста
-        val brightness = -35f // Делаем чуть темнее
+        val contrast = 1.5f // Коэффициент контраста
+        val brightness = -30f // Делаем чуть темнее
         val contrastMatrix = ColorMatrix(
             floatArrayOf(
                 contrast, 0f, 0f, 0f, brightness,
