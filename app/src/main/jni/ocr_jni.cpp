@@ -12,12 +12,17 @@
 #include "ppocrv5.h"
 #include "ppocrv5_dict.h"
 
+#include <stdint.h>
+
 #define TAG "GenshinOcrCpp"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__)
 
 static PPOCRv5* ppocr = nullptr;
 
 extern "C" {
+
+void __kmpc_dispatch_deinit(void* loc_ref, int32_t gtid) {
+}
 
 JNIEXPORT jboolean JNICALL
 Java_com_nokaori_genshinaibuilder_domain_util_ArtifactTextRecognizer_initModel(JNIEnv *env, jobject thiz, jobject assetManager) {
