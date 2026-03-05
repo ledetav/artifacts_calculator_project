@@ -9,7 +9,7 @@ plugins {
 android {
     namespace = "com.nokaori.genshinaibuilder"
     compileSdk = 36
-    ndkVersion = "25.2.9519653"
+    ndkVersion = "26.3.11579264"
 
     signingConfigs {
         getByName("debug") {
