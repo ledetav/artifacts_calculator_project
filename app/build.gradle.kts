@@ -32,8 +32,22 @@ android {
             abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a"))
         }
 
+        externalNativeBuild {
+            cmake {
+                cppFlags += "-std=c++17"
+                arguments += "-DANDROID_STL=c++_shared"
+            }
+        }
+
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/jni/CMakeLists.txt")
+            version = "3.22.1+" // Убедись, что CMake установлен в SDK Manager
         }
     }
 
@@ -153,8 +167,6 @@ dependencies {
 
     // Biometric
     implementation(libs.androidx.biometric)
-
-    implementation(files("libs/fastdeployOCR-release.aar"))
 
     // Тестирование
     testImplementation(libs.junit4)
