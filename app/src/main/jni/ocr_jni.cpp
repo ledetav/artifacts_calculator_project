@@ -5,6 +5,9 @@
 #include <string>
 #include <vector>
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
 // Подключаем нейросеть и зашитый словарь
 #include "ppocrv5.h"
 #include "ppocrv5_dict.h"
@@ -12,7 +15,6 @@
 #define TAG "GenshinOcrCpp"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__)
 
-// Глобальный экземпляр нашей нейросети
 static PPOCRv5* ppocr = nullptr;
 
 extern "C" {
@@ -30,7 +32,7 @@ Java_com_nokaori_genshinaibuilder_domain_util_ArtifactTextRecognizer_initModel(J
     bool use_fp16 = false; // FP16 для server модели иногда дает NaN, поэтому false
     bool use_gpu = true;   // Используем Vulkan для ускорения
 
-    // Вызываем load с правильными параметрами (как в оригинальном файле)
+    // Вызываем load с правильными параметрами
     int ret = ppocr->load(
         mgr, 
         "PP_OCRv5_server_det.ncnn.param", 
@@ -41,7 +43,7 @@ Java_com_nokaori_genshinaibuilder_domain_util_ArtifactTextRecognizer_initModel(J
         use_gpu
     );
 
-    // Оптимальный размер картинки для детекта (из оригинального файла)
+    // Оптимальный размер картинки для детекта
     ppocr->set_target_size(640);
 
     if (ret == 0) {
