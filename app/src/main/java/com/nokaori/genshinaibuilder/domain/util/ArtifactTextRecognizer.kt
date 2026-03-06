@@ -26,12 +26,10 @@ class ArtifactTextRecognizer(private val context: Context) {
     suspend fun extractTextFromUri(uri: Uri): String? = withContext(Dispatchers.IO) {
         if (!isInitialized) {
             isInitialized = initModel(context.assets)
-            if (!isInitialized) return@withContext "Ошибка: Не удалось инициализировать C++ ядро"
+            if (!isInitialized) return@withContext "Ошибка: Не удалось инициализировать OCR"
         }
 
         val bitmap = uriToBitmap(uri) ?: return@withContext "Ошибка: Не удалось прочитать картинку"
-        
-        // Вызываем нативный метод (пока он вернет тестовую строку)
         return@withContext recognizeText(bitmap)
     }
 
