@@ -426,6 +426,10 @@ class EditorArtifactViewModel @Inject constructor(
         }
         if (data.level != null) {
             onLevelChanged(data.level)
+            // Эвристика звездности: если уровень > 16, это гарантированно 5-звездочный артефакт
+            if (data.level > 16) {
+                onRarityChanged(Rarity.FIVE_STARS)
+            }
         }
         if (data.mainStatType != null) {
             onMainStatTypeChanged(data.mainStatType)
