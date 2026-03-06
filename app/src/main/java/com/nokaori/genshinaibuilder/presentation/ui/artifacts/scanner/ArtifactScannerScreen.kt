@@ -145,12 +145,12 @@ fun ArtifactScannerScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     Text("Уровень: ${data.level?.let { "+$it" } ?: "Не найден"}")
-                    Text("Главный стат: ${data.mainStatType?.displayName ?: "?"} (${data.mainStatValue ?: "?"})")
+                    Text("Главный стат: ${data.mainStatType?.name ?: "?"} (${data.mainStatValue ?: "?"})")
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("Подстаты:", fontWeight = FontWeight.SemiBold)
                     data.subStats.forEach { (statType, value) ->
-                        Text("• ${statType.displayName} : $value")
+                        Text("• ${statType.name} : $value")
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
