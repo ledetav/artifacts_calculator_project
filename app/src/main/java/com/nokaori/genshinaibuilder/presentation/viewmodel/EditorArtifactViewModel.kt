@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.lifecycle.SavedStateHandle 
+import com.nokaori.genshinaibuilder.domain.util.ParsedArtifactData
 
 @HiltViewModel
 class EditorArtifactViewModel @Inject constructor(
@@ -418,4 +419,21 @@ class EditorArtifactViewModel @Inject constructor(
         }
         return minOf(4, maxInitial + (level / 4))
     }
-}
+
+    fun applyScannedData(data: ParsedArtifactData) {
+        if (data.slot != null) {
+            onSlotChanged(data.slot)
+        }
+        if (data.level != null) {
+            onLevelChanged(data.level)
+        }
+        if (data.mainStatType != null) {
+            onMainStatTypeChanged(data.mainStatType)
+        }
+        data.subStats.forEach { (statType, value) ->
+            onAddSubStat()
+            val lastSubStat = _state.value.subStats.lastOrNull() ?: return@forEach
+            onSubStatTypeChanged(lastSubStat.id, statType)
+            onSubStatManualValueEntered(lastSubStat.id, value.toString())
+        }
+    }

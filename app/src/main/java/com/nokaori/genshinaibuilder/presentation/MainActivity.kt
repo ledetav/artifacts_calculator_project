@@ -52,6 +52,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nokaori.genshinaibuilder.R
+import com.nokaori.genshinaibuilder.domain.util.ParsedArtifactData
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.ArtifactScreen
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.components.AddArtifactSelectionSheet
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.EditorArtifactScreen
@@ -356,10 +357,18 @@ fun AppContent() {
                                 }
                             )
                         ) { backStackEntry ->
+                            val savedStateHandle = backStackEntry.savedStateHandle
+                            val scannedData = savedStateHandle.get<ParsedArtifactData>("scanned_artifact_data")
+                            
                             EditorArtifactScreen(
                                 onBackClick = { navController.popBackStack() },
-                                artifactId = backStackEntry.arguments?.getString("artifactId")
+                                artifactId = backStackEntry.arguments?.getString("artifactId"),
+                                scannedData = scannedData
                             )
+                            
+                            if (scannedData != null) {
+                                savedStateHandle.remove<ParsedArtifactData>("scanned_artifact_data")
+                            }
                         }
 
                         composable(
@@ -371,7 +380,9 @@ fun AppContent() {
                             ArtifactScannerScreen(
                                 imageUriString = imageUri,
                                 onScanComplete = { parsedData ->
-                                    // ТУТ БУДЕТ ПЕРЕДАЧА ДАННЫХ
+                                    navController.previousBackStackEntry
+                                        ?.savedStateHandle
+                                        ?.set("scanned_artifact_data", parsedData)
                                     navController.popBackStack()
                                 },
                                 onBackClick = { navController.popBackStack() }

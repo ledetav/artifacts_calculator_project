@@ -33,6 +33,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.nokaori.genshinaibuilder.R
+import com.nokaori.genshinaibuilder.domain.util.ParsedArtifactData
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.BaseDialog
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.components.MainStatSection
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.components.SubStatsSection
@@ -45,6 +46,7 @@ import com.nokaori.genshinaibuilder.presentation.util.sensor.DoubleTapSensorEffe
 fun EditorArtifactScreen(
     onBackClick: () -> Unit,
     artifactId: String? = null,
+    scannedData: ParsedArtifactData? = null,
     viewModel: EditorArtifactViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -53,6 +55,12 @@ fun EditorArtifactScreen(
     
     val hasErrors = state.validationErrors.isNotEmpty()
     val context = LocalContext.current
+
+    LaunchedEffect(scannedData) {
+        if (scannedData != null) {
+            viewModel.applyScannedData(scannedData)
+        }
+    }
 
     LaunchedEffect(state.isSaveSuccess) {
         if (state.isSaveSuccess) {

@@ -1,8 +1,11 @@
 package com.nokaori.genshinaibuilder.domain.util
 
+import android.os.Parcelable
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.StatType
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class ParsedArtifactData(
     val slot: ArtifactSlot? = null,
     val level: Int? = null,
@@ -10,7 +13,7 @@ data class ParsedArtifactData(
     val mainStatValue: Float? = null,
     val subStats: List<Pair<StatType, Float>> = emptyList(),
     val rawText: String = ""
-)
+) : Parcelable
 
 object ArtifactOcrParser {
 
