@@ -104,8 +104,7 @@ public:
     // the vulkan device
     int vulkan_device_index;
 
-    // enable options for gpu inference
-    bool use_bf16_packed;
+    bool use_reserved_1;
 
     bool use_tensor_storage;
 

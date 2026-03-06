@@ -66,15 +66,11 @@ public:
     // shader tensor storage
     bool support_tensor_storage;
 
-    // vulkan accept input blob with packed storage
-    bool support_vulkan_packing;
+    bool support_reserved_000;
 
-    // accept input blob with any elempack
-    bool support_any_packing;
+    bool support_reserved_00;
 
-    // vulkan accept input blob with any elempack
-    bool support_vulkan_any_packing;
-
+    bool support_reserved_0;
     bool support_reserved_1;
     bool support_reserved_2;
     bool support_reserved_3;
