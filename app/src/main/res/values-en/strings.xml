@@ -163,9 +163,11 @@
     <string name="artifact_error_duplicate_substats">Duplicate substats found. Each substat must be unique.</string>
     <string name="artifact_error_main_sub_conflict">A substat cannot be the same as the Main Stat.</string>
 
+    <string name="add_artifact_method_title">How to add artifact?</string>
+    <string name="add_artifact_manual">Manual entry</string>
+    <string name="add_artifact_scan">Scan from screenshot</string>
+    <string name="add_artifact_scan_desc">AI will extract stats from the image</string>
     <string name="add_artifact_title">Add Artifact</string>
-    <string name="add_artifact_manual">Enter Manually</string>
-    <string name="add_artifact_scan">Scan from Screenshot</string>
 
     <string name="scanner_preparing">Preparing model and loading image…</string>
     <string name="scanner_scanning">Scanning data…</string>
