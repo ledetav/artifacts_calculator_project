@@ -6,6 +6,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "ppocrv5_full.h"
@@ -44,6 +45,11 @@ static std::vector<std::string> load_dict_from_asset(AAssetManager* mgr, const c
     
     delete[] buffer;
     return dict;
+}
+
+// Вспомогательная функция для вычисления Y-центра RotatedRect
+float get_box_center_y(const cv::RotatedRect& rrect) {
+    return rrect.center.y;
 }
 
 extern "C" {
@@ -143,6 +149,16 @@ Java_com_nokaori_genshinaibuilder_domain_util_ArtifactTextRecognizer_recognizeTe
     g_ocr->detect_and_recognize(rgb, objects);
     
     AndroidBitmap_unlockPixels(env, bitmap);
+
+    std::sort(objects.begin(), objects.end(), [](const Object& a, const Object& b) {
+        float yA = get_box_center_y(a.rrect); 
+        float yB = get_box_center_y(b.rrect);
+
+        if (std::abs(yA - yB) < 10.0f) {
+             return a.rrect.center.x < b.rrect.center.x;
+        }
+        return yA < yB;
+    });
     
     std::string result;
     for (size_t i = 0; i < objects.size(); i++) {
