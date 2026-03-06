@@ -4,6 +4,7 @@ project(genshin_ocr)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 
 set(NCNN_DIR ${CMAKE_SOURCE_DIR}/ncnn)
 set(OpenCV_DIR ${CMAKE_SOURCE_DIR}/opencv/sdk/native/jni)
@@ -38,6 +39,7 @@ target_link_libraries(genshin_ocr
     android
     log
     jnigraphics
+    omp
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
