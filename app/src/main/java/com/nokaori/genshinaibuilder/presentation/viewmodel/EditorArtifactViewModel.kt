@@ -437,3 +437,4 @@ class EditorArtifactViewModel @Inject constructor(
             onSubStatManualValueEntered(lastSubStat.id, value.toString())
         }
     }
+}
