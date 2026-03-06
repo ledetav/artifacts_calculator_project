@@ -1,10 +1,12 @@
 package com.nokaori.genshinaibuilder.presentation.ui.artifacts.scanner
 
 import android.net.Uri
-import android.util.Log
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -19,63 +21,48 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.nokaori.genshinaibuilder.R
-import com.nokaori.genshinaibuilder.domain.util.ArtifactTextRecognizer
-import kotlinx.coroutines.delay
+import com.nokaori.genshinaibuilder.domain.util.ParsedArtifactData
+import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactScannerViewModel
+import com.nokaori.genshinaibuilder.presentation.viewmodel.ScannerState
 import java.net.URLDecoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtifactScannerScreen(
     imageUriString: String?,
-    onScanComplete: (String) -> Unit, // В будущем здесь будет data class Artifact
-    onBackClick: () -> Unit
+    onScanComplete: (ParsedArtifactData) -> Unit, 
+    onBackClick: () -> Unit,
+    viewModel: ArtifactScannerViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    var isPreparing by remember { mutableStateOf(true) }
     var imageSize by remember { mutableStateOf(IntSize.Zero) }
-    var showTextDialog by remember { mutableStateOf(false) }
-    
-    // Состояние для хранения текста от PaddleOCR
-    var extractedText by remember { mutableStateOf("") }
+    var showRawTextDialog by remember { mutableStateOf(false) }
 
-    // Декодируем URI обратно (чтобы убрать экранирование символов)
+    val scannerState by viewModel.scannerState.collectAsStateWithLifecycle()
+
     val decodedUri = remember(imageUriString) {
         imageUriString?.let { Uri.parse(URLDecoder.decode(it, "UTF-8")) }
     }
 
-    // Запускаем процесс распознавания, когда экран открывается
     LaunchedEffect(decodedUri) {
         if (decodedUri != null) {
-            isPreparing = true
-            
-            // Задержка чисто для красоты UI, чтобы юзер успел увидеть лоадер
-            delay(500) 
-            
-            // Инициализируем наш самурайский PaddleOCR
-            val recognizer = ArtifactTextRecognizer(context)
-            val result = recognizer.extractTextFromUri(decodedUri)
-            
-            if (result != null) {
-                extractedText = result
-                Log.d("ArtifactScanner", "PaddleOCR результат:\n$result")
-            } else {
-                extractedText = "Ошибка распознавания или текст не найден"
-                Log.e("ArtifactScanner", "PaddleOCR вернул null")
-            }
-            
-            isPreparing = false
+            viewModel.scanImage(decodedUri)
         }
     }
+
+    val isScanning = scannerState is ScannerState.Scanning || scannerState is ScannerState.Idle
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(if (isPreparing) R.string.scanner_preparing else R.string.scanner_scanning)) },
+                title = { Text(stringResource(if (isScanning) R.string.scanner_preparing else R.string.scanner_scanning)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -90,139 +77,126 @@ fun ArtifactScannerScreen(
                 .padding(paddingValues)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
-            if (isPreparing) {
-                CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.scanner_preparing),
-                    style = MaterialTheme.typography.bodyLarge
+            // Зона скриншота
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(Color.Black.copy(alpha = 0.05f))
+                    .onGloballyPositioned { coordinates ->
+                        imageSize = coordinates.size
+                    }
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(decodedUri)
+                        .build(),
+                    contentDescription = "Artifact Screenshot",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize()
                 )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(Color.Black.copy(alpha = 0.05f))
-                        .onGloballyPositioned { coordinates ->
-                            imageSize = coordinates.size
-                        }
-                ) {
-                    // Отрисовка скриншота через coil3
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(decodedUri)
-                            .build(),
-                        contentDescription = "Artifact Screenshot",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.fillMaxSize()
+
+                // Лазер пока идет сканирование
+                if (isScanning && imageSize.height > 0) {
+                    val infiniteTransition = rememberInfiniteTransition(label = "scanner")
+                    val laserY by infiniteTransition.animateFloat(
+                        initialValue = 0f,
+                        targetValue = imageSize.height.toFloat(),
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(durationMillis = 2000, easing = LinearEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "laser_y"
                     )
 
-                    // Анимация бегающего лазера поверх скриншота
-                    if (imageSize.height > 0) {
-                        val infiniteTransition = rememberInfiniteTransition(label = "scanner")
-                        val laserY by infiniteTransition.animateFloat(
-                            initialValue = 0f,
-                            targetValue = imageSize.height.toFloat(),
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(durationMillis = 2000, easing = LinearEasing),
-                                repeatMode = RepeatMode.Reverse
-                            ),
-                            label = "laser_y"
-                        )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(3.dp)
+                            .offset(y = with(LocalDensity.current) { laserY.toDp() })
+                            .background(
+                                brush = Brush.horizontalGradient(
+                                    colors = listOf(Color(0xFFFF4081), Color(0xFFD500F9), Color(0xFF00E5FF))
+                                )
+                            )
+                    )
+                }
+            }
 
-                        // Линия лазера
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(3.dp)
-                                .offset(y = with(LocalDensity.current) { laserY.toDp() })
-                                .background(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(
-                                            Color(0xFFFF4081),
-                                            Color(0xFFD500F9),
-                                            Color(0xFF00E5FF) 
-                                        )
-                                    )
-                                )
-                        )
-                        
-                        // Мягкое неоновое свечение под/над лазером
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(40.dp)
-                                .offset(y = with(LocalDensity.current) { (laserY - 40).toDp() }) 
-                                .background(
-                                    brush = Brush.verticalGradient(
-                                        colors = listOf(
-                                            Color.Transparent,
-                                            Color(0xFFD500F9).copy(alpha = 0.2f),
-                                            Color.Transparent
-                                        )
-                                    )
-                                )
-                        )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Блок с результатами (появляется снизу)
+            AnimatedVisibility(
+                visible = scannerState is ScannerState.Success,
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+            ) {
+                val data = (scannerState as? ScannerState.Success)?.data ?: ParsedArtifactData()
+                
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
+                        .padding(16.dp)
+                ) {
+                    Text("Распознано:", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Text("Уровень: ${data.level?.let { "+$it" } ?: "Не найден"}")
+                    Text("Главный стат: ${data.mainStatName ?: "?"} (${data.mainStatValue ?: "?"})")
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Подстаты:", fontWeight = FontWeight.SemiBold)
+                    data.subStats.forEach { stat ->
+                        Text("• ${stat.first} : ${stat.second}")
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        TextButton(onClick = { showRawTextDialog = true }) {
+                            Text("Сырой текст")
+                        }
+                        Button(onClick = { onScanComplete(data) }) {
+                            Text("В Редактор")
+                        }
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(32.dp))
-                
-                // Временный блок для отладки — покажет, сколько символов нашел OCR
+            // Обработка ошибки
+            if (scannerState is ScannerState.Error) {
                 Text(
-                    text = "Распознано: ${extractedText.length} символов.\nИщи тег 'ArtifactScanner' в Logcat!",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    text = (scannerState as ScannerState.Error).message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(16.dp)
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Button(onClick = { 
-                    // Передаем текст в навигацию (Пока просто строка, потом будет парсинг)
-                    onScanComplete(extractedText) 
-                }) {
-                    Text("Парсить данные")
-                }
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Button(
-                    onClick = { showTextDialog = true },
-                    colors = ButtonDefaults.outlinedButtonColors()
-                ) {
-                    Text("Показать текст")
-                }
             }
         }
     }
-    
-    // Диалоговое окно с распознанным текстом
-    if (showTextDialog) {
+
+    // Диалог сырого текста для отладки
+    if (showRawTextDialog && scannerState is ScannerState.Success) {
+        val text = (scannerState as ScannerState.Success).data.rawText
         AlertDialog(
-            onDismissRequest = { showTextDialog = false },
-            title = { Text("Распознанный текст") },
+            onDismissRequest = { showRawTextDialog = false },
+            title = { Text("Сырой текст из OCR") },
             text = {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 300.dp)
+                        .verticalScroll(rememberScrollState())
                         .background(Color.Black.copy(alpha = 0.05f), MaterialTheme.shapes.small)
                         .padding(12.dp)
                 ) {
-                    Text(
-                        text = extractedText.ifEmpty { "Текст не найден" },
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    Text(text = text, style = MaterialTheme.typography.bodySmall)
                 }
             },
             confirmButton = {
-                Button(onClick = { showTextDialog = false }) {
-                    Text("Закрыть")
-                }
+                Button(onClick = { showRawTextDialog = false }) { Text("Закрыть") }
             }
         )
     }

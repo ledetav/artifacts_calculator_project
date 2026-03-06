@@ -379,8 +379,8 @@ fun AppContent() {
                             
                             ArtifactScannerScreen(
                                 imageUriString = imageUri,
-                                onScanComplete = { scannedData ->
-                                    // Пока просто возвращаемся назад.
+                                onScanComplete = { parsedData ->
+                                    // ТУТ БУДЕТ ПЕРЕДАЧА ДАННЫХ
                                     navController.popBackStack()
                                 },
                                 onBackClick = { navController.popBackStack() }
