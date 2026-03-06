@@ -380,10 +380,12 @@ fun AppContent() {
                             ArtifactScannerScreen(
                                 imageUriString = imageUri,
                                 onScanComplete = { parsedData ->
-                                    navController.previousBackStackEntry
+                                    navController.navigate("artifact/editor/null") {
+                                        popUpTo("artifact/scanner/{imageUri}") { inclusive = true }
+                                    }
+                                    navController.currentBackStackEntry
                                         ?.savedStateHandle
                                         ?.set("scanned_artifact_data", parsedData)
-                                    navController.popBackStack()
                                 },
                                 onBackClick = { navController.popBackStack() }
                             )

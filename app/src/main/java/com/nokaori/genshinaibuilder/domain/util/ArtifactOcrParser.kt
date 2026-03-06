@@ -12,6 +12,7 @@ data class ParsedArtifactData(
     val mainStatType: StatType? = null,
     val mainStatValue: Float? = null,
     val subStats: List<Pair<StatType, Float>> = emptyList(),
+    val setName: String? = null,
     val rawText: String = ""
 ) : Parcelable
 
@@ -53,19 +54,20 @@ object ArtifactOcrParser {
     )
 
     fun parse(rawText: String): ParsedArtifactData {
-        val lines = rawText.lines().map { it.trim().lowercase() }.filter { it.isNotEmpty() }
+        val lines = rawText.lines().map { it.trim() }.filter { it.isNotEmpty() }
+        val linesLowercase = lines.map { it.lowercase() }
         
         var foundSlot: ArtifactSlot? = null
         var foundLevel: Int? = null
         var mainStatType: StatType? = null
         var mainStatValue: Float? = null
+        var setName: String? = null
         val subStats = mutableListOf<Pair<StatType, Float>>()
 
         val valueRegex = Regex("""[+:]?\s*(\d+[,.]?\d*)\s*(%?)""")
 
-        for (i in lines.indices) {
-            val originalLine = lines[i]
-            val cleanLine = originalLine.replace(Regex("""\s+"""), "")
+        for (i in linesLowercase.indices) {
+            val cleanLine = linesLowercase[i].replace(Regex("""\s+"""), "")
 
             if (foundSlot == null) {
                 foundSlot = slotMap.entries.firstOrNull { cleanLine.contains(it.key) }?.value
@@ -85,8 +87,8 @@ object ArtifactOcrParser {
                 
                 var valueStr = matchResult?.groupValues?.get(1)?.replace(",", ".")
                 
-                if (valueStr == null && i + 1 < lines.indices.last) {
-                    val nextLineMatch = valueRegex.find(lines[i + 1])
+                if (valueStr == null && i + 1 < linesLowercase.indices.last) {
+                    val nextLineMatch = valueRegex.find(linesLowercase[i + 1])
                     if (nextLineMatch != null) {
                         valueStr = nextLineMatch.groupValues[1].replace(",", ".")
                     }
@@ -112,6 +114,11 @@ object ArtifactOcrParser {
                 }
             }
         }
+        
+        // Пытаемся использовать первую строку как название сета
+        if (lines.isNotEmpty() && !linesLowercase[0].contains(Regex("[+:]")) && foundSlot == null) {
+            setName = lines[0]
+        }
 
         return ParsedArtifactData(
             slot = foundSlot,
@@ -119,6 +126,7 @@ object ArtifactOcrParser {
             mainStatType = mainStatType,
             mainStatValue = mainStatValue,
             subStats = subStats,
+            setName = setName,
             rawText = rawText
         )
     }

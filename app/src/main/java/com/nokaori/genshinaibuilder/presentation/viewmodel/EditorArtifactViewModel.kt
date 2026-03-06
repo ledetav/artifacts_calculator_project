@@ -434,6 +434,18 @@ class EditorArtifactViewModel @Inject constructor(
         if (data.mainStatType != null) {
             onMainStatTypeChanged(data.mainStatType)
         }
+        
+        // Пытаемся найти сет по названию из OCR
+        if (data.setName != null) {
+            viewModelScope.launch {
+                val allSets = _allSets.value
+                val matchedSet = allSets.find { it.name.equals(data.setName, ignoreCase = true) }
+                if (matchedSet != null) {
+                    onSetSelected(matchedSet)
+                }
+            }
+        }
+        
         data.subStats.forEach { (statType, value) ->
             onAddSubStat()
             val lastSubStat = _state.value.subStats.lastOrNull() ?: return@forEach
