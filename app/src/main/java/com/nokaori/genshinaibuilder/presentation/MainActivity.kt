@@ -111,16 +111,7 @@ fun AppContent() {
 
     var showAddArtifactSheet by remember { mutableStateOf(false) }
 
-    val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri ->
-            if (uri != null) {
-                // Кодируем URI, так как в нем могут быть слэши, ломающие навигацию
-                val encodedUri = URLEncoder.encode(uri.toString(), StandardCharsets.UTF_8.toString())
-                navController.navigate("artifact/scanner/$encodedUri")
-            }
-        }
-    )
+
 
     val allNavItems = listOf(
         NavigationItem.Encyclopedia,
@@ -227,17 +218,15 @@ fun AppContent() {
             ) {
                 if (showAddArtifactSheet) {
                     AddArtifactSelectionSheet(
-                        onDismiss = { showAddArtifactSheet = false },
-                        onManualClick = {
+                        onDismissRequest = { showAddArtifactSheet = false },
+                        onManualEntrySelected = {
                             showAddArtifactSheet = false
                             navController.navigate("artifact/editor/null")
                         },
-                        onScanClick = {
+                        onImageSelected = { uri ->
                             showAddArtifactSheet = false
-                            // Запускаем системную галерею только для изображений
-                            photoPickerLauncher.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                            )
+                            val encodedUri = URLEncoder.encode(uri.toString(), StandardCharsets.UTF_8.toString())
+                            navController.navigate("artifact/scanner/$encodedUri")
                         }
                     )
                 }
