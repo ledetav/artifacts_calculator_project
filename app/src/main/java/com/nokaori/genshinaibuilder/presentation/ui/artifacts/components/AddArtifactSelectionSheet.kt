@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -28,24 +29,24 @@ fun AddArtifactSelectionSheet(
     onMultipleImagesSelected: (List<Uri>) -> Unit,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 ) {
-    // Системный пикер для выбора одного изображения
+    val context = LocalContext.current
+
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             if (uri != null) {
                 onImageSelected(uri)
-                onDismissRequest() // Закрываем шторку после выбора
+                onDismissRequest()
             }
         }
     )
 
-    // Системный пикер для выбора НЕСКОЛЬКИХ изображений
     val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 15),
         onResult = { uris ->
             if (uris.isNotEmpty()) {
                 onMultipleImagesSelected(uris)
-                onDismissRequest() // Закрываем шторку после выбора
+                onDismissRequest()
             }
         }
     )
@@ -69,7 +70,6 @@ fun AddArtifactSelectionSheet(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // Вариант 1: Ввести вручную
             SelectionOptionCard(
                 title = stringResource(id = R.string.add_artifact_manual),
                 icon = Icons.Default.Create,
@@ -79,7 +79,6 @@ fun AddArtifactSelectionSheet(
                 }
             )
 
-            // Вариант 2: Считать со скриншота (одиночный)
             SelectionOptionCard(
                 title = stringResource(id = R.string.add_artifact_scan),
                 subtitle = stringResource(id = R.string.add_artifact_scan_desc),
@@ -91,7 +90,6 @@ fun AddArtifactSelectionSheet(
                 }
             )
 
-            // Вариант 3: Считать несколько скриншотов (пакет)
             SelectionOptionCard(
                 title = "Scan Multiple Artifacts",
                 subtitle = "Select up to 15 screenshots for batch processing",

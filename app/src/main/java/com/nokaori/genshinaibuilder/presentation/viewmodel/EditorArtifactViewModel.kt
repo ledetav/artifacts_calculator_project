@@ -9,6 +9,7 @@ import com.nokaori.genshinaibuilder.domain.usecase.CalculateSubStatRollsUseCase
 import com.nokaori.genshinaibuilder.domain.usecase.ValidateArtifactUseCase
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.data.EditorArtifactState
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.data.SubStatState
+import com.nokaori.genshinaibuilder.presentation.util.ScanSessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -42,11 +43,18 @@ class EditorArtifactViewModel @Inject constructor(
     private var currentMainStatCurve: StatCurve? = null
 
     init {
-        val argId = savedStateHandle.get<String>("artifactId")?.toIntOrNull()
-        if (argId != null && argId != -1) {
-            loadArtifact(argId)
+        // Проверяем, есть ли пакет артефактов из сканера
+        val batch = ScanSessionManager.getBatchAndClear()
+        if (batch.isNotEmpty()) {
+            initBatch(batch)
         } else {
-            updateMainStatsForCurrentSlot()
+            // Обычная инициализация для одиночного артефакта
+            val argId = savedStateHandle.get<String>("artifactId")?.toIntOrNull()
+            if (argId != null && argId != -1) {
+                loadArtifact(argId)
+            } else {
+                updateMainStatsForCurrentSlot()
+            }
         }
 
         viewModelScope.launch {

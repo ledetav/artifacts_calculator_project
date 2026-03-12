@@ -27,7 +27,7 @@ import coil3.request.ImageRequest
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.util.ParsedArtifactData
 import com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactScannerViewModel
-import com.nokaori.genshinaibuilder.presentation.viewmodel.ScannerState
+import com.nokaori.genshinaibuilder.presentation.viewmodel.ScannerResult
 import java.net.URLDecoder
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,48 +41,41 @@ fun ArtifactScannerScreen(
 ) {
     var imageSize by remember { mutableStateOf(IntSize.Zero) }
     val scannerState by viewModel.scannerState.collectAsStateWithLifecycle()
-    val batchProgress by viewModel.batchProgress.collectAsStateWithLifecycle()
 
     val decodedUri = remember(imageUriString) {
         imageUriString?.let { Uri.parse(URLDecoder.decode(it, "UTF-8")) }
     }
 
-    // Запуск процесса распознавания при открытии
     LaunchedEffect(decodedUri) {
         if (decodedUri != null) {
             viewModel.scanImage(decodedUri)
         }
     }
 
-    // АВТОМАТИЧЕСКИЙ ПЕРЕХОД при успешном сканировании
-    LaunchedEffect(scannerState) {
-        when (scannerState) {
-            is ScannerState.Success -> {
-                val data = (scannerState as ScannerState.Success).data
-                onScanComplete(data)
+    LaunchedEffect(scannerState.result) {
+        when (val result = scannerState.result) {
+            is ScannerResult.Success -> {
+                onScanComplete(result.data)
             }
-            is ScannerState.BatchSuccess -> {
-                val data = (scannerState as ScannerState.BatchSuccess).data
-                onBatchScanComplete(data)
+            is ScannerResult.BatchSuccess -> {
+                onBatchScanComplete(result.data)
             }
             else -> {}
         }
     }
-
-    val isScanning = scannerState is ScannerState.Scanning || scannerState is ScannerState.Idle
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { 
                     Column {
-                        Text(stringResource(if (isScanning) R.string.scanner_preparing else R.string.scanner_scanning))
-                        if (batchProgress != null) {
+                        Text(stringResource(if (scannerState.isProcessing) R.string.scanner_preparing else R.string.scanner_scanning))
+                        if (scannerState.totalToProcess > 0) {
                             Text(
                                 text = stringResource(
                                     id = R.string.scanner_processing_batch,
-                                    batchProgress!!.current,
-                                    batchProgress!!.total
+                                    scannerState.currentProcessingIndex,
+                                    scannerState.totalToProcess
                                 ),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -106,7 +99,6 @@ fun ArtifactScannerScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Зона скриншота с лазером
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -128,8 +120,7 @@ fun ArtifactScannerScreen(
                     )
                 }
 
-                // Лазер бегает только пока идет сканирование
-                if (isScanning && imageSize.height > 0) {
+                if (scannerState.isProcessing && imageSize.height > 0) {
                     val infiniteTransition = rememberInfiniteTransition(label = "scanner")
                     val laserY by infiniteTransition.animateFloat(
                         initialValue = 0f,
@@ -155,17 +146,28 @@ fun ArtifactScannerScreen(
                 }
             }
 
-            // Обработка ошибки
-            if (scannerState is ScannerState.Error) {
+            if (scannerState.result is ScannerResult.Error) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = (scannerState as ScannerState.Error).message,
+                    text = (scannerState.result as ScannerResult.Error).message,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 Button(onClick = onBackClick) {
                     Text("Вернуться")
                 }
+            }
+
+            if (scannerState.totalToProcess > 0 && scannerState.isProcessing) {
+                Spacer(modifier = Modifier.height(16.dp))
+                LinearProgressIndicator(
+                    progress = { scannerState.progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(4.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             }
         }
     }
