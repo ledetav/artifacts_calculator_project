@@ -122,10 +122,23 @@ fun EditorArtifactScreen(
             TopAppBar(
                 windowInsets = WindowInsets(0.dp),
                 title = {
-                    Text(
-                        stringResource(R.string.artifact_add_button),
-                        modifier = Modifier.offset(x = (-4).dp)
-                    )
+                    Column {
+                        Text(
+                            stringResource(R.string.artifact_add_button),
+                            modifier = Modifier.offset(x = (-4).dp)
+                        )
+                        if (state.isBatchMode) {
+                            Text(
+                                text = stringResource(
+                                    id = R.string.editor_artifact_counter,
+                                    state.displayBatchIndex,
+                                    state.totalInBatch
+                                ),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -136,7 +149,7 @@ fun EditorArtifactScreen(
                     }
                 },
                 actions = {
-                    if (!hasErrors && isEditingEnabled) {
+                    if (!hasErrors && isEditingEnabled && !state.isBatchMode) {
                         IconButton(onClick = viewModel::onBiometricSaveClicked) {
                             Icon(
                                 imageVector = Icons.Default.Fingerprint,
@@ -148,91 +161,136 @@ fun EditorArtifactScreen(
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { if (!hasErrors) viewModel.onSaveClicked() },
-                icon = { Icon(Icons.Default.Save, null) },
-                text = { Text(stringResource(R.string.editor_save_artifact)) },
-                containerColor = if (hasErrors) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primary,
-                contentColor = if (hasErrors) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onPrimary,
-                elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = if (hasErrors) 0.dp else 6.dp
+            if (!state.isBatchMode) {
+                ExtendedFloatingActionButton(
+                    onClick = { if (!hasErrors) viewModel.onSaveClicked() },
+                    icon = { Icon(Icons.Default.Save, null) },
+                    text = { Text(stringResource(R.string.editor_save_artifact)) },
+                    containerColor = if (hasErrors) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primary,
+                    contentColor = if (hasErrors) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onPrimary,
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = if (hasErrors) 0.dp else 6.dp
+                    )
                 )
-            )
+            }
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .fillMaxHeight()
         ) {
-            TopSelectionSection(
-                selectedSet = state.selectedSet,
-                availableRarities = state.availableRarities,
-                selectedRarity = state.rarity,
-                selectedSlot = state.slot,
-                onSetClick = viewModel::onSetClicked,
-                onRaritySelect = viewModel::onRarityChanged,
-                onSlotSelect = viewModel::onSlotChanged,
-                currentIconUrl = state.currentPieceIconUrl,
-                enabled = isEditingEnabled
-            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+            ) {
+                TopSelectionSection(
+                    selectedSet = state.selectedSet,
+                    availableRarities = state.availableRarities,
+                    selectedRarity = state.rarity,
+                    selectedSlot = state.slot,
+                    onSetClick = viewModel::onSetClicked,
+                    onRaritySelect = viewModel::onRarityChanged,
+                    onSlotSelect = viewModel::onSlotChanged,
+                    currentIconUrl = state.currentPieceIconUrl,
+                    enabled = isEditingEnabled
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            MainStatSection(
-                mainStatType = state.mainStatType,
-                mainStatValue = state.mainStatValue,
-                availableStats = state.availableMainStats,
-                level = state.level,
-                maxLevel = state.maxLevel,
-                onStatSelected = viewModel::onMainStatTypeChanged,
-                onLevelChanged = viewModel::onLevelChanged,
-                enabled = isEditingEnabled
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            SubStatsSection(
-                subStats = state.subStats,
-                artifactRarity = state.rarity,
-                canAddMore = state.subStats.size < state.maxSubStatsCount,
-                enabled = isEditingEnabled,
-                onAddSubStat = viewModel::onAddSubStat,
-                onRemoveSubStat = viewModel::onRemoveSubStat,
-                onTypeChanged = viewModel::onSubStatTypeChanged,
-                onRollAdded = viewModel::onSubStatRollAdded,
-                onRollRemoved = viewModel::onSubStatRollRemoved,
-                onManualInput = viewModel::onSubStatManualValueEntered
-            )
-
-            if (hasErrors) {
                 Spacer(modifier = Modifier.height(16.dp))
-                Surface(
-                    color = MaterialTheme.colorScheme.errorContainer,
-                    shape = MaterialTheme.shapes.medium,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = stringResource(R.string.editor_cannot_save),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        state.validationErrors.forEach { error ->
+
+                MainStatSection(
+                    mainStatType = state.mainStatType,
+                    mainStatValue = state.mainStatValue,
+                    availableStats = state.availableMainStats,
+                    level = state.level,
+                    maxLevel = state.maxLevel,
+                    onStatSelected = viewModel::onMainStatTypeChanged,
+                    onLevelChanged = viewModel::onLevelChanged,
+                    enabled = isEditingEnabled
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                SubStatsSection(
+                    subStats = state.subStats,
+                    artifactRarity = state.rarity,
+                    canAddMore = state.subStats.size < state.maxSubStatsCount,
+                    enabled = isEditingEnabled,
+                    onAddSubStat = viewModel::onAddSubStat,
+                    onRemoveSubStat = viewModel::onRemoveSubStat,
+                    onTypeChanged = viewModel::onSubStatTypeChanged,
+                    onRollAdded = viewModel::onSubStatRollAdded,
+                    onRollRemoved = viewModel::onSubStatRollRemoved,
+                    onManualInput = viewModel::onSubStatManualValueEntered
+                )
+
+                if (hasErrors) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                text = "• ${error.asString()}",
-                                style = MaterialTheme.typography.bodyMedium,
+                                text = stringResource(R.string.editor_cannot_save),
+                                style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.onErrorContainer,
-                                modifier = Modifier.padding(bottom = 4.dp)
+                                modifier = Modifier.padding(bottom = 8.dp)
                             )
+                            state.validationErrors.forEach { error ->
+                                Text(
+                                    text = "• ${error.asString()}",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            if (state.isBatchMode) {
+                Surface(
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp, horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = { viewModel.skipCurrentAndNext() },
+                            modifier = Modifier.weight(1f),
+                            enabled = isEditingEnabled
+                        ) {
+                            Text(stringResource(id = R.string.editor_btn_skip))
+                        }
+
+                        Button(
+                            onClick = { viewModel.saveCurrentAndNext() },
+                            modifier = Modifier.weight(1f),
+                            enabled = !hasErrors && isEditingEnabled
+                        ) {
+                            val btnTextRes = if (state.isLastInBatch) {
+                                R.string.editor_btn_save_and_finish
+                            } else {
+                                R.string.editor_btn_save_and_next
+                            }
+                            Text(stringResource(id = btnTextRes))
                         }
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }
