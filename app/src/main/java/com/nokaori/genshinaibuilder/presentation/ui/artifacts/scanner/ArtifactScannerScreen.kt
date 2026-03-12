@@ -35,11 +35,13 @@ import java.net.URLDecoder
 fun ArtifactScannerScreen(
     imageUriString: String?,
     onScanComplete: (ParsedArtifactData) -> Unit,
+    onBatchScanComplete: (List<ParsedArtifactData>) -> Unit,
     onBackClick: () -> Unit,
     viewModel: ArtifactScannerViewModel = hiltViewModel()
 ) {
     var imageSize by remember { mutableStateOf(IntSize.Zero) }
     val scannerState by viewModel.scannerState.collectAsStateWithLifecycle()
+    val batchProgress by viewModel.batchProgress.collectAsStateWithLifecycle()
 
     val decodedUri = remember(imageUriString) {
         imageUriString?.let { Uri.parse(URLDecoder.decode(it, "UTF-8")) }
@@ -54,9 +56,16 @@ fun ArtifactScannerScreen(
 
     // АВТОМАТИЧЕСКИЙ ПЕРЕХОД при успешном сканировании
     LaunchedEffect(scannerState) {
-        if (scannerState is ScannerState.Success) {
-            val data = (scannerState as ScannerState.Success).data
-            onScanComplete(data) // Перебрасываем в редактор
+        when (scannerState) {
+            is ScannerState.Success -> {
+                val data = (scannerState as ScannerState.Success).data
+                onScanComplete(data)
+            }
+            is ScannerState.BatchSuccess -> {
+                val data = (scannerState as ScannerState.BatchSuccess).data
+                onBatchScanComplete(data)
+            }
+            else -> {}
         }
     }
 
@@ -65,7 +74,22 @@ fun ArtifactScannerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(if (isScanning) R.string.scanner_preparing else R.string.scanner_scanning)) },
+                title = { 
+                    Column {
+                        Text(stringResource(if (isScanning) R.string.scanner_preparing else R.string.scanner_scanning))
+                        if (batchProgress != null) {
+                            Text(
+                                text = stringResource(
+                                    id = R.string.scanner_processing_batch,
+                                    batchProgress!!.current,
+                                    batchProgress!!.total
+                                ),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -80,7 +104,7 @@ fun ArtifactScannerScreen(
                 .padding(paddingValues)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center // Центрируем изображение
+            verticalArrangement = Arrangement.Center
         ) {
             // Зона скриншота с лазером
             Box(
@@ -93,14 +117,16 @@ fun ArtifactScannerScreen(
                         imageSize = coordinates.size
                     }
             ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(decodedUri)
-                        .build(),
-                    contentDescription = "Artifact Screenshot",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize()
-                )
+                if (decodedUri != null) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(decodedUri)
+                            .build(),
+                        contentDescription = "Artifact Screenshot",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
 
                 // Лазер бегает только пока идет сканирование
                 if (isScanning && imageSize.height > 0) {

@@ -102,7 +102,6 @@ fun AppContent() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // Hilt автоматически создает ViewModels
     val themeViewModel: ThemeViewModel = hiltViewModel()
     val encyclopediaViewModel: EncyclopediaViewModel = hiltViewModel()
     val artifactViewModel: ArtifactViewModel = hiltViewModel()
@@ -113,8 +112,6 @@ fun AppContent() {
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
 
     var showAddArtifactSheet by remember { mutableStateOf(false) }
-
-
 
     val allNavItems = listOf(
         NavigationItem.Encyclopedia,
@@ -230,6 +227,11 @@ fun AppContent() {
                             showAddArtifactSheet = false
                             val encodedUri = URLEncoder.encode(uri.toString(), StandardCharsets.UTF_8.toString())
                             navController.navigate("artifact/scanner/$encodedUri")
+                        },
+                        onMultipleImagesSelected = { uris ->
+                            showAddArtifactSheet = false
+                            val encodedUris = uris.map { URLEncoder.encode(it.toString(), StandardCharsets.UTF_8.toString()) }
+                            navController.navigate("artifact/scanner/batch/${encodedUris.joinToString(",")}")
                         }
                     )
                 }
@@ -359,6 +361,14 @@ fun AppContent() {
                         ) { backStackEntry ->
                             val savedStateHandle = backStackEntry.savedStateHandle
                             val scannedData = savedStateHandle.get<ParsedArtifactData>("scanned_artifact_data")
+                            val scannedBatch = savedStateHandle.get<List<ParsedArtifactData>>("scanned_artifact_batch")
+                            val editorViewModel: com.nokaori.genshinaibuilder.presentation.viewmodel.EditorArtifactViewModel = hiltViewModel()
+                            
+                            LaunchedEffect(scannedBatch) {
+                                if (scannedBatch != null && scannedBatch.isNotEmpty()) {
+                                    editorViewModel.initBatch(scannedBatch)
+                                }
+                            }
                             
                             EditorArtifactScreen(
                                 onBackClick = { navController.popBackStack() },
@@ -368,6 +378,9 @@ fun AppContent() {
                             
                             if (scannedData != null) {
                                 savedStateHandle.remove<ParsedArtifactData>("scanned_artifact_data")
+                            }
+                            if (scannedBatch != null) {
+                                savedStateHandle.remove<List<ParsedArtifactData>>("scanned_artifact_batch")
                             }
                         }
 
@@ -386,6 +399,50 @@ fun AppContent() {
                                     navController.currentBackStackEntry
                                         ?.savedStateHandle
                                         ?.set("scanned_artifact_data", parsedData)
+                                },
+                                onBatchScanComplete = { parsedBatch ->
+                                    navController.navigate("artifact/editor/null") {
+                                        popUpTo("artifact/scanner/batch/{imageUris}") { inclusive = true }
+                                    }
+                                    navController.currentBackStackEntry
+                                        ?.savedStateHandle
+                                        ?.set("scanned_artifact_batch", parsedBatch)
+                                },
+                                onBackClick = { navController.popBackStack() }
+                            )
+                        }
+
+                        composable(
+                            route = "artifact/scanner/batch/{imageUris}",
+                            arguments = listOf(navArgument("imageUris") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val imageUrisString = backStackEntry.arguments?.getString("imageUris")
+                            val imageUris = imageUrisString?.split(",")?.map { android.net.Uri.parse(java.net.URLDecoder.decode(it, "UTF-8")) } ?: emptyList()
+                            val scannerViewModel: com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactScannerViewModel = hiltViewModel()
+                            
+                            LaunchedEffect(imageUris) {
+                                if (imageUris.isNotEmpty()) {
+                                    scannerViewModel.scanMultipleImages(imageUris)
+                                }
+                            }
+                            
+                            ArtifactScannerScreen(
+                                imageUriString = null,
+                                onScanComplete = { parsedData ->
+                                    navController.navigate("artifact/editor/null") {
+                                        popUpTo("artifact/scanner/batch/{imageUris}") { inclusive = true }
+                                    }
+                                    navController.currentBackStackEntry
+                                        ?.savedStateHandle
+                                        ?.set("scanned_artifact_data", parsedData)
+                                },
+                                onBatchScanComplete = { parsedBatch ->
+                                    navController.navigate("artifact/editor/null") {
+                                        popUpTo("artifact/scanner/batch/{imageUris}") { inclusive = true }
+                                    }
+                                    navController.currentBackStackEntry
+                                        ?.savedStateHandle
+                                        ?.set("scanned_artifact_batch", parsedBatch)
                                 },
                                 onBackClick = { navController.popBackStack() }
                             )

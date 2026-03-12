@@ -25,6 +25,7 @@ fun AddArtifactSelectionSheet(
     onDismissRequest: () -> Unit,
     onManualEntrySelected: () -> Unit,
     onImageSelected: (Uri) -> Unit,
+    onMultipleImagesSelected: (List<Uri>) -> Unit,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 ) {
     // Системный пикер для выбора одного изображения
@@ -33,6 +34,17 @@ fun AddArtifactSelectionSheet(
         onResult = { uri ->
             if (uri != null) {
                 onImageSelected(uri)
+                onDismissRequest() // Закрываем шторку после выбора
+            }
+        }
+    )
+
+    // Системный пикер для выбора НЕСКОЛЬКИХ изображений
+    val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 15),
+        onResult = { uris ->
+            if (uris.isNotEmpty()) {
+                onMultipleImagesSelected(uris)
                 onDismissRequest() // Закрываем шторку после выбора
             }
         }
@@ -67,14 +79,25 @@ fun AddArtifactSelectionSheet(
                 }
             )
 
-            // Вариант 2: Считать со скриншота
+            // Вариант 2: Считать со скриншота (одиночный)
             SelectionOptionCard(
                 title = stringResource(id = R.string.add_artifact_scan),
                 subtitle = stringResource(id = R.string.add_artifact_scan_desc),
-                icon = Icons.Default.DocumentScanner, // Замени на нужную иконку, если есть кастомная
+                icon = Icons.Default.DocumentScanner,
                 onClick = {
-                    // Запускаем выбор картинки (только изображения)
                     photoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }
+            )
+
+            // Вариант 3: Считать несколько скриншотов (пакет)
+            SelectionOptionCard(
+                title = "Scan Multiple Artifacts",
+                subtitle = "Select up to 15 screenshots for batch processing",
+                icon = Icons.Default.DocumentScanner,
+                onClick = {
+                    multiplePhotoPickerLauncher.launch(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                     )
                 }
