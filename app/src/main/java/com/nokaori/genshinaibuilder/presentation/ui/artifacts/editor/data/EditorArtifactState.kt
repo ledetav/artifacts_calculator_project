@@ -5,6 +5,7 @@ import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.Rarity
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.UiText
+import com.nokaori.genshinaibuilder.domain.util.ParsedArtifactData
 
 data class EditorArtifactState(
     val artifactId: Int? = null,
@@ -36,7 +37,15 @@ data class EditorArtifactState(
     val validationErrors: List<UiText> = emptyList(),
     val isSaveSuccess: Boolean = false,
     val showBiometricPrompt: Boolean = false,
-)
+
+    val artifactsBatch: List<ParsedArtifactData> = emptyList(),
+    val currentBatchIndex: Int = 0,
+) {
+    val isBatchMode: Boolean get() = artifactsBatch.size > 1
+    val isLastInBatch: Boolean get() = currentBatchIndex >= artifactsBatch.lastIndex
+    val totalInBatch: Int get() = artifactsBatch.size
+    val displayBatchIndex: Int get() = currentBatchIndex + 1
+}
 
 data class SubStatState(
     val id: Long = System.currentTimeMillis(),

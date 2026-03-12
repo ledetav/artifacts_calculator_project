@@ -172,4 +172,10 @@
     <string name="scanner_preparing">Подготовка модели и загрузка изображения…</string>
     <string name="scanner_scanning">Сканирование данных…</string>
     <string name="scanner_error_no_image">Ошибка: Изображение не выбрано</string>
+
+    <string name="editor_artifact_counter">Артефакт %1$d из %2$d</string>
+    <string name="editor_btn_save_and_next">Сохранить и далее</string>
+    <string name="editor_btn_save_and_finish">Сохранить и завершить</string>
+    <string name="editor_btn_skip">Пропустить</string>
+    <string name="scanner_processing_batch">Обработка: %1$d / %2$d</string>
 </resources>

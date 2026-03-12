@@ -172,4 +172,10 @@
     <string name="scanner_preparing">Preparing model and loading image…</string>
     <string name="scanner_scanning">Scanning data…</string>
     <string name="scanner_error_no_image">Error: No image selected</string>
+
+    <string name="editor_artifact_counter">Artifact %1$d of %2$d</string>
+    <string name="editor_btn_save_and_next">Save &amp; Next</string>
+    <string name="editor_btn_save_and_finish">Save &amp; Finish</string>
+    <string name="editor_btn_skip">Skip</string>
+    <string name="scanner_processing_batch">Processing: %1$d / %2$d</string>
 </resources>
