@@ -454,3 +454,73 @@ class EditorArtifactViewModel @Inject constructor(
         }
     }
 }
+
+    fun initBatch(artifacts: List<ParsedArtifactData>) {
+        if (artifacts.isEmpty()) return
+        
+        _state.update { 
+            it.copy(
+                artifactsBatch = artifacts,
+                currentBatchIndex = 0
+            )
+        }
+        loadArtifactIntoEditor(artifacts.first())
+    }
+
+    fun moveToNextInBatch() {
+        val state = _state.value
+        if (!state.isBatchMode || state.isLastInBatch) return
+        
+        val nextIndex = state.currentBatchIndex + 1
+        _state.update { it.copy(currentBatchIndex = nextIndex) }
+        loadArtifactIntoEditor(state.artifactsBatch[nextIndex])
+    }
+
+    fun moveToPreviousInBatch() {
+        val state = _state.value
+        if (state.currentBatchIndex <= 0) return
+        
+        val prevIndex = state.currentBatchIndex - 1
+        _state.update { it.copy(currentBatchIndex = prevIndex) }
+        loadArtifactIntoEditor(state.artifactsBatch[prevIndex])
+    }
+
+    private fun loadArtifactIntoEditor(artifactData: ParsedArtifactData) {
+        _state.update { it.copy(
+            artifactId = null,
+            selectedSet = null,
+            slot = artifactData.slot ?: ArtifactSlot.FLOWER_OF_LIFE,
+            level = artifactData.level ?: 0,
+            mainStatType = artifactData.mainStatType,
+            mainStatValue = artifactData.mainStatValue ?: 0f,
+            subStats = emptyList()
+        )}
+        
+        if (artifactData.slot != null) {
+            onSlotChanged(artifactData.slot)
+        }
+        if (artifactData.level != null) {
+            onLevelChanged(artifactData.level)
+            if (artifactData.level > 16) {
+                onRarityChanged(Rarity.FIVE_STARS)
+            }
+        }
+        if (artifactData.mainStatType != null) {
+            onMainStatTypeChanged(artifactData.mainStatType)
+        }
+        if (artifactData.setName != null) {
+            viewModelScope.launch {
+                val allSets = _allSets.value
+                val matchedSet = allSets.find { it.name.equals(artifactData.setName, ignoreCase = true) }
+                if (matchedSet != null) {
+                    onSetSelected(matchedSet)
+                }
+            }
+        }
+        artifactData.subStats.forEach { (statType, value) ->
+            onAddSubStat()
+            val lastSubStat = _state.value.subStats.lastOrNull() ?: return@forEach
+            onSubStatTypeChanged(lastSubStat.id, statType)
+            onSubStatManualValueEntered(lastSubStat.id, value.toString())
+        }
+    }
