@@ -178,4 +178,7 @@
     <string name="editor_btn_save_and_finish">Save &amp; Finish</string>
     <string name="editor_btn_skip">Skip</string>
     <string name="scanner_processing_batch">Processing: %1$d / %2$d</string>
+
+    <string name="add_artifact_scan_multiple">Scan Multiple Artifacts</string>
+    <string name="add_artifact_scan_multiple_desc">Select up to 15 screenshots for batch processing</string>
 </resources>

@@ -91,8 +91,8 @@ fun AddArtifactSelectionSheet(
             )
 
             SelectionOptionCard(
-                title = "Scan Multiple Artifacts",
-                subtitle = "Select up to 15 screenshots for batch processing",
+                title = stringResource(id = R.string.add_artifact_scan_multiple),
+                subtitle = stringResource(id = R.string.add_artifact_scan_multiple_desc),
                 icon = Icons.Default.DocumentScanner,
                 onClick = {
                     multiplePhotoPickerLauncher.launch(
