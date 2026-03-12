@@ -28,6 +28,9 @@ class EditorArtifactViewModel @Inject constructor(
     private val _state = MutableStateFlow(EditorArtifactState())
     val state: StateFlow<EditorArtifactState> = _state.asStateFlow()
 
+    private val _uiEvent = MutableSharedFlow<EditorUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
+
     private val _allSets = artifactRepository.getAvailableArtifactSets()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
@@ -86,7 +89,7 @@ class EditorArtifactViewModel @Inject constructor(
         
         _state.update { state -> 
             val newMaxSubStats = getMaxSubStatsFor(rarity, newLevel)
-            val newSubStats = state.subStats.take(newMaxSubStats) // Отсекаем лишнее, если лимит уменьшился
+            val newSubStats = state.subStats.take(newMaxSubStats)
     
             state.copy(
                 rarity = rarity, 
@@ -213,7 +216,6 @@ class EditorArtifactViewModel @Inject constructor(
         viewModelScope.launch {
             val artifact = artifactRepository.getArtifactById(id) ?: return@launch
             
-            // Находим сет по имени (т.к. в Domain модели у нас только имя сета)
             val allSets = artifactRepository.getAvailableArtifactSets().first()
             val setInfo = allSets.find { it.name == artifact.setName }
             val fullSet = setInfo?.let { 
@@ -225,7 +227,6 @@ class EditorArtifactViewModel @Inject constructor(
                 Rarity.FIVE_STARS -> 20; Rarity.FOUR_STARS -> 16; Rarity.THREE_STARS -> 12; else -> 4 
             }
             
-            // Загружаем сабстаты и восстанавливаем их роллы
             val loadedSubStats = artifact.subStats.mapIndexed { index, stat ->
                 val tiers = artifactRepository.getArtifactSubStatRolls(artifact.rarity.stars, stat.type) ?: emptyList()
                 val valueFloat = when (val v = stat.value) {
@@ -265,7 +266,6 @@ class EditorArtifactViewModel @Inject constructor(
                 )
             }
             
-            // Подгружаем кривую для мейнстата и обновляем списки доступных сабстатов
             currentMainStatCurve = artifactRepository.getArtifactMainStatCurve(artifact.rarity.stars, artifact.mainStat.type)
             updateAllSubStatsAvailableTypes()
         }
@@ -426,7 +426,6 @@ class EditorArtifactViewModel @Inject constructor(
         }
         if (data.level != null) {
             onLevelChanged(data.level)
-            // Эвристика звездности: если уровень > 16, это гарантированно 5-звездочный артефакт
             if (data.level > 16) {
                 onRarityChanged(Rarity.FIVE_STARS)
             }
@@ -435,7 +434,6 @@ class EditorArtifactViewModel @Inject constructor(
             onMainStatTypeChanged(data.mainStatType)
         }
         
-        // Пытаемся найти сет по названию из OCR
         if (data.setName != null) {
             viewModelScope.launch {
                 val allSets = _allSets.value
@@ -453,7 +451,6 @@ class EditorArtifactViewModel @Inject constructor(
             onSubStatManualValueEntered(lastSubStat.id, value.toString())
         }
     }
-}
 
     fun initBatch(artifacts: List<ParsedArtifactData>) {
         if (artifacts.isEmpty()) return
@@ -524,3 +521,36 @@ class EditorArtifactViewModel @Inject constructor(
             onSubStatManualValueEntered(lastSubStat.id, value.toString())
         }
     }
+
+    fun saveCurrentAndNext() {
+        if (_state.value.validationErrors.isNotEmpty()) return
+        
+        viewModelScope.launch {
+            saveArtifactToDb()
+            moveToNextOrFinish()
+        }
+    }
+
+    fun skipCurrentAndNext() {
+        moveToNextOrFinish()
+    }
+
+    private fun moveToNextOrFinish() {
+        val currentState = _state.value
+        val nextIndex = currentState.currentBatchIndex + 1
+
+        if (nextIndex < currentState.artifactsBatch.size) {
+            val nextArtifact = currentState.artifactsBatch[nextIndex]
+            _state.update { it.copy(currentBatchIndex = nextIndex) }
+            loadArtifactIntoEditor(nextArtifact)
+        } else {
+            finishEditing()
+        }
+    }
+
+    private fun finishEditing() {
+        viewModelScope.launch {
+            _uiEvent.emit(EditorUiEvent.BatchCompleted)
+        }
+    }
+}
