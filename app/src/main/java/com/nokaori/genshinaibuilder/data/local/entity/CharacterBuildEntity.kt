@@ -30,7 +30,7 @@ data class CharacterBuildEntity(
 
     // Character Snapshot
     @ColumnInfo(name = "character_encyclopedia_id") val characterId: Int,
-    @ColumnInfo(name = "character_language") val characterLanguage: String,
+    @ColumnInfo(name = "character_language") val characterLanguage: String = "en",
     val level: Int,
     val ascension: Int,
     val constellation: Int,

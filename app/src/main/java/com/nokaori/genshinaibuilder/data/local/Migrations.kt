@@ -157,7 +157,33 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
 
 val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        // Добавляем новую колонку character_language в таблицу character_builds
-        db.execSQL("ALTER TABLE character_builds ADD COLUMN character_language TEXT NOT NULL DEFAULT 'en'")
+        // Пересоздаём таблицу character_builds с новой структурой
+        db.execSQL("DROP TABLE IF EXISTS character_builds")
+        
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS character_builds (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                build_name TEXT NOT NULL,
+                user_description TEXT,
+                build_roles TEXT NOT NULL,
+                gameplay_guide TEXT,
+                pros TEXT NOT NULL,
+                cons TEXT NOT NULL,
+                alert_level TEXT NOT NULL,
+                alert_message TEXT,
+                character_encyclopedia_id INTEGER NOT NULL,
+                character_language TEXT NOT NULL,
+                level INTEGER NOT NULL,
+                ascension INTEGER NOT NULL,
+                constellation INTEGER NOT NULL,
+                talent_normal INTEGER NOT NULL,
+                talent_skill INTEGER NOT NULL,
+                talent_burst INTEGER NOT NULL,
+                weapon_snapshot TEXT NOT NULL,
+                artifacts_snapshot TEXT NOT NULL,
+                FOREIGN KEY(character_encyclopedia_id, character_language) REFERENCES characters_data(id, language) ON DELETE CASCADE
+            )
+        """)
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_character_builds_character_encyclopedia_id_character_language ON character_builds(character_encyclopedia_id, character_language)")
     }
 }
