@@ -196,4 +196,11 @@
     <string name="language_sync_dialog_message">Данные для выбранного языка не найдены. Загрузить их сейчас?</string>
     <string name="language_sync_dialog_download">Загрузить</string>
     <string name="language_sync_dialog_later">Позже</string>
+
+    <string name="camera_permission_required">Для сканирования артефактов требуется разрешение на использование камеры.</string>
+    <string name="grant_permission">Предоставить разрешение</string>
+    <string name="scan_with_camera">Сделать снимок камерой</string>
+    <string name="camera_instruction_steady">Наведите камеру на артефакт и замрите...</string>
+    <string name="camera_instruction_capturing">Делаем снимок...</string>
+    <string name="camera_error">Ошибка при запуске камеры</string>
 </resources>

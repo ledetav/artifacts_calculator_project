@@ -196,4 +196,11 @@
     <string name="language_sync_dialog_message">No data found for the selected language. Would you like to download it now?</string>
     <string name="language_sync_dialog_download">Download</string>
     <string name="language_sync_dialog_later">Later</string>
+
+    <string name="camera_permission_required">Camera permission is required to scan artifacts.</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="scan_with_camera">Scan with Camera</string>
+    <string name="camera_instruction_steady">Point the camera at the artifact and hold steady...</string>
+    <string name="camera_instruction_capturing">Capturing image...</string>
+    <string name="camera_error">Error starting camera</string
 </resources>
