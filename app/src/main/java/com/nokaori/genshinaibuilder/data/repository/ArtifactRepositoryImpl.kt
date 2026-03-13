@@ -17,7 +17,9 @@ import com.nokaori.genshinaibuilder.domain.model.StatCurve
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.SupportedLanguages
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
+import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -25,7 +27,8 @@ import javax.inject.Inject
 class ArtifactRepositoryImpl @Inject constructor (
     private val artifactDao: ArtifactDao,
     private val userDao: UserDao,
-    private val statCurveDao: StatCurveDao
+    private val statCurveDao: StatCurveDao,
+    private val themeRepository: ThemeRepository
 ) : ArtifactRepository {
     private val defaultLanguage = SupportedLanguages.EN
 
@@ -36,28 +39,42 @@ class ArtifactRepositoryImpl @Inject constructor (
     }
 
     override fun getAvailableArtifactSetsPaged(): Flow<PagingData<ArtifactSet>> {
-        return Pager(
-            config = PagingConfig(pageSize = 20),
-            pagingSourceFactory = { artifactDao.getAllArtifactSetsPaging(defaultLanguage) }
-        ).flow.map { pagingData ->
-            pagingData.map { entity ->
-                entity.toDomain()
+        return themeRepository.appLanguage.flatMapLatest { language ->
+            Pager(
+                config = PagingConfig(pageSize = 20),
+                pagingSourceFactory = { artifactDao.getAllArtifactSetsPaging(language) }
+            ).flow.map { pagingData ->
+                pagingData.map { entity ->
+                    entity.toDomain()
+                }
             }
         }
     }
 
     override suspend fun getAllArtifactUrls(): List<String> {
-        return artifactDao.getAllArtifactUrls(defaultLanguage)
+        val language = themeRepository.appLanguage.map { it }.let { flow ->
+            var result = SupportedLanguages.EN
+            flow.collect { result = it }
+            result
+        }
+        return artifactDao.getAllArtifactUrls(language)
     }
 
     override fun getAvailableArtifactSets(): Flow<List<ArtifactSet>> {
-        return artifactDao.getAllArtifactSets(defaultLanguage).map { list ->
-            list.map { it.toDomain() }
+        return themeRepository.appLanguage.flatMapLatest { language ->
+            artifactDao.getAllArtifactSets(language).map { list ->
+                list.map { it.toDomain() }
+            }
         }
     }
 
     override suspend fun addArtifact(artifact: Artifact) {
-        val setEntity = artifactDao.getSetByName(defaultLanguage, artifact.setName)
+        val language = themeRepository.appLanguage.map { it }.let { flow ->
+            var result = SupportedLanguages.EN
+            flow.collect { result = it }
+            result
+        }
+        val setEntity = artifactDao.getSetByName(language, artifact.setName)
             ?: throw IllegalArgumentException("Set '${artifact.setName}' not found")
 
         val mainStatVal = when (val v = artifact.mainStat.value) {
@@ -82,10 +99,15 @@ class ArtifactRepositoryImpl @Inject constructor (
     }
 
     override suspend fun getArtifactSetDetails(setId: Int): ArtifactSet {
-        val setEntity = artifactDao.getArtifactSetById(setId, defaultLanguage)
+        val language = themeRepository.appLanguage.map { it }.let { flow ->
+            var result = SupportedLanguages.EN
+            flow.collect { result = it }
+            result
+        }
+        val setEntity = artifactDao.getArtifactSetById(setId, language)
             ?: throw IllegalStateException("Set not found")
 
-        val piecesEntities = artifactDao.getPiecesBySetId(setId, defaultLanguage).first()
+        val piecesEntities = artifactDao.getPiecesBySetId(setId, language).first()
 
         return setEntity.toDomain(pieces = piecesEntities)
     }
@@ -137,9 +159,14 @@ class ArtifactRepositoryImpl @Inject constructor (
     }
 
     override suspend fun updateArtifact(artifact: Artifact) {
+        val language = themeRepository.appLanguage.map { it }.let { flow ->
+            var result = SupportedLanguages.EN
+            flow.collect { result = it }
+            result
+        }
         val existingEntity = userDao.getUserArtifactById(artifact.id) ?: return
         
-        val setEntity = artifactDao.getSetByName(defaultLanguage, artifact.setName)
+        val setEntity = artifactDao.getSetByName(language, artifact.setName)
             ?: throw IllegalArgumentException("Set '${artifact.setName}' not found")
 
         val mainStatVal = when (val v = artifact.mainStat.value) {
