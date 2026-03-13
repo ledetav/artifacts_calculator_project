@@ -11,6 +11,7 @@ import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
 import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -48,11 +49,7 @@ class WeaponRepositoryImpl @Inject constructor (
     }
 
     override suspend fun getAllWeaponUrls(): List<String> {
-        val language = themeRepository.appLanguage.map { it }.let { flow ->
-            var result = SupportedLanguages.EN
-            flow.collect { result = it }
-            result
-        }
+        val language = themeRepository.appLanguage.first()
         return weaponDao.getAllWeaponUrls(language)
     }
 
@@ -76,11 +73,7 @@ class WeaponRepositoryImpl @Inject constructor (
     }
 
     override suspend fun getWeaponDetails(weaponId: Int): Weapon {
-        val language = themeRepository.appLanguage.map { it }.let { flow ->
-            var result = SupportedLanguages.EN
-            flow.collect { result = it }
-            result
-        }
+        val language = themeRepository.appLanguage.first()
         val weaponEntity = weaponDao.getWeaponById(weaponId, language)
             ?: throw IllegalStateException("Weapon not found")
 

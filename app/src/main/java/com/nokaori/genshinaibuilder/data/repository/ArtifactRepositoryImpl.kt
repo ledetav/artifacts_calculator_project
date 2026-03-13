@@ -52,11 +52,7 @@ class ArtifactRepositoryImpl @Inject constructor (
     }
 
     override suspend fun getAllArtifactUrls(): List<String> {
-        val language = themeRepository.appLanguage.map { it }.let { flow ->
-            var result = SupportedLanguages.EN
-            flow.collect { result = it }
-            result
-        }
+        val language = themeRepository.appLanguage.first()
         return artifactDao.getAllArtifactUrls(language)
     }
 
@@ -69,11 +65,7 @@ class ArtifactRepositoryImpl @Inject constructor (
     }
 
     override suspend fun addArtifact(artifact: Artifact) {
-        val language = themeRepository.appLanguage.map { it }.let { flow ->
-            var result = SupportedLanguages.EN
-            flow.collect { result = it }
-            result
-        }
+        val language = themeRepository.appLanguage.first()
         val setEntity = artifactDao.getSetByName(language, artifact.setName)
             ?: throw IllegalArgumentException("Set '${artifact.setName}' not found")
 
@@ -99,11 +91,7 @@ class ArtifactRepositoryImpl @Inject constructor (
     }
 
     override suspend fun getArtifactSetDetails(setId: Int): ArtifactSet {
-        val language = themeRepository.appLanguage.map { it }.let { flow ->
-            var result = SupportedLanguages.EN
-            flow.collect { result = it }
-            result
-        }
+        val language = themeRepository.appLanguage.first()
         val setEntity = artifactDao.getArtifactSetById(setId, language)
             ?: throw IllegalStateException("Set not found")
 
@@ -159,11 +147,7 @@ class ArtifactRepositoryImpl @Inject constructor (
     }
 
     override suspend fun updateArtifact(artifact: Artifact) {
-        val language = themeRepository.appLanguage.map { it }.let { flow ->
-            var result = SupportedLanguages.EN
-            flow.collect { result = it }
-            result
-        }
+        val language = themeRepository.appLanguage.first()
         val existingEntity = userDao.getUserArtifactById(artifact.id) ?: return
         
         val setEntity = artifactDao.getSetByName(language, artifact.setName)

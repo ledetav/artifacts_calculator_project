@@ -73,14 +73,12 @@ class CharacterDetailsViewModel @Inject constructor(
 
     private fun loadCharacterInfo() {
         viewModelScope.launch {
-            themeRepository.appLanguage.collectLatest { _ ->
-                val char = characterRepository.getCharacterById(characterId)
-                _character.value = char
+            val char = characterRepository.getCharacterById(characterId)
+            _character.value = char
 
-                if (char != null) {
-                    launch { _promotions.value = characterRepository.getCharacterPromotions(characterId) }
-                    launch { _curve.value = characterRepository.getStatCurve(char.curveId) }
-                }
+            if (char != null) {
+                launch { _promotions.value = characterRepository.getCharacterPromotions(characterId) }
+                launch { _curve.value = characterRepository.getStatCurve(char.curveId) }
             }
         }
     }
