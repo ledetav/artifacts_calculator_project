@@ -9,11 +9,13 @@ import com.nokaori.genshinaibuilder.domain.usecase.CalculateSubStatRollsUseCase
 import com.nokaori.genshinaibuilder.domain.usecase.ValidateArtifactUseCase
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.data.EditorArtifactState
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.data.SubStatState
+import com.nokaori.genshinaibuilder.presentation.util.ScanSessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.lifecycle.SavedStateHandle 
+import com.nokaori.genshinaibuilder.domain.util.ParsedArtifactData
 
 @HiltViewModel
 class EditorArtifactViewModel @Inject constructor(
@@ -27,6 +29,9 @@ class EditorArtifactViewModel @Inject constructor(
     private val _state = MutableStateFlow(EditorArtifactState())
     val state: StateFlow<EditorArtifactState> = _state.asStateFlow()
 
+    private val _uiEvent = MutableSharedFlow<EditorUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
+
     private val _allSets = artifactRepository.getAvailableArtifactSets()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
@@ -38,11 +43,18 @@ class EditorArtifactViewModel @Inject constructor(
     private var currentMainStatCurve: StatCurve? = null
 
     init {
-        val argId = savedStateHandle.get<String>("artifactId")?.toIntOrNull()
-        if (argId != null && argId != -1) {
-            loadArtifact(argId)
+        // Проверяем, есть ли пакет артефактов из сканера
+        val batch = ScanSessionManager.getBatchAndClear()
+        if (batch.isNotEmpty()) {
+            initBatch(batch)
         } else {
-            updateMainStatsForCurrentSlot()
+            // Обычная инициализация для одиночного артефакта
+            val argId = savedStateHandle.get<String>("artifactId")?.toIntOrNull()
+            if (argId != null && argId != -1) {
+                loadArtifact(argId)
+            } else {
+                updateMainStatsForCurrentSlot()
+            }
         }
 
         viewModelScope.launch {
@@ -85,7 +97,7 @@ class EditorArtifactViewModel @Inject constructor(
         
         _state.update { state -> 
             val newMaxSubStats = getMaxSubStatsFor(rarity, newLevel)
-            val newSubStats = state.subStats.take(newMaxSubStats) // Отсекаем лишнее, если лимит уменьшился
+            val newSubStats = state.subStats.take(newMaxSubStats)
     
             state.copy(
                 rarity = rarity, 
@@ -212,7 +224,6 @@ class EditorArtifactViewModel @Inject constructor(
         viewModelScope.launch {
             val artifact = artifactRepository.getArtifactById(id) ?: return@launch
             
-            // Находим сет по имени (т.к. в Domain модели у нас только имя сета)
             val allSets = artifactRepository.getAvailableArtifactSets().first()
             val setInfo = allSets.find { it.name == artifact.setName }
             val fullSet = setInfo?.let { 
@@ -224,7 +235,6 @@ class EditorArtifactViewModel @Inject constructor(
                 Rarity.FIVE_STARS -> 20; Rarity.FOUR_STARS -> 16; Rarity.THREE_STARS -> 12; else -> 4 
             }
             
-            // Загружаем сабстаты и восстанавливаем их роллы
             val loadedSubStats = artifact.subStats.mapIndexed { index, stat ->
                 val tiers = artifactRepository.getArtifactSubStatRolls(artifact.rarity.stars, stat.type) ?: emptyList()
                 val valueFloat = when (val v = stat.value) {
@@ -264,7 +274,6 @@ class EditorArtifactViewModel @Inject constructor(
                 )
             }
             
-            // Подгружаем кривую для мейнстата и обновляем списки доступных сабстатов
             currentMainStatCurve = artifactRepository.getArtifactMainStatCurve(artifact.rarity.stars, artifact.mainStat.type)
             updateAllSubStatsAvailableTypes()
         }
@@ -417,5 +426,139 @@ class EditorArtifactViewModel @Inject constructor(
             else -> 0
         }
         return minOf(4, maxInitial + (level / 4))
+    }
+
+    fun applyScannedData(data: ParsedArtifactData) {
+        if (data.slot != null) {
+            onSlotChanged(data.slot)
+        }
+        if (data.level != null) {
+            onLevelChanged(data.level)
+            if (data.level > 16) {
+                onRarityChanged(Rarity.FIVE_STARS)
+            }
+        }
+        if (data.mainStatType != null) {
+            onMainStatTypeChanged(data.mainStatType)
+        }
+        
+        if (data.setName != null) {
+            viewModelScope.launch {
+                val allSets = _allSets.value
+                val matchedSet = allSets.find { it.name.equals(data.setName, ignoreCase = true) }
+                if (matchedSet != null) {
+                    onSetSelected(matchedSet)
+                }
+            }
+        }
+        
+        data.subStats.forEach { (statType, value) ->
+            onAddSubStat()
+            val lastSubStat = _state.value.subStats.lastOrNull() ?: return@forEach
+            onSubStatTypeChanged(lastSubStat.id, statType)
+            onSubStatManualValueEntered(lastSubStat.id, value.toString())
+        }
+    }
+
+    fun initBatch(artifacts: List<ParsedArtifactData>) {
+        if (artifacts.isEmpty()) return
+        
+        _state.update { 
+            it.copy(
+                artifactsBatch = artifacts,
+                currentBatchIndex = 0
+            )
+        }
+        loadArtifactIntoEditor(artifacts.first())
+    }
+
+    fun moveToNextInBatch() {
+        val state = _state.value
+        if (!state.isBatchMode || state.isLastInBatch) return
+        
+        val nextIndex = state.currentBatchIndex + 1
+        _state.update { it.copy(currentBatchIndex = nextIndex) }
+        loadArtifactIntoEditor(state.artifactsBatch[nextIndex])
+    }
+
+    fun moveToPreviousInBatch() {
+        val state = _state.value
+        if (state.currentBatchIndex <= 0) return
+        
+        val prevIndex = state.currentBatchIndex - 1
+        _state.update { it.copy(currentBatchIndex = prevIndex) }
+        loadArtifactIntoEditor(state.artifactsBatch[prevIndex])
+    }
+
+    private fun loadArtifactIntoEditor(artifactData: ParsedArtifactData) {
+        _state.update { it.copy(
+            artifactId = null,
+            selectedSet = null,
+            slot = artifactData.slot ?: ArtifactSlot.FLOWER_OF_LIFE,
+            level = artifactData.level ?: 0,
+            mainStatType = artifactData.mainStatType,
+            mainStatValue = artifactData.mainStatValue ?: 0f,
+            subStats = emptyList()
+        )}
+        
+        if (artifactData.slot != null) {
+            onSlotChanged(artifactData.slot)
+        }
+        if (artifactData.level != null) {
+            onLevelChanged(artifactData.level)
+            if (artifactData.level > 16) {
+                onRarityChanged(Rarity.FIVE_STARS)
+            }
+        }
+        if (artifactData.mainStatType != null) {
+            onMainStatTypeChanged(artifactData.mainStatType)
+        }
+        if (artifactData.setName != null) {
+            viewModelScope.launch {
+                val allSets = _allSets.value
+                val matchedSet = allSets.find { it.name.equals(artifactData.setName, ignoreCase = true) }
+                if (matchedSet != null) {
+                    onSetSelected(matchedSet)
+                }
+            }
+        }
+        artifactData.subStats.forEach { (statType, value) ->
+            onAddSubStat()
+            val lastSubStat = _state.value.subStats.lastOrNull() ?: return@forEach
+            onSubStatTypeChanged(lastSubStat.id, statType)
+            onSubStatManualValueEntered(lastSubStat.id, value.toString())
+        }
+    }
+
+    fun saveCurrentAndNext() {
+        if (_state.value.validationErrors.isNotEmpty()) return
+        
+        viewModelScope.launch {
+            saveArtifactToDb()
+            moveToNextOrFinish()
+        }
+    }
+
+    fun skipCurrentAndNext() {
+        moveToNextOrFinish()
+    }
+
+    private fun moveToNextOrFinish() {
+        val currentState = _state.value
+        val nextIndex = currentState.currentBatchIndex + 1
+
+        if (nextIndex < currentState.artifactsBatch.size) {
+            val nextArtifact = currentState.artifactsBatch[nextIndex]
+            _state.update { it.copy(currentBatchIndex = nextIndex) }
+            loadArtifactIntoEditor(nextArtifact)
+        } else {
+            finishEditing()
+        }
+    }
+
+    private fun finishEditing() {
+        viewModelScope.launch {
+            _uiEvent.emit(EditorUiEvent.BatchCompleted)
+        }
     }
 }

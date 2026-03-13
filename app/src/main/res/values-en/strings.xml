@@ -75,12 +75,12 @@
     <string name="stat_label_level">Level</string>
     <string name="talent_passive">Passive Talent</string>
     <string name="talent_level_fmt">Level %1$d</string>
-    <string name="cd_back">Back</string>
-    <string name="cd_add_to_collection">Add to Collection</string>
-    <string name="cd_edit_character">Edit</string>
-    <string name="cd_delete_character">Delete</string>
-    <string name="cd_add_item">Add Item</string>
-    <string name="art_section_pieces">%d Set Pieces</string>
+    <string name="character_detail_back">Back</string>
+    <string name="character_detail_add_to_collection">Add to Collection</string>
+    <string name="character_detail_edit">Edit</string>
+    <string name="character_detail_delete">Delete</string>
+    <string name="character_detail_add_item">Add Item</string>
+    <string name="artifact_section_pieces">%d Set Pieces</string>
     <string name="artifact_substats_title">Artifact Substats</string>
     <string name="artifact_substats_empty_hint">Please add artifact sustats</string>
     
@@ -162,4 +162,23 @@
     <string name="artifact_error_line_count">Based on total rolls, this artifact should have exactly %1$d substat lines, but currently has %2$d.</string>
     <string name="artifact_error_duplicate_substats">Duplicate substats found. Each substat must be unique.</string>
     <string name="artifact_error_main_sub_conflict">A substat cannot be the same as the Main Stat.</string>
+
+    <string name="add_artifact_method_title">How to add artifact?</string>
+    <string name="add_artifact_manual">Manual entry</string>
+    <string name="add_artifact_scan">Scan from screenshot</string>
+    <string name="add_artifact_scan_desc">AI will extract stats from the image</string>
+    <string name="add_artifact_title">Add Artifact</string>
+
+    <string name="scanner_preparing">Preparing model and loading image…</string>
+    <string name="scanner_scanning">Scanning data…</string>
+    <string name="scanner_error_no_image">Error: No image selected</string>
+
+    <string name="editor_artifact_counter">Artifact %1$d of %2$d</string>
+    <string name="editor_btn_save_and_next">Save &amp; Next</string>
+    <string name="editor_btn_save_and_finish">Save &amp; Finish</string>
+    <string name="editor_btn_skip">Skip</string>
+    <string name="scanner_processing_batch">Processing: %1$d / %2$d</string>
+
+    <string name="add_artifact_scan_multiple">Scan Multiple Artifacts</string>
+    <string name="add_artifact_scan_multiple_desc">Select up to 15 screenshots for batch processing</string>
 </resources>

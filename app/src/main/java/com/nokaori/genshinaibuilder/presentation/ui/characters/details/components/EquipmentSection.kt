@@ -79,7 +79,7 @@ fun EmptySlot(onClick: () -> Unit, iconSize: androidx.compose.ui.unit.Dp = 24.dp
     ) {
         Icon(
             imageVector = Icons.Default.Add,
-            contentDescription = stringResource(R.string.cd_add_item),
+            contentDescription = stringResource(R.string.character_detail_add_item),
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(iconSize)
         )

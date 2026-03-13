@@ -57,7 +57,7 @@ fun ArtifactSetDetailsScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.character_detail_back))
                     }
                 }
             )
@@ -142,7 +142,7 @@ fun SetHeaderSection(set: ArtifactSet) {
 fun BonusItem(count: Int, desc: String) {
     Column {
         Text(
-            text = stringResource(R.string.art_section_pieces, count),
+            text = stringResource(R.string.artifact_section_pieces, count),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold

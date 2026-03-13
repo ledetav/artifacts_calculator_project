@@ -38,7 +38,7 @@ fun GestureSettingsScreen(
                 title = { Text(stringResource(R.string.gesture_settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.character_detail_back))
                     }
                 },
                 windowInsets = WindowInsets(0.dp)

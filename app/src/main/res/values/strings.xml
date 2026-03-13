@@ -75,12 +75,12 @@
     <string name="stat_label_level">Уровень</string>
     <string name="talent_passive">Пассивный талант</string>
     <string name="talent_level_fmt">Уровень %1$d</string>
-    <string name="cd_back">Назад</string>
-    <string name="cd_add_to_collection">Добавить в коллекцию</string>
-    <string name="cd_edit_character">Редактировать</string>
-    <string name="cd_delete_character">Удалить</string>
-    <string name="cd_add_item">Добавить предмет</string>
-    <string name="art_section_pieces">%d куска сета</string>
+    <string name="character_detail_back">Назад</string>
+    <string name="character_detail_add_to_collection">Добавить в имеющиеся</string>
+    <string name="character_detail_edit">Редактировать</string>
+    <string name="character_detail_delete">Удалить</string>
+    <string name="character_detail_add_item">Добавить предмет</string>
+    <string name="artifact_section_pieces">%d куска сета</string>
     <string name="artifact_substats_title">Подстаты артефакта</string>
     <string name="artifact_substats_empty_hint">Добавьте подстаты артефакта</string>
     
@@ -162,4 +162,23 @@
     <string name="artifact_error_line_count">Исходя из количества роллов, этот артефакт должен иметь ровно %1$d открытых подстатов, но сейчас их %2$d.</string>
     <string name="artifact_error_duplicate_substats">Найдены дублирующиеся подстаты. Каждая характеристика должна быть уникальной.</string>
     <string name="artifact_error_main_sub_conflict">Подстат не может быть таким же, как главная характеристика.</string>
+
+    <string name="add_artifact_method_title">Как добавить артефакт?</string>
+    <string name="add_artifact_manual">Ввести вручную</string>
+    <string name="add_artifact_scan">Считать со скриншота</string>
+    <string name="add_artifact_scan_desc">ИИ распознает характеристики по картинке</string>
+    <string name="add_artifact_title">Добавить артефакт</string>
+
+    <string name="scanner_preparing">Подготовка модели и загрузка изображения…</string>
+    <string name="scanner_scanning">Сканирование данных…</string>
+    <string name="scanner_error_no_image">Ошибка: Изображение не выбрано</string>
+
+    <string name="editor_artifact_counter">Артефакт %1$d из %2$d</string>
+    <string name="editor_btn_save_and_next">Сохранить и далее</string>
+    <string name="editor_btn_save_and_finish">Сохранить и завершить</string>
+    <string name="editor_btn_skip">Пропустить</string>
+    <string name="scanner_processing_batch">Обработка: %1$d / %2$d</string>
+
+    <string name="add_artifact_scan_multiple">Сканировать несколько артефактов</string>
+    <string name="add_artifact_scan_multiple_desc">Выберите до 15 скриншотов для пакетной обработки</string>
 </resources>

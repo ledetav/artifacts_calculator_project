@@ -44,7 +44,7 @@ jobs:
     - name: Build with Gradle
       run: |
         set -o pipefail
-        ./gradlew assembleDebug 2>&1 | tee build.log
+        ./gradlew assembleDebug --parallel --build-cache 2>&1 | tee build.log
 
     # 3. Уведомление об успехе компиляции
     - name: ✅ Notify Build Success
@@ -54,31 +54,101 @@ jobs:
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: "✅ Компиляция успешна! Подготавливаю APK к отправке..."
 
-    - name: Upload APK
+    - name: 📂 Show outputs directory tree
+      run: |
+        sudo apt-get install tree -y
+        tree app/build/outputs || echo "Директория outputs не найдена"
+
+    # Находим конкретно arm64-v8a APK, переименовываем и проверяем размер
+    - name: 🔎 Find, Rename and Check Size
+      id: prepare_apk
+      run: |
+        # Ищем файл arm64-v8a (он легче universal и скорее всего уложится в 50 МБ)
+        APK_OLD_PATH=$(find app/build/outputs/apk -name "*arm64-v8a*.apk" | head -n 1)
+        
+        if [ -z "$APK_OLD_PATH" ]; then
+          echo "❌ APK файл arm64-v8a не найден!"
+          exit 1
+        fi
+        
+        # Переименовываем
+        DIR_NAME=$(dirname "$APK_OLD_PATH")
+        APK_NEW_PATH="$DIR_NAME/app-debug-${{ github.run_number }}.apk"
+        mv "$APK_OLD_PATH" "$APK_NEW_PATH"
+        
+        echo "APK_FINAL_PATH=$APK_NEW_PATH" >> $GITHUB_ENV
+        
+        # Проверяем размер файла (в байтах). 50 МБ = 52428800 байт
+        FILE_SIZE=$(stat -c%s "$APK_NEW_PATH")
+        echo "Размер APK: $FILE_SIZE байт"
+        
+        if [ "$FILE_SIZE" -gt 52428800 ]; then
+          echo "Файл больше 50 МБ. Устанавливаем флаг IS_LARGE_APK=true"
+          echo "IS_LARGE_APK=true" >> $GITHUB_ENV
+        else
+          echo "Файл меньше 50 МБ. Устанавливаем флаг IS_LARGE_APK=false"
+          echo "IS_LARGE_APK=false" >> $GITHUB_ENV
+        fi
+
+    - name: 📦 Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug
-        path: app/build/outputs/apk/debug/app-debug.apk
-        
-    - name: Rename APK
-      run: mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/app-debug-${{ github.run_number }}.apk
+        name: app-debug-${{ github.run_number }}
+        path: ${{ env.APK_FINAL_PATH }}
+        if-no-files-found: error
 
-    # 4. Финальный успех (отправка файла)
-    - name: Send APK to Telegram
+    # 4a. Финальный успех (отправка ФАЙЛА, если размер <= 50 МБ)
+    - name: 🚀 Send APK File to Telegram
+      if: env.IS_LARGE_APK == 'false'
       uses: appleboy/telegram-action@master
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
-        document: app/build/outputs/apk/debug/app-debug-${{ github.run_number }}.apk
+        document: ${{ env.APK_FINAL_PATH }}
         message: "🚀 Сборка успешно завершена! Ветка: ${{ github.ref_name }} (Build #${{ github.run_number }})"
+
+    # 4b. Загрузка большого APK на Litterbox (Catbox.moe)
+    - name: ☁️ Upload Large APK to Temporary Storage
+      if: env.IS_LARGE_APK == 'true'
+      id: upload_temp
+      run: |
+        echo "Загружаю APK на сервер Litterbox (до 1 ГБ)..."
+        
+        # Загружаем файл (time=72h означает, что ссылка сгорит через 3 дня)
+        DIRECT_LINK=$(curl -s -F "reqtype=fileupload" -F "time=72h" -F "fileToUpload=@${{ env.APK_FINAL_PATH }}" https://litterbox.catbox.moe/resources/internals/api.php)
+        
+        # Проверяем, что ответ начинается с "http" (успех)
+        if [[ ! "$DIRECT_LINK" == http* ]]; then
+          echo "❌ Ошибка загрузки: $DIRECT_LINK"
+          exit 1
+        fi
+        
+        echo "Прямая ссылка: $DIRECT_LINK"
+        echo "DIRECT_LINK=$DIRECT_LINK" >> $GITHUB_ENV
+
+    # 4c. Финальный успех (отправка ССЫЛКИ, если размер > 50 МБ)
+    - name: 🔗 Send Direct APK Link to Telegram
+      if: env.IS_LARGE_APK == 'true'
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          🚀 Сборка успешно завершена! Ветка: ${{ github.ref_name }} (Build #${{ github.run_number }})
+          
+          ⚠️ Размер APK превышает лимит Telegram (50 МБ).
+          📥 Прямая ссылка на скачивание APK (действительна 3 дня):
+          ${{ env.DIRECT_LINK }}
+          
+          📦 Резервный ZIP-архив всегда доступен в GitHub Actions:
+          https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     # --- БЛОК ОБРАБОТКИ ОШИБОК ---
     - name: Extract Error Log
       if: failure()
       run: |
         echo "ERROR_LOG<<EOF" >> $GITHUB_ENV
-        # Защита на случай, если сборка упадет до создания build.log
-        tail -n 30 build.log >> $GITHUB_ENV || echo "Лог сборки Gradle недоступен (ошибка на этапе подготовки)" >> $GITHUB_ENV
+        tail -n 30 build.log >> $GITHUB_ENV || echo "Лог сборки Gradle недоступен" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
 
     - name: Notify Telegram on Failure
