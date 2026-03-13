@@ -46,14 +46,22 @@ class ArtifactScannerViewModel @Inject constructor(
                 val rawText = recognizer.extractTextFromUri(uri)
                 if (!rawText.isNullOrBlank()) {
                     val parsedData = ArtifactOcrParser.parse(rawText)
-                    _scannerState.update { it.copy(
-                        isProcessing = false,
-                        result = ScannerResult.Success(parsedData)
-                    )}
+                    
+                    if (isValidParsedArtifact(parsedData)) {
+                        _scannerState.update { it.copy(
+                            isProcessing = false,
+                            result = ScannerResult.Success(parsedData)
+                        )}
+                    } else {
+                        _scannerState.update { it.copy(
+                            isProcessing = false,
+                            result = ScannerResult.Error("Характеристики не распознаны. Убедитесь, что фото четкое.")
+                        )}
+                    }
                 } else {
                     _scannerState.update { it.copy(
                         isProcessing = false,
-                        result = ScannerResult.Error("Текст не найден. Попробуйте другой скриншот.")
+                        result = ScannerResult.Error("Текст не найден. Попробуйте другой снимок.")
                     )}
                 }
             } catch (e: Exception) {

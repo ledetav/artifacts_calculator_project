@@ -37,6 +37,8 @@ fun ArtifactScannerScreen(
     onScanComplete: (ParsedArtifactData) -> Unit,
     onBatchScanComplete: (List<ParsedArtifactData>) -> Unit,
     onBackClick: () -> Unit,
+    onRetakeCameraClick: () -> Unit,
+    onManualEntryClick: () -> Unit,
     viewModel: ArtifactScannerViewModel = hiltViewModel()
 ) {
     var actualImageSize by remember { mutableStateOf(IntSize.Zero) }
@@ -64,6 +66,24 @@ fun ArtifactScannerScreen(
             }
             else -> {}
         }
+    }
+
+    if (scannerState.result is ScannerResult.Error) {
+        AlertDialog(
+            onDismissRequest = onBackClick, // Закрываем при клике вне окна
+            title = { Text(stringResource(R.string.scan_failed_title)) },
+            text = { Text(stringResource(R.string.scan_failed_message)) },
+            confirmButton = {
+                TextButton(onClick = onRetakeCameraClick) {
+                    Text(stringResource(R.string.action_retake))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onManualEntryClick) {
+                    Text(stringResource(R.string.action_manual))
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -149,18 +169,6 @@ fun ArtifactScannerScreen(
                             )
                         }
                     }
-                }
-            }
-
-            if (scannerState.result is ScannerResult.Error) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = (scannerState.result as ScannerResult.Error).message,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                Button(onClick = onBackClick) {
-                    Text("Вернуться")
                 }
             }
 
