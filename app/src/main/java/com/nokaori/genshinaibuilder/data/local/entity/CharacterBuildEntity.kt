@@ -12,8 +12,8 @@ import com.nokaori.genshinaibuilder.domain.model.WeaponSnapshot
 
 @Entity(
     tableName = "character_builds",
-    foreignKeys = [ForeignKey(entity = CharacterEntity::class, parentColumns = ["id"], childColumns = ["character_encyclopedia_id"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index(value = ["character_encyclopedia_id"])]
+    foreignKeys = [ForeignKey(entity = CharacterEntity::class, parentColumns = ["id", "language"], childColumns = ["character_encyclopedia_id", "character_language"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index(value = ["character_encyclopedia_id", "character_language"])]
 )
 data class CharacterBuildEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
@@ -30,6 +30,7 @@ data class CharacterBuildEntity(
 
     // Character Snapshot
     @ColumnInfo(name = "character_encyclopedia_id") val characterId: Int,
+    @ColumnInfo(name = "character_language") val characterLanguage: String,
     val level: Int,
     val ascension: Int,
     val constellation: Int,
