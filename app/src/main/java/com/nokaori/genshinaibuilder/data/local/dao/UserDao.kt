@@ -76,9 +76,9 @@ interface UserDao {
     @Query("""
         SELECT 
             ua.*, 
-            s.id AS user_set_id, s.name AS user_set_name, s.rarities AS user_set_rarities, 
+            s.id AS user_set_id, s.language AS user_set_language, s.name AS user_set_name, s.rarities AS user_set_rarities, 
             s.bonus_2pc AS user_set_bonus_2pc, s.bonus_4pc AS user_set_bonus_4pc, s.icon_url AS user_set_icon_url,
-            p.id AS piece_id, p.set_id AS piece_set_id, p.slot AS piece_slot, 
+            p.id AS piece_id, p.language AS piece_language, p.set_id AS piece_set_id, p.slot AS piece_slot, 
             p.name AS piece_name, p.icon_url AS piece_icon_url
         FROM user_artifacts AS ua
         INNER JOIN artifact_sets_data AS s ON ua.set_id = s.id
@@ -89,9 +89,9 @@ interface UserDao {
     @Query("""
         SELECT 
             ua.*, 
-            s.id AS user_set_id, s.name AS user_set_name, s.rarities AS user_set_rarities, 
+            s.id AS user_set_id, s.language AS user_set_language, s.name AS user_set_name, s.rarities AS user_set_rarities, 
             s.bonus_2pc AS user_set_bonus_2pc, s.bonus_4pc AS user_set_bonus_4pc, s.icon_url AS user_set_icon_url,
-            p.id AS piece_id, p.set_id AS piece_set_id, p.slot AS piece_slot, 
+            p.id AS piece_id, p.language AS piece_language, p.set_id AS piece_set_id, p.slot AS piece_slot, 
             p.name AS piece_name, p.icon_url AS piece_icon_url
         FROM user_artifacts AS ua
         INNER JOIN artifact_sets_data AS s ON ua.set_id = s.id

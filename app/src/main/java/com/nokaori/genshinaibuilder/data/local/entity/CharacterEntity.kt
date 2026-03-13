@@ -9,7 +9,8 @@ import com.nokaori.genshinaibuilder.domain.model.WeaponType
 
 @Entity(
     tableName = "characters_data",
-    primaryKeys = ["id", "language"]
+    primaryKeys = ["id", "language"],
+    indices = [Index(value = ["id"], unique = true)]
 )
 data class CharacterEntity(
     val id: Int,
