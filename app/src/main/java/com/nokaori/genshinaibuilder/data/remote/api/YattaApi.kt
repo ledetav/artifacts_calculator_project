@@ -14,11 +14,11 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface YattaApi {
-    @GET("en/avatar")
-    suspend fun getAvatarList(): YattaResponse<YattaAvatarDto>
+    @GET("{lang}/avatar")
+    suspend fun getAvatarList(@Path("lang") lang: String): YattaResponse<YattaAvatarDto>
 
-    @GET("en/avatar/{id}")
-    suspend fun getAvatarDetail(@Path("id") id: String): YattaAvatarDetailResponse
+    @GET("{lang}/avatar/{id}")
+    suspend fun getAvatarDetail(@Path("lang") lang: String, @Path("id") id: String): YattaAvatarDetailResponse
 
     @GET("static/avatarCurve")
     suspend fun getAvatarCurves(): YattaAvatarCurveResponse
@@ -29,15 +29,15 @@ interface YattaApi {
     @GET("static/reliquaryCurve")
     suspend fun getRelicCurves(): YattaRelicCurveResponse
 
-    @GET("en/weapon")
-    suspend fun getWeaponList(): YattaWeaponResponse
+    @GET("{lang}/weapon")
+    suspend fun getWeaponList(@Path("lang") lang: String): YattaWeaponResponse
 
-    @GET("en/weapon/{id}")
-    suspend fun getWeaponDetail(@Path("id") id: String): YattaWeaponDetailResponse
+    @GET("{lang}/weapon/{id}")
+    suspend fun getWeaponDetail(@Path("lang") lang: String, @Path("id") id: String): YattaWeaponDetailResponse
 
-    @GET("en/reliquary")
-    suspend fun getRelicList(): YattaRelicResponse
+    @GET("{lang}/reliquary")
+    suspend fun getRelicList(@Path("lang") lang: String): YattaRelicResponse
 
-    @GET("en/reliquary/{id}")
-    suspend fun getRelicDetail(@Path("id") id: Int): YattaRelicDetailResponse
+    @GET("{lang}/reliquary/{id}")
+    suspend fun getRelicDetail(@Path("lang") lang: String, @Path("id") id: Int): YattaRelicDetailResponse
 }
