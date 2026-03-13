@@ -207,4 +207,9 @@
     <string name="choose_image_source">Image Source</string>
     <string name="source_gallery">Gallery</string>
     <string name="source_camera">Camera</string>
+
+    <string name="scan_failed_title">Artifact Not Recognized</string>
+    <string name="scan_failed_message">Could not find artifact stats in the image. Please try taking the photo again in good lighting.</string>
+    <string name="action_retake">Retake Photo</string>
+    <string name="action_manual">Enter Manually</string>
 </resources>

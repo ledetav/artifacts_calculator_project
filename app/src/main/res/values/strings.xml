@@ -207,4 +207,9 @@
     <string name="choose_image_source">Источник изображения</string>
     <string name="source_gallery">Галерея</string>
     <string name="source_camera">Камера</string>
+
+    <string name="scan_failed_title">Артефакт не распознан</string>
+    <string name="scan_failed_message">Не удалось найти характеристики артефакта на снимке. Попробуйте сделать фото еще раз при хорошем освещении.</string>
+    <string name="action_retake">Переснять камеру</string>
+    <string name="action_manual">Ввести вручную</string>
 </resources>
