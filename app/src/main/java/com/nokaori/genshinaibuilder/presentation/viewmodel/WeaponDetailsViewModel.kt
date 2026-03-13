@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nokaori.genshinaibuilder.domain.model.Weapon
 import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
+import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class WeaponDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val repository: WeaponRepository
+    private val repository: WeaponRepository,
+    private val themeRepository: ThemeRepository
 ) : ViewModel() {
 
     private val weaponId: Int = checkNotNull(savedStateHandle["weaponId"])
@@ -24,8 +26,17 @@ class WeaponDetailsViewModel @Inject constructor(
     val weapon: StateFlow<Weapon?> = _weapon.asStateFlow()
 
     init {
+        loadWeapon()
+    }
+
+    private fun loadWeapon() {
         viewModelScope.launch {
-            _weapon.value = repository.getWeaponDetails(weaponId)
+            try {
+                val w = repository.getWeaponDetails(weaponId)
+                _weapon.value = w
+            } catch (e: Exception) {
+                _weapon.value = null
+            }
         }
     }
 }

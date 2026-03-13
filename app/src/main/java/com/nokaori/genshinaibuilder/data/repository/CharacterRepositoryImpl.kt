@@ -10,30 +10,39 @@ import com.nokaori.genshinaibuilder.domain.model.CharacterConstellation
 import com.nokaori.genshinaibuilder.domain.model.CharacterPromotion
 import com.nokaori.genshinaibuilder.domain.model.CharacterTalent
 import com.nokaori.genshinaibuilder.domain.model.StatCurve
+import com.nokaori.genshinaibuilder.domain.model.SupportedLanguages
 import com.nokaori.genshinaibuilder.domain.model.UserCharacter
 import com.nokaori.genshinaibuilder.domain.repository.CharacterRepository
+import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class CharacterRepositoryImpl @Inject constructor (
     private val characterDao: CharacterDao,
     private val userDao: UserDao,
-    private val statCurveDao: StatCurveDao
+    private val statCurveDao: StatCurveDao,
+    private val themeRepository: ThemeRepository
 ) : CharacterRepository {
 
     override fun getCharacters(): Flow<List<Character>> {
-        return characterDao.getCharactersWithOwnership().map { list ->
-            list.map { it.toDomain() }
+        return themeRepository.appLanguage.flatMapLatest { language ->
+            characterDao.getCharactersWithOwnership(language).map { list ->
+                list.map { it.toDomain() }
+            }
         }
     }
 
     override suspend fun getAllCharacterUrls(): List<String> {
-        return characterDao.getAllCharacterUrls()
+        val language = themeRepository.appLanguage.first()
+        return characterDao.getAllCharacterUrls(language)
     }
 
     override suspend fun getCharacterById(id: Int): Character? {
-        val entity = characterDao.getCharacterById(id) ?: return null
+        val language = themeRepository.appLanguage.first()
+        val entity = characterDao.getCharacterById(id, language) ?: return null
         val isOwned = userDao.isCharacterOwned(id)
         return entity.toDomain(isOwned = isOwned)
     }
@@ -43,7 +52,6 @@ class CharacterRepositoryImpl @Inject constructor (
         if (existing != null) {
             userDao.deleteUserCharacter(existing)
         } else {
-            // Добавляем с дефолтными статами (1 уровень)
             val newChar = UserCharacterEntity(
                 id = 0,
                 characterId = characterId,
@@ -65,34 +73,39 @@ class CharacterRepositoryImpl @Inject constructor (
     }
 
     override fun getTalents(characterId: Int): Flow<List<CharacterTalent>> {
-        return characterDao.getTalents(characterId).map { list ->
-            list.map { entity ->
-                CharacterTalent(
-                    name = entity.name,
-                    description = entity.description,
-                    iconUrl = entity.iconUrl,
-                    type = entity.type,
-                    attributes = entity.scalingAttributes
-                )
+        return themeRepository.appLanguage.flatMapLatest { language ->
+            characterDao.getTalents(characterId, language).map { list ->
+                list.map { entity ->
+                    CharacterTalent(
+                        name = entity.name,
+                        description = entity.description,
+                        iconUrl = entity.iconUrl,
+                        type = entity.type,
+                        attributes = entity.scalingAttributes
+                    )
+                }
             }
         }
     }
     
     override fun getConstellations(characterId: Int): Flow<List<CharacterConstellation>> {
-        return characterDao.getConstellations(characterId).map { list ->
-            list.map { entity ->
-                CharacterConstellation(
-                    order = entity.order,
-                    name = entity.name,
-                    description = entity.description,
-                    iconUrl = entity.iconUrl
-                )
+        return themeRepository.appLanguage.flatMapLatest { language ->
+            characterDao.getConstellations(characterId, language).map { list ->
+                list.map { entity ->
+                    CharacterConstellation(
+                        order = entity.order,
+                        name = entity.name,
+                        description = entity.description,
+                        iconUrl = entity.iconUrl
+                    )
+                }
             }
         }
     }
 
     override suspend fun getCharacterPromotions(characterId: Int): List<CharacterPromotion> {
-        val entities = characterDao.getPromotionsForCharacter(characterId)
+        val language = themeRepository.appLanguage.first()
+        val entities = characterDao.getPromotionsForCharacter(characterId, language)
         return entities.map { entity ->
             CharacterPromotion(
                 ascensionLevel = entity.ascensionLevel,
@@ -110,5 +123,9 @@ class CharacterRepositoryImpl @Inject constructor (
             id = entity.id,
             points = entity.points
         )
+    }
+
+    override suspend fun getCharacterCount(language: String): Int {
+        return characterDao.getCharacterCountByLanguage(language)
     }
 }

@@ -26,7 +26,7 @@ fun CharacterEntity.updateWithDetails(dto: YattaAvatarDetailDto): CharacterEntit
     )
 }
 
-fun mapPromotions(charId: Int, dto: YattaAvatarDetailDto): List<CharacterPromotionEntity> {
+fun mapPromotions(charId: Int, language: String, dto: YattaAvatarDetailDto): List<CharacterPromotionEntity> {
     val promoteList = dto.upgrade.promote ?: return emptyList()
     
     val specialPropKey = dto.specialProp
@@ -36,6 +36,7 @@ fun mapPromotions(charId: Int, dto: YattaAvatarDetailDto): List<CharacterPromoti
 
         CharacterPromotionEntity(
             characterId = charId,
+            language = language,
             ascensionLevel = pDto.level,
             
             addHp = propsMap["FIGHT_PROP_BASE_HP"]?.toFloat() ?: 0f,
@@ -48,7 +49,8 @@ fun mapPromotions(charId: Int, dto: YattaAvatarDetailDto): List<CharacterPromoti
 }
 
 fun mapTalentsAndConstellations(
-    charId: Int, 
+    charId: Int,
+    language: String,
     dto: YattaAvatarDetailDto
 ): Pair<List<CharacterTalentEntity>, List<CharacterConstellationEntity>> {
 
@@ -69,6 +71,7 @@ fun mapTalentsAndConstellations(
 
         CharacterTalentEntity(
             characterId = charId,
+            language = language,
             orderIndex = index, // Передаем индекс
             type = talentType,  // Передаем Enum
             name = tDto.name,
@@ -88,6 +91,7 @@ fun mapTalentsAndConstellations(
 
         CharacterConstellationEntity(
             characterId = charId,
+            language = language,
             order = index + 1,
             name = cDto.name,
             description = cleanDescription(cDto.description),

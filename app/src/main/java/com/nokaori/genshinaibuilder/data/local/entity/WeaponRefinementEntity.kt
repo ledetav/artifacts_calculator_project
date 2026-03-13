@@ -8,11 +8,13 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "weapon_refinements",
-    foreignKeys = [ForeignKey(entity = WeaponEntity::class, parentColumns = ["id"], childColumns = ["weapon_id"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index(value = ["weapon_id"])]
+    primaryKeys = ["weapon_id", "language"],
+    foreignKeys = [ForeignKey(entity = WeaponEntity::class, parentColumns = ["id", "language"], childColumns = ["weapon_id", "language"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index(value = ["weapon_id", "language"])]
 )
 data class WeaponRefinementEntity(
-    @PrimaryKey @ColumnInfo(name = "weapon_id") val weaponId: Int,
+    @ColumnInfo(name = "weapon_id") val weaponId: Int,
+    val language: String,
     @ColumnInfo(name = "passive_name") val passiveName: String,
     val descriptions: List<String> // Converter
 )

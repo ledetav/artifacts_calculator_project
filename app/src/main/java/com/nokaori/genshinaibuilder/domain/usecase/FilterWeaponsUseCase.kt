@@ -3,9 +3,14 @@ package com.nokaori.genshinaibuilder.domain.usecase
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.UserWeapon
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
+import java.text.Collator
+import java.util.Locale
 import javax.inject.Inject
 
 class FilterWeaponsUseCase @Inject constructor() {
+    private val collator = Collator.getInstance(Locale("ru")).apply {
+        strength = Collator.SECONDARY
+    }
     operator fun invoke(
         weapons: List<UserWeapon>,
         searchQuery: String,
@@ -34,7 +39,7 @@ class FilterWeaponsUseCase @Inject constructor() {
             // Сортировка: Сначала по звездам (убывание), потом по уровню (убывание), потом по имени
             compareByDescending<UserWeapon> { it.weapon.rarity.stars }
                 .thenByDescending { it.level }
-                .thenBy { it.weapon.name }
+                .thenBy(collator) { it.weapon.name }
         )
     }
 }

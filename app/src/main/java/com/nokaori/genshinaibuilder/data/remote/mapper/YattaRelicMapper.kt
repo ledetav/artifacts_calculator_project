@@ -6,7 +6,7 @@ import com.nokaori.genshinaibuilder.data.remote.dto.YattaRelicDetailDto
 
 private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI/reliquary"
 
-fun YattaRelicDetailDto.toSetEntity(): ArtifactSetEntity {
+fun YattaRelicDetailDto.toSetEntity(language: String): ArtifactSetEntity {
     val bonuses = this.bonusMap?.entries?.sortedBy { it.key }?.map { it.value } ?: emptyList()
     
     val bonus2pc = bonuses.getOrNull(0) ?: ""
@@ -14,6 +14,7 @@ fun YattaRelicDetailDto.toSetEntity(): ArtifactSetEntity {
 
     return ArtifactSetEntity(
         id = this.id,
+        language = language,
         name = this.name,
         rarities = this.rarities ?: emptyList(),
         bonus2pc = bonus2pc,
@@ -22,7 +23,7 @@ fun YattaRelicDetailDto.toSetEntity(): ArtifactSetEntity {
     )
 }
 
-fun mapRelicPieces(setId: Int, dto: YattaRelicDetailDto): List<ArtifactPieceEntity> {
+fun mapRelicPieces(setId: Int, language: String, dto: YattaRelicDetailDto): List<ArtifactPieceEntity> {
     val suitMap = dto.suit ?: return emptyList()
     
     return suitMap.mapNotNull { (key, pieceDto) ->
@@ -32,6 +33,7 @@ fun mapRelicPieces(setId: Int, dto: YattaRelicDetailDto): List<ArtifactPieceEnti
 
         ArtifactPieceEntity(
             id = pieceId,
+            language = language,
             setId = setId,
             slot = slot,
             name = pieceDto.name,

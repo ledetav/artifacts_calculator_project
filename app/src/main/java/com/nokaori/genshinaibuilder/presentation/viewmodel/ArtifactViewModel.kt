@@ -7,6 +7,7 @@ import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
+import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
 import com.nokaori.genshinaibuilder.domain.usecase.FilterArtifactsUseCase
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.data.ArtifactFilterState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -26,7 +28,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ArtifactViewModel @Inject constructor (
     private val artifactRepository: ArtifactRepository,
-    private val filterArtifactsUseCase: FilterArtifactsUseCase
+    private val filterArtifactsUseCase: FilterArtifactsUseCase,
+    private val themeRepository: ThemeRepository
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -50,7 +53,10 @@ class ArtifactViewModel @Inject constructor (
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     // Данные берутся из БД через репозиторий
-    val availableArtifactSets : StateFlow<List<ArtifactSet>> = artifactRepository.getAvailableArtifactSets()
+    val availableArtifactSets : StateFlow<List<ArtifactSet>> = themeRepository.appLanguage
+        .flatMapLatest { _ ->
+            artifactRepository.getAvailableArtifactSets()
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val filteredArtifactSets: StateFlow<List<ArtifactSet>> = combine(
@@ -66,8 +72,9 @@ class ArtifactViewModel @Inject constructor (
     val searchedArtifacts: StateFlow<List<Artifact>> = combine(
         artifactRepository.getArtifacts(),
         _searchQuery,
-        _activeArtifactFilterState
-    ) { artifacts, query, filters ->
+        _activeArtifactFilterState,
+        themeRepository.appLanguage
+    ) { artifacts, query, filters, _ ->
         filterArtifactsUseCase(
             artifacts,
             query,

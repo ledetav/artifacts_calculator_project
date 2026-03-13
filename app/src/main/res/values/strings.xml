@@ -181,4 +181,19 @@
 
     <string name="add_artifact_scan_multiple">Сканировать несколько артефактов</string>
     <string name="add_artifact_scan_multiple_desc">Выберите до 15 скриншотов для пакетной обработки</string>
+
+    <string name="lang_english">Английский</string>
+    <string name="lang_russian">Русский</string>
+    
+    <!-- Language Settings -->
+    <string name="settings_language_title">Язык данных</string>
+    <string name="settings_language_desc">Язык имен персонажей, оружия и артефактов</string>
+    <string name="lang_en">Английский</string>
+    <string name="lang_ru">Русский</string>
+    
+    <!-- Language Sync Dialog -->
+    <string name="language_sync_dialog_title">Загрузить данные для нового языка?</string>
+    <string name="language_sync_dialog_message">Данные для выбранного языка не найдены. Загрузить их сейчас?</string>
+    <string name="language_sync_dialog_download">Загрузить</string>
+    <string name="language_sync_dialog_later">Позже</string>
 </resources>

@@ -9,7 +9,6 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "user_weapons",
     foreignKeys = [
-        ForeignKey(entity = WeaponEntity::class, parentColumns = ["id"], childColumns = ["weapon_encyclopedia_id"], onDelete = ForeignKey.CASCADE),
         ForeignKey(entity = UserCharacterEntity::class, parentColumns = ["id"], childColumns = ["equipped_character_id"], onDelete = ForeignKey.SET_NULL)
     ],
     indices = [Index(value = ["weapon_encyclopedia_id"]), Index(value = ["equipped_character_id"])]

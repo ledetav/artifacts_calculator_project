@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
+import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ArtifactSetDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val repository: ArtifactRepository
+    private val repository: ArtifactRepository,
+    private val themeRepository: ThemeRepository
 ) : ViewModel() {
 
     private val setId: Int = checkNotNull(savedStateHandle["setId"])
@@ -30,9 +32,10 @@ class ArtifactSetDetailsViewModel @Inject constructor(
     private fun loadDetails() {
         viewModelScope.launch {
             try {
-                _details.value = repository.getArtifactSetDetails(setId)
+                val set = repository.getArtifactSetDetails(setId)
+                _details.value = set
             } catch (e: Exception) {
-                // Обработка ошибки
+                _details.value = null
             }
         }
     }

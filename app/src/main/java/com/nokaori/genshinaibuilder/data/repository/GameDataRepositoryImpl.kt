@@ -7,21 +7,25 @@ import com.nokaori.genshinaibuilder.data.local.entity.CharacterEntity
 import com.nokaori.genshinaibuilder.data.local.entity.WeaponEntity
 import com.nokaori.genshinaibuilder.data.remote.api.YattaApi
 import com.nokaori.genshinaibuilder.data.remote.mapper.*
+import com.nokaori.genshinaibuilder.domain.model.SupportedLanguages
 import com.nokaori.genshinaibuilder.domain.model.SyncStatus
 import com.nokaori.genshinaibuilder.domain.model.UiText
 import com.nokaori.genshinaibuilder.domain.repository.GameDataRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.first
 import java.util.Collections
 import javax.inject.Inject
+import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
 
 class GameDataRepositoryImpl @Inject constructor(
     private val characterDao: CharacterDao,
     private val statCurveDao: StatCurveDao,
     private val weaponDao: WeaponDao,
     private val artifactDao: ArtifactDao,
-    private val api: YattaApi
+    private val api: YattaApi,
+    private val themeRepository: ThemeRepository
 ) : GameDataRepository {
 
     override fun updateGameData(): Flow<SyncStatus> = channelFlow {
@@ -43,13 +47,10 @@ class GameDataRepositoryImpl @Inject constructor(
 
             log(UiText.StringResource(R.string.sync_log_parallel_start), 0.1f)
 
-            val totalNew = coroutineScope {
-                val charsJob = async { updateCharacters(::log) }
-                val weaponsJob = async { updateWeapons(::log) }
-                val artsJob = async { updateArtifacts(::log) }
-
-                charsJob.await() + weaponsJob.await() + artsJob.await()
-            }
+            val currentLanguage = themeRepository.appLanguage.first()
+            val totalNew = updateCharacters(currentLanguage, ::log) +
+                    updateWeapons(currentLanguage, ::log) +
+                    updateArtifacts(currentLanguage, ::log)
 
             val duration = (System.currentTimeMillis() - startTime) / 1000f
             val finalMsg = UiText.StringResource(R.string.sync_log_success, duration, totalNew)
@@ -65,12 +66,12 @@ class GameDataRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun updateCharacters(onLog: (UiText, Float) -> Unit): Int {
-        onLog(UiText.StringResource(R.string.sync_log_chars_start), 0f)
+    private suspend fun updateCharacters(language: String, onLog: (UiText, Float) -> Unit): Int {
+        onLog(UiText.DynamicString("[$language] Loading characters..."), 0f)
 
-        val listResponse = api.getAvatarList()
+        val listResponse = api.getAvatarList(language)
         val dtoList = listResponse.data.items.values
-        val basicEntities = dtoList.map { it.toEntity() }
+        val basicEntities = dtoList.map { it.toEntity(language) }
         val entityMap = dtoList.zip(basicEntities).associate { (dto, entity) -> dto.id!! to entity }
 
         val existingIds = characterDao.getAllCharacterIds().toSet()
@@ -87,12 +88,12 @@ class GameDataRepositoryImpl @Inject constructor(
                     async {
                         val id = dto.id ?: return@async
                         try {
-                            val details = api.getAvatarDetail(id).data
+                            val details = api.getAvatarDetail(language, id).data
                             val current = entityMap[id] as? CharacterEntity
                             if (current != null) {
                                 val updated = current.updateWithDetails(details)
-                                val (talents, consts) = mapTalentsAndConstellations(updated.id, details)
-                                val promo = mapPromotions(updated.id, details)
+                                val (talents, consts) = mapTalentsAndConstellations(updated.id, language, details)
+                                val promo = mapPromotions(updated.id, language, details)
 
                                 characterDao.insertCharacters(listOf(updated))
                                 characterDao.insertTalents(talents)
@@ -100,26 +101,26 @@ class GameDataRepositoryImpl @Inject constructor(
                                 characterDao.insertPromotions(promo)
                             }
                         } catch (e: Exception) {
-                            onLog(UiText.StringResource(R.string.sync_log_chars_error, dto.name ?: "Unknown"), 0f)
+                            onLog(UiText.DynamicString("[$language] Error loading ${dto.name ?: "Unknown"}"), 0f)
                         }
                     }
                 }.awaitAll()
             }
             processed += batch.size
-            if (processed % 10 == 0) onLog(UiText.StringResource(R.string.sync_log_chars_progress, processed, dtoList.size), 0f)
+            if (processed % 10 == 0) onLog(UiText.DynamicString("[$language] Characters: $processed/${dtoList.size}"), 0f)
             delay(50)
         }
 
-        onLog(UiText.StringResource(R.string.sync_log_chars_done, newCount), 0f)
+        onLog(UiText.DynamicString("[$language] Characters done: $newCount new"), 0f)
         return newCount
     }
 
-    private suspend fun updateWeapons(onLog: (UiText, Float) -> Unit): Int {
-        onLog(UiText.StringResource(R.string.sync_log_weapons_start), 0f)
+    private suspend fun updateWeapons(language: String, onLog: (UiText, Float) -> Unit): Int {
+        onLog(UiText.DynamicString("[$language] Loading weapons..."), 0f)
 
-        val listResponse = api.getWeaponList()
+        val listResponse = api.getWeaponList(language)
         val dtoList = listResponse.data.items.values.filter { it.isWeaponSkin != true }
-        val basicEntities = dtoList.map { it.toEntity() }
+        val basicEntities = dtoList.map { it.toEntity(language) }
         val entityMap = dtoList.zip(basicEntities).associate { (dto, entity) -> dto.id!! to entity }
 
         val existingIds = weaponDao.getAllWeaponIds().toSet()
@@ -136,12 +137,12 @@ class GameDataRepositoryImpl @Inject constructor(
                     async {
                         val id = dto.id ?: return@async
                         try {
-                            val details = api.getWeaponDetail(id).data
+                            val details = api.getWeaponDetail(language, id).data
                             val current = entityMap[id] as? WeaponEntity
                             if (current != null) {
                                 val updated = current.updateWithDetails(details)
-                                val refine = mapWeaponRefinements(updated.id, details)
-                                val promo = mapWeaponPromotions(updated.id, details)
+                                val refine = mapWeaponRefinements(updated.id, language, details)
+                                val promo = mapWeaponPromotions(updated.id, language, details)
 
                                 weaponDao.insertWeapons(listOf(updated))
                                 refine?.let { weaponDao.insertRefinements(listOf(it)) }
@@ -152,17 +153,17 @@ class GameDataRepositoryImpl @Inject constructor(
                 }.awaitAll()
             }
             processed += batch.size
-            if (processed % 20 == 0) onLog(UiText.StringResource(R.string.sync_log_weapons_progress, processed, dtoList.size), 0f)
+            if (processed % 20 == 0) onLog(UiText.DynamicString("[$language] Weapons: $processed/${dtoList.size}"), 0f)
             delay(50)
         }
 
-        onLog(UiText.StringResource(R.string.sync_log_weapons_done, newCount), 0f)
+        onLog(UiText.DynamicString("[$language] Weapons done: $newCount new"), 0f)
         return newCount
     }
 
-    private suspend fun updateArtifacts(onLog: (UiText, Float) -> Unit): Int {
-        onLog(UiText.StringResource(R.string.sync_log_artifacts_start), 0f)
-        val dtoList = api.getRelicList().data.items.values
+    private suspend fun updateArtifacts(language: String, onLog: (UiText, Float) -> Unit): Int {
+        onLog(UiText.DynamicString("[$language] Loading artifacts..."), 0f)
+        val dtoList = api.getRelicList(language).data.items.values
 
         val existingIds = artifactDao.getAllArtifactSetIds().toSet()
         val newCount = dtoList.count { it.id !in existingIds }
@@ -174,9 +175,9 @@ class GameDataRepositoryImpl @Inject constructor(
                 batch.map { dto ->
                     async {
                         try {
-                            val details = api.getRelicDetail(dto.id).data
-                            val set = details.toSetEntity()
-                            val pieces = mapRelicPieces(set.id, details)
+                            val details = api.getRelicDetail(language, dto.id).data
+                            val set = details.toSetEntity(language)
+                            val pieces = mapRelicPieces(set.id, language, details)
 
                             artifactDao.insertArtifactSets(listOf(set))
                             artifactDao.insertArtifactPieces(pieces)
@@ -187,7 +188,7 @@ class GameDataRepositoryImpl @Inject constructor(
             delay(50)
         }
 
-        onLog(UiText.StringResource(R.string.sync_log_artifacts_done, newCount), 0f)
+        onLog(UiText.DynamicString("[$language] Artifacts done: $newCount new"), 0f)
         return newCount
     }
 }

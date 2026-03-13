@@ -8,7 +8,6 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "user_characters",
-    foreignKeys = [ForeignKey(entity = CharacterEntity::class, parentColumns = ["id"], childColumns = ["character_encyclopedia_id"], onDelete = ForeignKey.CASCADE)],
     indices = [Index(value = ["character_encyclopedia_id"], unique = true)]
 )
 data class UserCharacterEntity(

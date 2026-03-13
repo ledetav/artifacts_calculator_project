@@ -7,6 +7,7 @@ import com.nokaori.genshinaibuilder.domain.model.*
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
 import com.nokaori.genshinaibuilder.domain.repository.CharacterRepository
 import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
+import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
 import com.nokaori.genshinaibuilder.domain.usecase.CalculateCharacterStatsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -19,7 +20,8 @@ class CharacterDetailsViewModel @Inject constructor(
     private val characterRepository: CharacterRepository,
     private val weaponRepository: WeaponRepository,
     private val artifactRepository: ArtifactRepository,
-    private val calculateStatsUseCase: CalculateCharacterStatsUseCase
+    private val calculateStatsUseCase: CalculateCharacterStatsUseCase,
+    private val themeRepository: ThemeRepository
 ) : ViewModel() {
 
     private val characterId: Int = checkNotNull(savedStateHandle["characterId"])
@@ -33,10 +35,16 @@ class CharacterDetailsViewModel @Inject constructor(
     val equippedWeapon: StateFlow<List<UserWeapon>> = weaponRepository.getUserWeapons()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
         
-    val talents: StateFlow<List<CharacterTalent>> = characterRepository.getTalents(characterId)
+    val talents: StateFlow<List<CharacterTalent>> = themeRepository.appLanguage
+        .flatMapLatest { _ ->
+            characterRepository.getTalents(characterId)
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val constellations: StateFlow<List<CharacterConstellation>> = characterRepository.getConstellations(characterId)
+    val constellations: StateFlow<List<CharacterConstellation>> = themeRepository.appLanguage
+        .flatMapLatest { _ ->
+            characterRepository.getConstellations(characterId)
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _promotions = MutableStateFlow<List<CharacterPromotion>>(emptyList())

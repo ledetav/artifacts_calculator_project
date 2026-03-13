@@ -12,7 +12,6 @@ import com.nokaori.genshinaibuilder.domain.model.StatType
 @Entity(
     tableName = "user_artifacts",
     foreignKeys = [
-        ForeignKey(entity = ArtifactSetEntity::class, parentColumns = ["id"], childColumns = ["set_id"], onDelete = ForeignKey.CASCADE),
         ForeignKey(entity = UserCharacterEntity::class, parentColumns = ["id"], childColumns = ["equipped_character_id"], onDelete = ForeignKey.SET_NULL)
     ],
     indices = [Index(value = ["set_id"]), Index(value = ["equipped_character_id"])]

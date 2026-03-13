@@ -1,5 +1,6 @@
 package com.nokaori.genshinaibuilder.presentation.ui.common.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ fun <T> BaseToggleButtonGroup(
     orientation: Orientation = Orientation.HORIZONTAL,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    onItemClick: ((T) -> Unit)? = null,
     itemContent: @Composable (item: T) -> Unit
 ) {
     Column(modifier = modifier) {
@@ -37,7 +39,13 @@ fun <T> BaseToggleButtonGroup(
                     horizontalArrangement = horizontalArrangement
                 ) {
                     items.forEach { item ->
-                        Box(modifier = Modifier.padding(end = 4.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .padding(end = 4.dp)
+                                .clickable(enabled = onItemClick != null) {
+                                    onItemClick?.invoke(item)
+                                }
+                        ) {
                             itemContent(item)
                         }
                     }
@@ -50,7 +58,13 @@ fun <T> BaseToggleButtonGroup(
                     verticalArrangement = verticalArrangement
                 ) {
                     items.forEach { item ->
-                        Box(modifier = Modifier.padding(bottom = 4.dp)){
+                        Box(
+                            modifier = Modifier
+                                .padding(bottom = 4.dp)
+                                .clickable(enabled = onItemClick != null) {
+                                    onItemClick?.invoke(item)
+                                }
+                        ){
                             itemContent(item)
                         }
                     }

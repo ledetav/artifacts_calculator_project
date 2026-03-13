@@ -7,9 +7,13 @@ import com.nokaori.genshinaibuilder.domain.model.Element
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
 
-@Entity(tableName = "characters_data")
+@Entity(
+    tableName = "characters_data",
+    primaryKeys = ["id", "language"]
+)
 data class CharacterEntity(
-    @PrimaryKey val id: Int,
+    val id: Int,
+    val language: String,
     val name: String,
     val rarity: Int,
     val element: Element, // Enum

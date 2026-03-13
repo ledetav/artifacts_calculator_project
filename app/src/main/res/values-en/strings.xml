@@ -181,4 +181,19 @@
 
     <string name="add_artifact_scan_multiple">Scan Multiple Artifacts</string>
     <string name="add_artifact_scan_multiple_desc">Select up to 15 screenshots for batch processing</string>
+
+    <string name="lang_english">English</string>
+    <string name="lang_russian">Russian</string>
+    
+    <!-- Language Settings -->
+    <string name="settings_language_title">Data Language</string>
+    <string name="settings_language_desc">Language of characters, weapons, and artifacts data</string>
+    <string name="lang_en">English</string>
+    <string name="lang_ru">Russian</string>
+    
+    <!-- Language Sync Dialog -->
+    <string name="language_sync_dialog_title">Download Data for New Language?</string>
+    <string name="language_sync_dialog_message">No data found for the selected language. Would you like to download it now?</string>
+    <string name="language_sync_dialog_download">Download</string>
+    <string name="language_sync_dialog_later">Later</string>
 </resources>
