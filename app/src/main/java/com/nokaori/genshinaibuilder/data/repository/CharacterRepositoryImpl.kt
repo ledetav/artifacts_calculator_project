@@ -111,4 +111,7 @@ class CharacterRepositoryImpl @Inject constructor (
             points = entity.points
         )
     }
-}
+
+    override suspend fun getCharacterCount(language: String): Int {
+        return characterDao.getCharacterCountByLanguage(language)
+    }

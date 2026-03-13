@@ -18,4 +18,5 @@ interface CharacterRepository {
     fun getConstellations(characterId: Int): Flow<List<CharacterConstellation>>
     suspend fun getCharacterPromotions(characterId: Int): List<CharacterPromotion>
     suspend fun getStatCurve(curveId: String): StatCurve?
+    suspend fun getCharacterCount(language: String): Int
 }
