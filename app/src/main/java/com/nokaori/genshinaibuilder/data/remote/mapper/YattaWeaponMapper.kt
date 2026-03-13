@@ -9,7 +9,7 @@ import com.nokaori.genshinaibuilder.domain.model.StatType
 
 private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI"
 
-fun YattaWeaponItemDto.toEntity(): WeaponEntity {
+fun YattaWeaponItemDto.toEntity(language: String): WeaponEntity {
     val safeId = this.id
     val safeName = this.name ?: "Unknown Weapon"
     val safeRank = this.rank ?: 1
@@ -19,6 +19,7 @@ fun YattaWeaponItemDto.toEntity(): WeaponEntity {
 
     return WeaponEntity(
         id = safeId.toIntOrNull() ?: safeId.hashCode(),
+        language = language,
         name = safeName,
         type = parseYattaWeaponType(safeType),
         rarity = safeRank,
@@ -49,7 +50,7 @@ fun WeaponEntity.updateWithDetails(dto: YattaWeaponDetailDto): WeaponEntity {
     )
 }
 
-fun mapWeaponRefinements(weaponId: Int, dto: YattaWeaponDetailDto): WeaponRefinementEntity? {
+fun mapWeaponRefinements(weaponId: Int, language: String, dto: YattaWeaponDetailDto): WeaponRefinementEntity? {
     val affixMap = dto.affix ?: return null
     val firstAffix = affixMap.values.firstOrNull() ?: return null
     
@@ -61,12 +62,13 @@ fun mapWeaponRefinements(weaponId: Int, dto: YattaWeaponDetailDto): WeaponRefine
 
     return WeaponRefinementEntity(
         weaponId = weaponId,
+        language = language,
         passiveName = passiveName,
         descriptions = descriptions.filter { it.isNotBlank() }.map { cleanDescription(it) }
     )
 }
 
-fun mapWeaponPromotions(weaponId: Int, dto: YattaWeaponDetailDto): List<WeaponPromotionEntity> {
+fun mapWeaponPromotions(weaponId: Int, language: String, dto: YattaWeaponDetailDto): List<WeaponPromotionEntity> {
     val promoteList = dto.upgrade?.promote ?: return emptyList()
 
     return promoteList.map { pDto ->
@@ -74,6 +76,7 @@ fun mapWeaponPromotions(weaponId: Int, dto: YattaWeaponDetailDto): List<WeaponPr
 
         WeaponPromotionEntity(
             weaponId = weaponId,
+            language = language,
             ascensionLevel = pDto.level ?: 0,
             addAtk = addProps["FIGHT_PROP_BASE_ATTACK"]?.toFloat() ?: 0f,
             addSubStat = addProps[dto.specialProp]?.toFloat() 

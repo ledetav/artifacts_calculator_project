@@ -8,7 +8,7 @@ import java.util.Locale
 
 private const val ASSETS_URL = "https://gi.yatta.moe/assets/UI"
 
-fun YattaAvatarDto.toEntity(): CharacterEntity {
+fun YattaAvatarDto.toEntity(language: String): CharacterEntity {
     val safeIcon = this.iconName ?: "UI_AvatarIcon_Ayaka"
     val safeElement = this.element ?: ""
     val safeWeapon = this.weaponType ?: ""
@@ -41,6 +41,7 @@ fun YattaAvatarDto.toEntity(): CharacterEntity {
 
     return CharacterEntity(
         id = finalId,
+        language = language,
         name = displayName,
         rarity = safeRank,
         element = elementEnum,
