@@ -37,8 +37,7 @@ fun ArtifactScannerScreen(
     onScanComplete: (ParsedArtifactData) -> Unit,
     onBatchScanComplete: (List<ParsedArtifactData>) -> Unit,
     onBackClick: () -> Unit,
-    onRetakeCameraClick: () -> Unit,
-    onManualEntryClick: () -> Unit,
+    onRepickClick: (() -> Unit)? = null,
     viewModel: ArtifactScannerViewModel = hiltViewModel()
 ) {
     var actualImageSize by remember { mutableStateOf(IntSize.Zero) }
@@ -70,16 +69,20 @@ fun ArtifactScannerScreen(
 
     if (scannerState.result is ScannerResult.Error) {
         AlertDialog(
-            onDismissRequest = onBackClick, // Закрываем при клике вне окна
+            onDismissRequest = onBackClick,
             title = { Text(stringResource(R.string.scan_failed_title)) },
-            text = { Text(stringResource(R.string.scan_failed_message)) },
+            text = { Text((scannerState.result as ScannerResult.Error).message) },
             confirmButton = {
-                TextButton(onClick = onRetakeCameraClick) {
-                    Text(stringResource(R.string.action_retake))
+                if (onRepickClick != null) {
+                    TextButton(onClick = onRepickClick) {
+                        Text(stringResource(R.string.action_repick))
+                    }
                 }
             },
             dismissButton = {
-                TextButton(onClick = onManualEntryClick) {
+                TextButton(onClick = {
+                    onBackClick()
+                }) {
                     Text(stringResource(R.string.action_manual))
                 }
             }
@@ -95,9 +98,10 @@ fun ArtifactScannerScreen(
                         if (scannerState.totalToProcess > 0) {
                             Text(
                                 text = stringResource(
-                                    id = R.string.scanner_processing_batch,
-                                    scannerState.currentProcessingIndex,
-                                    scannerState.totalToProcess
+                                    id = R.string.scanner_batch_stats,
+                                    scannerState.totalToProcess,
+                                    scannerState.successfulScans,
+                                    scannerState.failedScans
                                 ),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant

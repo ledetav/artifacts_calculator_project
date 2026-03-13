@@ -420,23 +420,11 @@ fun AppContent() {
                                         ?.savedStateHandle
                                         ?.set("scanned_artifact_data", parsedData)
                                 },
-                                onBatchScanComplete = { parsedBatch ->
-                                    navController.navigate("artifact/editor/null") {
-                                        popUpTo("artifact/scanner/batch/{imageUris}") { inclusive = true }
-                                    }
-                                    navController.currentBackStackEntry
-                                        ?.savedStateHandle
-                                        ?.set("scanned_artifact_batch", parsedBatch)
-                                },
+                                onBatchScanComplete = {},
                                 onBackClick = { navController.popBackStack() },
-                                onRetakeCameraClick = {
+                                onRepickClick = {
                                     navController.popBackStack()
-                                    showCameraScreen = true
-                                },
-                                onManualEntryClick = {
-                                    navController.navigate("artifact/editor/null") {
-                                        popUpTo("artifact/scanner/{imageUri}") { inclusive = true }
-                                    }
+                                    showAddArtifactSheet = true 
                                 }
                             )
                         }
@@ -457,14 +445,7 @@ fun AppContent() {
                             
                             ArtifactScannerScreen(
                                 imageUriString = null,
-                                onScanComplete = { parsedData ->
-                                    navController.navigate("artifact/editor/null") {
-                                        popUpTo("artifact/scanner/batch/{imageUris}") { inclusive = true }
-                                    }
-                                    navController.currentBackStackEntry
-                                        ?.savedStateHandle
-                                        ?.set("scanned_artifact_data", parsedData)
-                                },
+                                onScanComplete = {},
                                 onBatchScanComplete = { parsedBatch ->
                                     navController.navigate("artifact/editor/null") {
                                         popUpTo("artifact/scanner/batch/{imageUris}") { inclusive = true }
@@ -473,16 +454,8 @@ fun AppContent() {
                                         ?.savedStateHandle
                                         ?.set("scanned_artifact_batch", parsedBatch)
                                 },
-                                onRetakeCameraClick = {
-                                    navController.popBackStack()
-                                    showCameraScreen = true 
-                                },
-                                onManualEntryClick = {
-                                    navController.navigate("artifact/editor/null") {
-                                        popUpTo("artifact/scanner/batch/{imageUris}") { inclusive = true }
-                                    }
-                                },
-                                onBackClick = { navController.popBackStack() }
+                                onBackClick = { navController.popBackStack() },
+                                onRepickClick = null 
                             )
                         }
                     }
