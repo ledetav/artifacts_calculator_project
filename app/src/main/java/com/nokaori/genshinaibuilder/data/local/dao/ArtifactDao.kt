@@ -12,33 +12,33 @@ import androidx.paging.PagingSource
 @Dao
 interface ArtifactDao {
     // --- SETS ---
-    @Query("SELECT * FROM artifact_sets_data ORDER BY name ASC")
-    fun getAllArtifactSets(): Flow<List<ArtifactSetEntity>>
+    @Query("SELECT * FROM artifact_sets_data WHERE language = :language ORDER BY name ASC")
+    fun getAllArtifactSets(language: String): Flow<List<ArtifactSetEntity>>
 
-    @Query("SELECT * FROM artifact_sets_data ORDER BY name ASC")
-    fun getAllArtifactSetsPaging(): PagingSource<Int, ArtifactSetEntity>
+    @Query("SELECT * FROM artifact_sets_data WHERE language = :language ORDER BY name ASC")
+    fun getAllArtifactSetsPaging(language: String): PagingSource<Int, ArtifactSetEntity>
 
-    @Query("SELECT icon_url FROM artifact_sets_data UNION SELECT icon_url FROM artifact_pieces_data")
-    suspend fun getAllArtifactUrls(): List<String>
+    @Query("SELECT icon_url FROM artifact_sets_data WHERE language = :language UNION SELECT icon_url FROM artifact_pieces_data WHERE language = :language")
+    suspend fun getAllArtifactUrls(language: String): List<String>
 
-    @Query("SELECT * FROM artifact_sets_data WHERE name LIKE '%' || :query || '%' ORDER BY name ASC")
-    fun searchArtifactSets(query: String): Flow<List<ArtifactSetEntity>>
+    @Query("SELECT * FROM artifact_sets_data WHERE language = :language AND name LIKE '%' || :query || '%' ORDER BY name ASC")
+    fun searchArtifactSets(language: String, query: String): Flow<List<ArtifactSetEntity>>
 
-    @Query("SELECT * FROM artifact_sets_data WHERE id = :setId")
-    suspend fun getArtifactSetById(setId: Int): ArtifactSetEntity?
+    @Query("SELECT * FROM artifact_sets_data WHERE id = :setId AND language = :language")
+    suspend fun getArtifactSetById(setId: Int, language: String): ArtifactSetEntity?
 
-    @Query("SELECT id FROM artifact_sets_data")
+    @Query("SELECT DISTINCT id FROM artifact_sets_data")
     suspend fun getAllArtifactSetIds(): List<Int>
 
-    @Query("SELECT * FROM artifact_sets_data WHERE name = :name LIMIT 1")
-    suspend fun getSetByName(name: String): ArtifactSetEntity?
+    @Query("SELECT * FROM artifact_sets_data WHERE language = :language AND name = :name LIMIT 1")
+    suspend fun getSetByName(language: String, name: String): ArtifactSetEntity?
 
     @Upsert
     suspend fun insertArtifactSets(sets: List<ArtifactSetEntity>)
 
     // --- PIECES ---
-    @Query("SELECT * FROM artifact_pieces_data WHERE set_id = :setId")
-    fun getPiecesBySetId(setId: Int): Flow<List<ArtifactPieceEntity>>
+    @Query("SELECT * FROM artifact_pieces_data WHERE set_id = :setId AND language = :language")
+    fun getPiecesBySetId(setId: Int, language: String): Flow<List<ArtifactPieceEntity>>
 
     @Upsert
     suspend fun insertArtifactPieces(pieces: List<ArtifactPieceEntity>)
