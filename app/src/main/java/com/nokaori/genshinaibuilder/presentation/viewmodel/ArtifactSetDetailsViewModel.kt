@@ -10,9 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,9 +22,21 @@ class ArtifactSetDetailsViewModel @Inject constructor(
 
     private val setId: Int = checkNotNull(savedStateHandle["setId"])
 
-    val details: StateFlow<ArtifactSet?> = themeRepository.appLanguage
-        .flatMapLatest { _ ->
-            repository.getArtifactSetDetailsFlow(setId)
+    private val _details = MutableStateFlow<ArtifactSet?>(null)
+    val details: StateFlow<ArtifactSet?> = _details.asStateFlow()
+
+    init {
+        loadDetails()
+    }
+
+    private fun loadDetails() {
+        viewModelScope.launch {
+            try {
+                val set = repository.getArtifactSetDetails(setId)
+                _details.value = set
+            } catch (e: Exception) {
+                _details.value = null
+            }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    }
 }

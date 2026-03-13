@@ -10,9 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,9 +22,21 @@ class WeaponDetailsViewModel @Inject constructor(
 
     private val weaponId: Int = checkNotNull(savedStateHandle["weaponId"])
 
-    val weapon: StateFlow<Weapon?> = themeRepository.appLanguage
-        .flatMapLatest { _ ->
-            repository.getWeaponDetailsFlow(weaponId)
+    private val _weapon = MutableStateFlow<Weapon?>(null)
+    val weapon: StateFlow<Weapon?> = _weapon.asStateFlow()
+
+    init {
+        loadWeapon()
+    }
+
+    private fun loadWeapon() {
+        viewModelScope.launch {
+            try {
+                val w = repository.getWeaponDetails(weaponId)
+                _weapon.value = w
+            } catch (e: Exception) {
+                _weapon.value = null
+            }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    }
 }

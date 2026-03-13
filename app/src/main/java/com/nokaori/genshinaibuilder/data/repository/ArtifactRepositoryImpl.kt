@@ -15,6 +15,7 @@ import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.Rarity
 import com.nokaori.genshinaibuilder.domain.model.StatCurve
 import com.nokaori.genshinaibuilder.domain.model.StatType
+import com.nokaori.genshinaibuilder.domain.model.SupportedLanguages
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -26,6 +27,7 @@ class ArtifactRepositoryImpl @Inject constructor (
     private val userDao: UserDao,
     private val statCurveDao: StatCurveDao
 ) : ArtifactRepository {
+    private val defaultLanguage = SupportedLanguages.EN
 
     override fun getArtifacts(): Flow<List<Artifact>> {
         return userDao.getUserArtifactsComplete().map { list ->
@@ -36,7 +38,7 @@ class ArtifactRepositoryImpl @Inject constructor (
     override fun getAvailableArtifactSetsPaged(): Flow<PagingData<ArtifactSet>> {
         return Pager(
             config = PagingConfig(pageSize = 20),
-            pagingSourceFactory = { artifactDao.getAllArtifactSetsPaging() }
+            pagingSourceFactory = { artifactDao.getAllArtifactSetsPaging(defaultLanguage) }
         ).flow.map { pagingData ->
             pagingData.map { entity ->
                 entity.toDomain()
@@ -45,27 +47,24 @@ class ArtifactRepositoryImpl @Inject constructor (
     }
 
     override suspend fun getAllArtifactUrls(): List<String> {
-        return artifactDao.getAllArtifactUrls()
+        return artifactDao.getAllArtifactUrls(defaultLanguage)
     }
 
     override fun getAvailableArtifactSets(): Flow<List<ArtifactSet>> {
-        return artifactDao.getAllArtifactSets().map { list ->
+        return artifactDao.getAllArtifactSets(defaultLanguage).map { list ->
             list.map { it.toDomain() }
         }
     }
 
     override suspend fun addArtifact(artifact: Artifact) {
-        // Ищем ID сета по имени
-        val setEntity = artifactDao.getSetByName(artifact.setName)
+        val setEntity = artifactDao.getSetByName(defaultLanguage, artifact.setName)
             ?: throw IllegalArgumentException("Set '${artifact.setName}' not found")
 
-        // Приводим значение стата к Float для БД
         val mainStatVal = when (val v = artifact.mainStat.value) {
             is com.nokaori.genshinaibuilder.domain.model.StatValue.IntValue -> v.value.toFloat()
             is com.nokaori.genshinaibuilder.domain.model.StatValue.DoubleValue -> v.value.toFloat()
         }
 
-        // Создаем Entity
         val entity = UserArtifactEntity(
             id = 0,
             setId = setEntity.id,
@@ -75,7 +74,7 @@ class ArtifactRepositoryImpl @Inject constructor (
             isLocked = artifact.isLocked,
             mainStatType = artifact.mainStat.type,
             mainStatValue = mainStatVal,
-            subStats = artifact.subStats, // Конвертер сделает JSON
+            subStats = artifact.subStats,
             equippedCharacterId = null
         )
 
@@ -83,10 +82,10 @@ class ArtifactRepositoryImpl @Inject constructor (
     }
 
     override suspend fun getArtifactSetDetails(setId: Int): ArtifactSet {
-        val setEntity = artifactDao.getArtifactSetById(setId)
+        val setEntity = artifactDao.getArtifactSetById(setId, defaultLanguage)
             ?: throw IllegalStateException("Set not found")
 
-        val piecesEntities = artifactDao.getPiecesBySetId(setId).first()
+        val piecesEntities = artifactDao.getPiecesBySetId(setId, defaultLanguage).first()
 
         return setEntity.toDomain(pieces = piecesEntities)
     }
@@ -138,10 +137,9 @@ class ArtifactRepositoryImpl @Inject constructor (
     }
 
     override suspend fun updateArtifact(artifact: Artifact) {
-        // Получаем старую запись, чтобы не затереть equippedCharacterId, если он был
         val existingEntity = userDao.getUserArtifactById(artifact.id) ?: return
         
-        val setEntity = artifactDao.getSetByName(artifact.setName)
+        val setEntity = artifactDao.getSetByName(defaultLanguage, artifact.setName)
             ?: throw IllegalArgumentException("Set '${artifact.setName}' not found")
 
         val mainStatVal = when (val v = artifact.mainStat.value) {
@@ -150,7 +148,7 @@ class ArtifactRepositoryImpl @Inject constructor (
         }
 
         val entity = UserArtifactEntity(
-            id = artifact.id, // Сохраняем ID для обновления
+            id = artifact.id,
             setId = setEntity.id,
             slot = artifact.slot,
             rarity = artifact.rarity.stars,
@@ -159,7 +157,7 @@ class ArtifactRepositoryImpl @Inject constructor (
             mainStatType = artifact.mainStat.type,
             mainStatValue = mainStatVal,
             subStats = artifact.subStats,
-            equippedCharacterId = existingEntity.equippedCharacterId // Сохраняем привязку к персонажу
+            equippedCharacterId = existingEntity.equippedCharacterId
         )
 
         userDao.updateUserArtifact(entity)
