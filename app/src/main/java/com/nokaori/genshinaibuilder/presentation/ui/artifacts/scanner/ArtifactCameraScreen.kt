@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -46,7 +47,10 @@ fun ArtifactCameraScreen(
     val context = LocalContext.current
     var hasPermission by remember { mutableStateOf(false) }
     
+    // Состояния
     var cameraState by remember { mutableStateOf(CameraState.WARMUP) }
+    var isPreviewReady by remember { mutableStateOf(false) }
+    
     val imageCapture = remember { ImageCapture.Builder().build() }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -63,12 +67,10 @@ fun ArtifactCameraScreen(
         }
     }
 
-    LaunchedEffect(hasPermission) {
-        if (hasPermission) {
-            delay(2000L)
-            if (cameraState == CameraState.WARMUP) {
-                cameraState = CameraState.AIMING 
-            }
+    LaunchedEffect(isPreviewReady) {
+        if (isPreviewReady && cameraState == CameraState.WARMUP) {
+            delay(1000L) 
+            cameraState = CameraState.AIMING
         }
     }
 
@@ -77,6 +79,7 @@ fun ArtifactCameraScreen(
             
             CameraPreview(
                 imageCapture = imageCapture,
+                onPreviewStarted = { isPreviewReady = true },
                 modifier = Modifier.fillMaxSize()
             )
 
@@ -90,7 +93,7 @@ fun ArtifactCameraScreen(
                             imageCapture = imageCapture,
                             onImageCaptured = onImageCaptured,
                             onError = { 
-                                cameraState = CameraState.AIMING
+                                cameraState = CameraState.AIMING // Возвращаем в сканирование при ошибке
                                 Log.e("ArtifactCameraScreen", "Capture error", it)
                             }
                         )
@@ -128,11 +131,25 @@ fun ArtifactCameraScreen(
 @Composable
 private fun CameraPreview(
     imageCapture: ImageCapture,
+    onPreviewStarted: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val previewView = remember { PreviewView(context) }
+
+    DisposableEffect(previewView, lifecycleOwner) {
+        val observer = Observer<PreviewView.StreamState> { state ->
+            if (state == PreviewView.StreamState.STREAMING) {
+                onPreviewStarted()
+            }
+        }
+        previewView.previewStreamState.observe(lifecycleOwner, observer)
+
+        onDispose {
+            previewView.previewStreamState.removeObserver(observer)
+        }
+    }
 
     LaunchedEffect(previewView) {
         val cameraProvider = context.getCameraProvider()
