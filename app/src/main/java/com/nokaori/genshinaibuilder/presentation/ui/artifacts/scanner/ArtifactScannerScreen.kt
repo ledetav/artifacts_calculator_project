@@ -39,7 +39,6 @@ fun ArtifactScannerScreen(
     onBackClick: () -> Unit,
     viewModel: ArtifactScannerViewModel = hiltViewModel()
 ) {
-    var imageSize by remember { mutableStateOf(IntSize.Zero) }
     var actualImageSize by remember { mutableStateOf(IntSize.Zero) }
     val scannerState by viewModel.scannerState.collectAsStateWithLifecycle()
 
@@ -92,8 +91,7 @@ fun ArtifactScannerScreen(
                     }
                 }
             )
-        },
-        contentWindowInsets = WindowInsets(0.dp)
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -108,49 +106,49 @@ fun ArtifactScannerScreen(
                     .fillMaxWidth()
                     .weight(1f)
                     .clip(MaterialTheme.shapes.medium)
-                    .background(Color.Black.copy(alpha = 0.05f))
-                    .onGloballyPositioned { coordinates ->
-                        imageSize = coordinates.size
-                    }
+                    .background(Color.Black.copy(alpha = 0.05f)),
+                contentAlignment = Alignment.Center
             ) {
                 if (displayUri != null) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(displayUri)
-                            .build(),
-                        contentDescription = "Artifact Screenshot",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .onGloballyPositioned { coordinates ->
-                                actualImageSize = coordinates.size
-                            }
-                    )
-                }
-
-                if (scannerState.isProcessing && actualImageSize.height > 0) {
-                    val infiniteTransition = rememberInfiniteTransition(label = "scanner")
-                    val laserY by infiniteTransition.animateFloat(
-                        initialValue = 0f,
-                        targetValue = actualImageSize.height.toFloat(),
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(durationMillis = 2000, easing = LinearEasing),
-                            repeatMode = RepeatMode.Reverse
-                        ),
-                        label = "laser_y"
-                    )
-
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(3.dp)
-                            .offset(y = with(LocalDensity.current) { laserY.toDp() })
-                            .background(
-                                brush = Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFFFF4081), Color(0xFFD500F9), Color(0xFF00E5FF))
-                                )
+                        modifier = Modifier.onGloballyPositioned { coordinates ->
+                            actualImageSize = coordinates.size
+                        }
+                    ) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(displayUri)
+                                .build(),
+                            contentDescription = "Artifact Screenshot",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                        )
+
+                        if (scannerState.isProcessing && actualImageSize.height > 0) {
+                            val infiniteTransition = rememberInfiniteTransition(label = "scanner")
+                            val laserY by infiniteTransition.animateFloat(
+                                initialValue = 0f,
+                                targetValue = actualImageSize.height.toFloat(),
+                                animationSpec = infiniteRepeatable(
+                                    animation = tween(durationMillis = 2000, easing = LinearEasing),
+                                    repeatMode = RepeatMode.Reverse
+                                ),
+                                label = "laser_y"
                             )
-                    )
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(3.dp)
+                                    .offset(y = with(LocalDensity.current) { laserY.toDp() })
+                                    .background(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(Color(0xFFFF4081), Color(0xFFD500F9), Color(0xFF00E5FF))
+                                        )
+                                    )
+                            )
+                        }
+                    }
                 }
             }
 
