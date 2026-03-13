@@ -10,7 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.DocumentScanner
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -27,9 +27,12 @@ fun AddArtifactSelectionSheet(
     onManualEntrySelected: () -> Unit,
     onImageSelected: (Uri) -> Unit,
     onMultipleImagesSelected: (List<Uri>) -> Unit,
+    onCameraClick: () -> Unit,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 ) {
     val context = LocalContext.current
+    
+    var showSourceDialog by remember { mutableStateOf(false) }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -50,6 +53,36 @@ fun AddArtifactSelectionSheet(
             }
         }
     )
+
+    if (showSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showSourceDialog = false },
+            title = { Text(text = stringResource(id = R.string.choose_image_source)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showSourceDialog = false
+                        onDismissRequest()
+                        onCameraClick()
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.source_camera))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showSourceDialog = false
+                        photoPickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.source_gallery))
+                }
+            }
+        )
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -84,9 +117,7 @@ fun AddArtifactSelectionSheet(
                 subtitle = stringResource(id = R.string.add_artifact_scan_desc),
                 icon = Icons.Default.DocumentScanner,
                 onClick = {
-                    photoPickerLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
+                    showSourceDialog = true
                 }
             )
 

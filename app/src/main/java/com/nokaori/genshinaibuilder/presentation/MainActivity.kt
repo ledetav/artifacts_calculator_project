@@ -2,11 +2,8 @@ package com.nokaori.genshinaibuilder.presentation
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,6 +54,7 @@ import com.nokaori.genshinaibuilder.domain.util.ParsedArtifactData
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.ArtifactScreen
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.components.AddArtifactSelectionSheet
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.editor.EditorArtifactScreen
+import com.nokaori.genshinaibuilder.presentation.ui.artifacts.scanner.ArtifactCameraScreen
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.scanner.ArtifactScannerScreen
 import com.nokaori.genshinaibuilder.presentation.ui.characters.CharacterScreen
 import com.nokaori.genshinaibuilder.presentation.ui.characters.details.CharacterDetailsScreen
@@ -113,6 +111,7 @@ fun AppContent() {
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
 
     var showAddArtifactSheet by remember { mutableStateOf(false) }
+    var showCameraScreen by remember { mutableStateOf(false) }
 
     val allNavItems = listOf(
         NavigationItem.Encyclopedia,
@@ -217,6 +216,19 @@ fun AppContent() {
                     }
                 }
             ) {
+                if (showCameraScreen) {
+                    ArtifactCameraScreen(
+                        onImageCaptured = { uri ->
+                            showCameraScreen = false
+                            val encodedUri = URLEncoder.encode(uri.toString(), StandardCharsets.UTF_8.toString())
+                            navController.navigate("artifact/scanner/$encodedUri")
+                        },
+                        onClose = {
+                            showCameraScreen = false
+                        }
+                    )
+                }
+
                 if (showAddArtifactSheet) {
                     AddArtifactSelectionSheet(
                         onDismissRequest = { showAddArtifactSheet = false },
@@ -233,6 +245,10 @@ fun AppContent() {
                             showAddArtifactSheet = false
                             val encodedUris = uris.map { URLEncoder.encode(it.toString(), StandardCharsets.UTF_8.toString()) }
                             navController.navigate("artifact/scanner/batch/${encodedUris.joinToString(",")}")
+                        },
+                        onCameraClick = {
+                            showAddArtifactSheet = false
+                            showCameraScreen = true
                         }
                     )
                 }
