@@ -70,4 +70,7 @@ interface CharacterDao {
 
     @Query("DELETE FROM characters_data")
     suspend fun clearAllCharacters()
+
+    @Query("SELECT COUNT(*) FROM characters_data WHERE language = :language")
+    suspend fun getCharacterCountByLanguage(language: String): Int
 }
