@@ -181,4 +181,7 @@
 
     <string name="add_artifact_scan_multiple">Scan Multiple Artifacts</string>
     <string name="add_artifact_scan_multiple_desc">Select up to 15 screenshots for batch processing</string>
+
+    <string name="lang_english">English</string>
+    <string name="lang_russian">Russian</string>
 </resources>

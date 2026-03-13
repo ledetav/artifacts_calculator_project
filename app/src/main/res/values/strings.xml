@@ -181,4 +181,7 @@
 
     <string name="add_artifact_scan_multiple">Сканировать несколько артефактов</string>
     <string name="add_artifact_scan_multiple_desc">Выберите до 15 скриншотов для пакетной обработки</string>
+
+    <string name="lang_english">Английский</string>
+    <string name="lang_russian">Русский</string>
 </resources>
