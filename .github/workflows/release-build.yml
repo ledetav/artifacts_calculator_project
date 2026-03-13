@@ -31,6 +31,16 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    - name: 🗄️ Cache C++ build (.cxx)
+      uses: actions/cache@v4
+      with:
+        path: app/.cxx
+        # Ключ обновляется при изменении CMakeLists или любых C/C++ файлов
+        key: ${{ runner.os }}-cxx-${{ hashFiles('**/CMakeLists.txt', '**/*.cpp', '**/*.hpp', '**/*.c', '**/*.h') }}
+        # Если точного совпадения нет, берем последний доступный кэш для этой ОС
+        restore-keys: |
+          ${{ runner.os }}-cxx-
+
     - name: 🔨 Notify Build Start
       uses: appleboy/telegram-action@master
       with:
