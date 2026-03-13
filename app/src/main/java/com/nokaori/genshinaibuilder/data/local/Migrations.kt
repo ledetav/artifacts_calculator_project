@@ -154,3 +154,10 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
         db.execSQL("CREATE INDEX IF NOT EXISTS index_weapon_refinements_weapon_id_language ON weapon_refinements(weapon_id, language)")
     }
 }
+
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Добавляем новую колонку character_language в таблицу character_builds
+        db.execSQL("ALTER TABLE character_builds ADD COLUMN character_language TEXT NOT NULL DEFAULT 'en'")
+    }
+}
