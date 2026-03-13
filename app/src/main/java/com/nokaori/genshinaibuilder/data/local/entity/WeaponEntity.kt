@@ -6,9 +6,13 @@ import androidx.room.PrimaryKey
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
 
-@Entity(tableName = "weapons_data")
+@Entity(
+    tableName = "weapons_data",
+    primaryKeys = ["id", "language"]
+)
 data class WeaponEntity(
-    @PrimaryKey val id: Int,
+    val id: Int,
+    val language: String,
     val name: String,
     val type: WeaponType, // Enum
     val rarity: Int,

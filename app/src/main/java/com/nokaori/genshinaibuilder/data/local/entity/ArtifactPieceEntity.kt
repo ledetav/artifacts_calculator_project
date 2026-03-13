@@ -9,11 +9,13 @@ import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 
 @Entity(
     tableName = "artifact_pieces_data",
-    foreignKeys = [ForeignKey(entity = ArtifactSetEntity::class, parentColumns = ["id"], childColumns = ["set_id"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index(value = ["set_id"])]
+    primaryKeys = ["id", "language"],
+    foreignKeys = [ForeignKey(entity = ArtifactSetEntity::class, parentColumns = ["id", "language"], childColumns = ["set_id", "language"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index(value = ["set_id", "language"])]
 )
 data class ArtifactPieceEntity(
-    @PrimaryKey val id: Int,
+    val id: Int,
+    val language: String,
     @ColumnInfo(name = "set_id") val setId: Int,
     val slot: ArtifactSlot, // Enum
     val name: String,

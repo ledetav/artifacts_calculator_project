@@ -8,12 +8,13 @@ import com.nokaori.genshinaibuilder.domain.model.TalentType
 
 @Entity(
     tableName = "character_constellations",
-    primaryKeys = ["character_id", "order"],
-    foreignKeys = [ForeignKey(entity = CharacterEntity::class, parentColumns = ["id"], childColumns = ["character_id"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index(value = ["character_id"])]
+    primaryKeys = ["character_id", "language", "order"],
+    foreignKeys = [ForeignKey(entity = CharacterEntity::class, parentColumns = ["id", "language"], childColumns = ["character_id", "language"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index(value = ["character_id", "language"])]
 )
 data class CharacterConstellationEntity(
     @ColumnInfo(name = "character_id") val characterId: Int,
+    val language: String,
     val order: Int,
     val name: String,
     val description: String,
