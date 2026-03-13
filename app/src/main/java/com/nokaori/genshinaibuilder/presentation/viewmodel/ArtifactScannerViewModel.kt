@@ -82,7 +82,8 @@ class ArtifactScannerViewModel @Inject constructor(
             try {
                 uris.forEachIndexed { index, uri ->
                     _scannerState.update { it.copy(
-                        currentProcessingIndex = index + 1
+                        currentProcessingIndex = index + 1,
+                        currentImageUri = uri
                     )}
                     
                     try {
@@ -139,7 +140,10 @@ class ArtifactScannerViewModel @Inject constructor(
             val parsedArtifacts = mutableListOf<ParsedArtifactData>()
 
             for ((index, uri) in uris.withIndex()) {
-                _scannerState.update { it.copy(currentProcessingIndex = index + 1) }
+                _scannerState.update { it.copy(
+                    currentProcessingIndex = index + 1,
+                    currentImageUri = uri
+                )}
                 
                 try {
                     delay(300)
@@ -193,6 +197,7 @@ data class ArtifactScannerState(
     val isProcessing: Boolean = false,
     val totalToProcess: Int = 0,
     val currentProcessingIndex: Int = 0,
+    val currentImageUri: Uri? = null,
     val result: ScannerResult = ScannerResult.Idle
 ) {
     val progress: Float get() = if (totalToProcess > 0) {

@@ -40,11 +40,14 @@ fun ArtifactScannerScreen(
     viewModel: ArtifactScannerViewModel = hiltViewModel()
 ) {
     var imageSize by remember { mutableStateOf(IntSize.Zero) }
+    var actualImageSize by remember { mutableStateOf(IntSize.Zero) }
     val scannerState by viewModel.scannerState.collectAsStateWithLifecycle()
 
     val decodedUri = remember(imageUriString) {
         imageUriString?.let { Uri.parse(URLDecoder.decode(it, "UTF-8")) }
     }
+
+    val displayUri = scannerState.currentImageUri ?: decodedUri
 
     LaunchedEffect(decodedUri) {
         if (decodedUri != null) {
@@ -89,13 +92,14 @@ fun ArtifactScannerScreen(
                     }
                 }
             )
-        }
+        },
+        contentWindowInsets = WindowInsets(0.dp)
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -109,22 +113,26 @@ fun ArtifactScannerScreen(
                         imageSize = coordinates.size
                     }
             ) {
-                if (decodedUri != null) {
+                if (displayUri != null) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(decodedUri)
+                            .data(displayUri)
                             .build(),
                         contentDescription = "Artifact Screenshot",
                         contentScale = ContentScale.Fit,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .onGloballyPositioned { coordinates ->
+                                actualImageSize = coordinates.size
+                            }
                     )
                 }
 
-                if (scannerState.isProcessing && imageSize.height > 0) {
+                if (scannerState.isProcessing && actualImageSize.height > 0) {
                     val infiniteTransition = rememberInfiniteTransition(label = "scanner")
                     val laserY by infiniteTransition.animateFloat(
                         initialValue = 0f,
-                        targetValue = imageSize.height.toFloat(),
+                        targetValue = actualImageSize.height.toFloat(),
                         animationSpec = infiniteRepeatable(
                             animation = tween(durationMillis = 2000, easing = LinearEasing),
                             repeatMode = RepeatMode.Reverse
