@@ -31,9 +31,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.presentation.util.sensor.SteadySensorEffect
+import kotlinx.coroutines.delay
 import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
+private enum class CameraState { WARMUP, AIMING, CAPTURING }
 
 @Composable
 fun ArtifactCameraScreen(
@@ -42,16 +45,15 @@ fun ArtifactCameraScreen(
 ) {
     val context = LocalContext.current
     var hasPermission by remember { mutableStateOf(false) }
-    var isCapturing by remember { mutableStateOf(false) }
+    
+    var cameraState by remember { mutableStateOf(CameraState.WARMUP) }
     val imageCapture = remember { ImageCapture.Builder().build() }
 
-    // Контракт для запроса разрешений
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { granted -> hasPermission = granted }
     )
 
-    // При старте проверяем разрешение
     LaunchedEffect(Unit) {
         val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
         if (permissionCheckResult == android.content.pm.PackageManager.PERMISSION_GRANTED) {
@@ -61,26 +63,34 @@ fun ArtifactCameraScreen(
         }
     }
 
+    LaunchedEffect(hasPermission) {
+        if (hasPermission) {
+            delay(2000L)
+            if (cameraState == CameraState.WARMUP) {
+                cameraState = CameraState.AIMING 
+            }
+        }
+    }
+
     if (hasPermission) {
         Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-            // Само превью камеры
+            
             CameraPreview(
                 imageCapture = imageCapture,
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Детектор стабилизации. Работает только если мы УЖЕ не делаем снимок.
-            if (!isCapturing) {
+            if (cameraState == CameraState.AIMING) {
                 SteadySensorEffect(
                     isActive = true,
                     onSteady = {
-                        isCapturing = true // Блокируем повторные срабатывания
+                        cameraState = CameraState.CAPTURING
                         takePhoto(
                             context = context,
                             imageCapture = imageCapture,
                             onImageCaptured = onImageCaptured,
                             onError = { 
-                                isCapturing = false 
+                                cameraState = CameraState.AIMING
                                 Log.e("ArtifactCameraScreen", "Capture error", it)
                             }
                         )
@@ -88,14 +98,12 @@ fun ArtifactCameraScreen(
                 )
             }
 
-            // UI поверх камеры: Кнопка закрытия и подсказки
             CameraOverlay(
-                isCapturing = isCapturing,
+                cameraState = cameraState,
                 onClose = onClose
             )
         }
     } else {
-        // Заглушка, если пользователь отклонил разрешение
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -131,7 +139,6 @@ private fun CameraPreview(
         val preview = Preview.Builder().build().also {
             it.setSurfaceProvider(previewView.surfaceProvider)
         }
-        // Используем заднюю камеру
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
         try {
@@ -162,7 +169,7 @@ private fun CameraPreview(
 
 @Composable
 private fun CameraOverlay(
-    isCapturing: Boolean,
+    cameraState: CameraState,
     onClose: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -190,7 +197,7 @@ private fun CameraOverlay(
                 .padding(24.dp)
         ) {
             Text(
-                text = if (isCapturing) {
+                text = if (cameraState == CameraState.CAPTURING) {
                     stringResource(R.string.camera_instruction_capturing)
                 } else {
                     stringResource(R.string.camera_instruction_steady)
@@ -210,7 +217,6 @@ private fun takePhoto(
     onImageCaptured: (Uri) -> Unit,
     onError: (ImageCaptureException) -> Unit
 ) {
-    // Создаем временный файл в кеше приложения
     val photoFile = File.createTempFile("artifact_cam_", ".jpg", context.cacheDir)
     val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
@@ -219,7 +225,6 @@ private fun takePhoto(
         ContextCompat.getMainExecutor(context),
         object : ImageCapture.OnImageSavedCallback {
             override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                // Передаем Uri сделанного снимка
                 val savedUri = Uri.fromFile(photoFile)
                 onImageCaptured(savedUri)
             }
