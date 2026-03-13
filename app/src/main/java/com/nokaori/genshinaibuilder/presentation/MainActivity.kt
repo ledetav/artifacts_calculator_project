@@ -263,10 +263,13 @@ fun AppContent() {
                         }
                     }
                 ) { innerPadding ->
+                    val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
+                    val shouldApplyPadding = currentDestination?.startsWith("artifact/scanner") != true
+                    
                     NavHost(
                         navController = navController,
                         startDestination = NavigationItem.Encyclopedia.route,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = if (shouldApplyPadding) Modifier.padding(innerPadding) else Modifier
                     ) {
                         composable(NavigationItem.Encyclopedia.route) {
                             EncyclopediaScreen(
