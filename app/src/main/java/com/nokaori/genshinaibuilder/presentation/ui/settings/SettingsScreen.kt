@@ -17,7 +17,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.SyncStatus
 import com.nokaori.genshinaibuilder.domain.model.UiText
+import com.nokaori.genshinaibuilder.domain.model.SupportedLanguages
 import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.SingleSelectToggleButtonGroup
 
 @Composable
 fun SettingsScreen(
@@ -25,6 +27,26 @@ fun SettingsScreen(
     onNavigateToGestures: () -> Unit
 ) {
     val syncStatus by settingsViewModel.syncStatus.collectAsStateWithLifecycle()
+    val appLanguage by settingsViewModel.appLanguage.collectAsStateWithLifecycle()
+    val shouldShowLanguageSyncDialog by settingsViewModel.shouldShowLanguageSyncDialog.collectAsStateWithLifecycle()
+
+    if (shouldShowLanguageSyncDialog) {
+        AlertDialog(
+            onDismissRequest = { settingsViewModel.dismissLanguageSyncDialog() },
+            title = { Text("Download Data for New Language?") },
+            text = { Text("No data found for the selected language. Would you like to download it now?") },
+            confirmButton = {
+                Button(onClick = { settingsViewModel.syncDataForCurrentLanguage() }) {
+                    Text("Download")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { settingsViewModel.dismissLanguageSyncDialog() }) {
+                    Text("Later")
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -45,6 +67,32 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = stringResource(R.string.settings_gesture_controls))
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+        HorizontalDivider()
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = stringResource(R.string.settings_language_title),
+            style = MaterialTheme.typography.titleLarge
+        )
+        Text(
+            text = stringResource(R.string.settings_language_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+
+        SingleSelectToggleButtonGroup(
+            title = "",
+            items = listOf(SupportedLanguages.EN, SupportedLanguages.RU),
+            selectedItem = appLanguage,
+            onItemSelect = { settingsViewModel.setAppLanguage(it) },
+            modifier = Modifier.fillMaxWidth()
+        ) { lang, isSelected ->
+            val labelRes = if (lang == SupportedLanguages.EN) R.string.lang_en else R.string.lang_ru
+            Text(stringResource(labelRes))
         }
 
         Spacer(modifier = Modifier.height(24.dp))
