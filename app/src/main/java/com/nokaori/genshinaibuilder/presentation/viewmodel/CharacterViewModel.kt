@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.nokaori.genshinaibuilder.domain.model.Character
 import com.nokaori.genshinaibuilder.domain.model.Element
 import com.nokaori.genshinaibuilder.domain.repository.CharacterRepository
+import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
 import com.nokaori.genshinaibuilder.domain.usecase.FilterCharactersUseCase
 import com.nokaori.genshinaibuilder.presentation.ui.characters.data.CharacterFilterState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 @HiltViewModel
 class CharacterViewModel @Inject constructor(
     private val characterRepository: CharacterRepository,
-    private val filterCharactersUseCase: FilterCharactersUseCase
+    private val filterCharactersUseCase: FilterCharactersUseCase,
+    private val themeRepository: ThemeRepository
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -48,8 +50,9 @@ class CharacterViewModel @Inject constructor(
     val characters: StateFlow<List<Character>> = combine(
         characterRepository.getCharacters(),
         _searchQuery,
-        _filterState
-    ) { list, query, filter ->
+        _filterState,
+        themeRepository.appLanguage
+    ) { list, query, filter, _ ->
         filterCharactersUseCase(
             characters = list,
             searchQuery = query,
