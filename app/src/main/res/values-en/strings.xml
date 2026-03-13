@@ -184,4 +184,10 @@
 
     <string name="lang_english">English</string>
     <string name="lang_russian">Russian</string>
+    
+    <!-- Language Settings -->
+    <string name="settings_language_title">Data Language</string>
+    <string name="settings_language_desc">Language of characters, weapons, and artifacts data</string>
+    <string name="lang_en">English</string>
+    <string name="lang_ru">Russian</string>
 </resources>
