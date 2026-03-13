@@ -14,15 +14,18 @@ import com.nokaori.genshinaibuilder.domain.repository.GameDataRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.first
 import java.util.Collections
 import javax.inject.Inject
+import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
 
 class GameDataRepositoryImpl @Inject constructor(
     private val characterDao: CharacterDao,
     private val statCurveDao: StatCurveDao,
     private val weaponDao: WeaponDao,
     private val artifactDao: ArtifactDao,
-    private val api: YattaApi
+    private val api: YattaApi,
+    private val themeRepository: ThemeRepository
 ) : GameDataRepository {
 
     override fun updateGameData(): Flow<SyncStatus> = channelFlow {
@@ -44,17 +47,10 @@ class GameDataRepositoryImpl @Inject constructor(
 
             log(UiText.StringResource(R.string.sync_log_parallel_start), 0.1f)
 
-            val totalNew = coroutineScope {
-                SupportedLanguages.all.map { lang ->
-                    async {
-                        val charsJob = async { updateCharacters(lang, ::log) }
-                        val weaponsJob = async { updateWeapons(lang, ::log) }
-                        val artsJob = async { updateArtifacts(lang, ::log) }
-
-                        charsJob.await() + weaponsJob.await() + artsJob.await()
-                    }
-                }.awaitAll().sum()
-            }
+            val currentLanguage = themeRepository.appLanguage.first()
+            val totalNew = updateCharacters(currentLanguage, ::log) +
+                    updateWeapons(currentLanguage, ::log) +
+                    updateArtifacts(currentLanguage, ::log)
 
             val duration = (System.currentTimeMillis() - startTime) / 1000f
             val finalMsg = UiText.StringResource(R.string.sync_log_success, duration, totalNew)

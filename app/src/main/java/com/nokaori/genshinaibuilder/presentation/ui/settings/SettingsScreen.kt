@@ -33,16 +33,16 @@ fun SettingsScreen(
     if (shouldShowLanguageSyncDialog) {
         AlertDialog(
             onDismissRequest = { settingsViewModel.dismissLanguageSyncDialog() },
-            title = { Text("Download Data for New Language?") },
-            text = { Text("No data found for the selected language. Would you like to download it now?") },
+            title = { Text(stringResource(R.string.language_sync_dialog_title)) },
+            text = { Text(stringResource(R.string.language_sync_dialog_message)) },
             confirmButton = {
                 Button(onClick = { settingsViewModel.syncDataForCurrentLanguage() }) {
-                    Text("Download")
+                    Text(stringResource(R.string.language_sync_dialog_download))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { settingsViewModel.dismissLanguageSyncDialog() }) {
-                    Text("Later")
+                    Text(stringResource(R.string.language_sync_dialog_later))
                 }
             }
         )

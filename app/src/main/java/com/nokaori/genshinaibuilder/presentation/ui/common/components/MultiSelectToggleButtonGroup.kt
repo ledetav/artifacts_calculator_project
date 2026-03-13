@@ -18,7 +18,8 @@ fun <T> MultiSelectToggleButtonGroup(
         title = title,
         items = items,
         modifier = modifier,
-        orientation = orientation
+        orientation = orientation,
+        onItemClick = onItemClick
     ) { item ->
         val isSelected = item in selectedItems
 

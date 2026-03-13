@@ -18,7 +18,8 @@ fun <T> SingleSelectToggleButtonGroup(
         title = title,
         items = items,
         modifier = modifier,
-        orientation = orientation
+        orientation = orientation,
+        onItemClick = onItemSelect
     ) { item ->
         val isSelected = (item == selectedItem)
 
