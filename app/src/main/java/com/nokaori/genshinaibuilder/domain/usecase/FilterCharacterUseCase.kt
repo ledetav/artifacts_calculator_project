@@ -2,6 +2,8 @@ package com.nokaori.genshinaibuilder.domain.usecase
 
 import com.nokaori.genshinaibuilder.domain.model.Character
 import com.nokaori.genshinaibuilder.domain.model.Element
+import java.text.Collator
+import java.util.Locale
 import javax.inject.Inject
 
 class FilterCharactersUseCase @Inject constructor() {
@@ -10,6 +12,10 @@ class FilterCharactersUseCase @Inject constructor() {
         ALL,
         ONLY_OWNED,
         ONLY_MISSING
+    }
+
+    private val collator = Collator.getInstance(Locale("ru")).apply {
+        strength = Collator.SECONDARY
     }
 
     operator fun invoke(
@@ -38,7 +44,7 @@ class FilterCharactersUseCase @Inject constructor() {
         }.sortedWith(
             // Сортировка: Сначала 5 звезд, потом 4. Внутри звездности - по алфавиту.
             compareByDescending<Character> { it.rarity }
-                .thenBy { it.name }
+                .thenBy(collator) { it.name }
         )
     }
 }
