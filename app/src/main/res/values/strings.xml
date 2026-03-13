@@ -203,4 +203,8 @@
     <string name="camera_instruction_steady">Наведите камеру на артефакт и замрите...</string>
     <string name="camera_instruction_capturing">Делаем снимок...</string>
     <string name="camera_error">Ошибка при запуске камеры</string>
+
+    <string name="choose_image_source">Источник изображения</string>
+    <string name="source_gallery">Галерея</string>
+    <string name="source_camera">Камера</string>
 </resources>

@@ -202,5 +202,9 @@
     <string name="scan_with_camera">Scan with Camera</string>
     <string name="camera_instruction_steady">Point the camera at the artifact and hold steady...</string>
     <string name="camera_instruction_capturing">Capturing image...</string>
-    <string name="camera_error">Error starting camera</string
+    <string name="camera_error">Error starting camera</string>
+
+    <string name="choose_image_source">Image Source</string>
+    <string name="source_gallery">Gallery</string>
+    <string name="source_camera">Camera</string>
 </resources>
