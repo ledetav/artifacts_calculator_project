@@ -177,7 +177,8 @@
     <string name="editor_btn_save_and_next">Сохранить и далее</string>
     <string name="editor_btn_save_and_finish">Сохранить и завершить</string>
     <string name="editor_btn_skip">Пропустить</string>
-    <string name="scanner_processing_batch">Обработка: %1$d / %2$d</string>
+    <string name="scanner_batch_stats">Все: %1$d  Успешно: %2$d  Не удалось: %3$d</string>
+    <string name="action_repick">Выбрать другое фото</string>
 
     <string name="add_artifact_scan_multiple">Сканировать несколько артефактов</string>
     <string name="add_artifact_scan_multiple_desc">Выберите до 15 скриншотов для пакетной обработки</string>
