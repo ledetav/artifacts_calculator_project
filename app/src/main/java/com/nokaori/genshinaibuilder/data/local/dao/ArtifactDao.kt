@@ -42,4 +42,11 @@ interface ArtifactDao {
 
     @Upsert
     suspend fun insertArtifactPieces(pieces: List<ArtifactPieceEntity>)
+
+    // --- CLEAR CACHE ---
+    @Query("DELETE FROM artifact_sets_data WHERE language = :language")
+    suspend fun clearArtifactSetsByLanguage(language: String)
+
+    @Query("DELETE FROM artifact_sets_data")
+    suspend fun clearAllArtifactSets()
 }

@@ -63,4 +63,11 @@ interface CharacterDao {
 
     @Upsert
     suspend fun insertTalents(talents: List<CharacterTalentEntity>)
+
+    // --- CLEAR CACHE ---
+    @Query("DELETE FROM characters_data WHERE language = :language")
+    suspend fun clearCharactersByLanguage(language: String)
+
+    @Query("DELETE FROM characters_data")
+    suspend fun clearAllCharacters()
 }

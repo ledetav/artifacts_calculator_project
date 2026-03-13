@@ -50,4 +50,11 @@ interface WeaponDao {
 
     @Upsert
     suspend fun insertPromotions(promotions: List<WeaponPromotionEntity>)
+
+    // --- CLEAR CACHE ---
+    @Query("DELETE FROM weapons_data WHERE language = :language")
+    suspend fun clearWeaponsByLanguage(language: String)
+
+    @Query("DELETE FROM weapons_data")
+    suspend fun clearAllWeapons()
 }
