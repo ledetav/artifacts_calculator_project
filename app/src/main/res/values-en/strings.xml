@@ -165,7 +165,7 @@
 
     <string name="add_artifact_method_title">How to add artifact?</string>
     <string name="add_artifact_manual">Manual entry</string>
-    <string name="add_artifact_scan">Scan from screenshot</string>
+    <string name="add_artifact_scan">Scan One Artifact</string>
     <string name="add_artifact_scan_desc">AI will extract stats from the image</string>
     <string name="add_artifact_title">Add Artifact</string>
 
@@ -177,10 +177,11 @@
     <string name="editor_btn_save_and_next">Save &amp; Next</string>
     <string name="editor_btn_save_and_finish">Save &amp; Finish</string>
     <string name="editor_btn_skip">Skip</string>
-    <string name="scanner_processing_batch">Processing: %1$d / %2$d</string>
+    <string name="scanner_batch_stats">Total: %1$d  Success: %2$d  Failed: %3$d</string>
+    <string name="action_repick">Try again</string>
 
     <string name="add_artifact_scan_multiple">Scan Multiple Artifacts</string>
-    <string name="add_artifact_scan_multiple_desc">Select up to 15 screenshots for batch processing</string>
+    <string name="add_artifact_scan_multiple_desc">AI will extract stats from the image; you can select up to 15 images</string>
 
     <string name="lang_english">English</string>
     <string name="lang_russian">Russian</string>
@@ -188,12 +189,25 @@
     <!-- Language Settings -->
     <string name="settings_language_title">Data Language</string>
     <string name="settings_language_desc">Language of characters, weapons, and artifacts data</string>
-    <string name="lang_en">English</string>
-    <string name="lang_ru">Russian</string>
     
     <!-- Language Sync Dialog -->
     <string name="language_sync_dialog_title">Download Data for New Language?</string>
     <string name="language_sync_dialog_message">No data found for the selected language. Would you like to download it now?</string>
     <string name="language_sync_dialog_download">Download</string>
     <string name="language_sync_dialog_later">Later</string>
+
+    <string name="camera_permission_required">Camera permission is required to scan artifacts.</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="scan_with_camera">Scan with Camera</string>
+    <string name="camera_instruction_steady">Point the camera at the artifact and hold steady...</string>
+    <string name="camera_instruction_capturing">Capturing image...</string>
+    <string name="camera_error">Error starting camera</string>
+
+    <string name="choose_image_source">Image Source</string>
+    <string name="source_gallery">Gallery</string>
+    <string name="source_camera">Camera</string>
+
+    <string name="scan_failed_title">Artifact Not Recognized</string>
+    <string name="scan_failed_message">Could not find artifact stats in the image. Try again or select a different image.</string>
+    <string name="action_manual">Enter Manually</string>
 </resources>

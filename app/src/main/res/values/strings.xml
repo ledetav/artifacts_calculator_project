@@ -165,7 +165,7 @@
 
     <string name="add_artifact_method_title">Как добавить артефакт?</string>
     <string name="add_artifact_manual">Ввести вручную</string>
-    <string name="add_artifact_scan">Считать со скриншота</string>
+    <string name="add_artifact_scan">Считать один артефакт</string>
     <string name="add_artifact_scan_desc">ИИ распознает характеристики по картинке</string>
     <string name="add_artifact_title">Добавить артефакт</string>
 
@@ -177,10 +177,11 @@
     <string name="editor_btn_save_and_next">Сохранить и далее</string>
     <string name="editor_btn_save_and_finish">Сохранить и завершить</string>
     <string name="editor_btn_skip">Пропустить</string>
-    <string name="scanner_processing_batch">Обработка: %1$d / %2$d</string>
+    <string name="scanner_batch_stats">Все: %1$d  Успешно: %2$d  Не удалось: %3$d</string>
+    <string name="action_repick">Попробовать еще раз</string>
 
     <string name="add_artifact_scan_multiple">Сканировать несколько артефактов</string>
-    <string name="add_artifact_scan_multiple_desc">Выберите до 15 скриншотов для пакетной обработки</string>
+    <string name="add_artifact_scan_multiple_desc">ИИ распознает характеристики по картинке; можно выбрать до 15 штук</string>
 
     <string name="lang_english">Английский</string>
     <string name="lang_russian">Русский</string>
@@ -188,12 +189,25 @@
     <!-- Language Settings -->
     <string name="settings_language_title">Язык данных</string>
     <string name="settings_language_desc">Язык имен персонажей, оружия и артефактов</string>
-    <string name="lang_en">Английский</string>
-    <string name="lang_ru">Русский</string>
     
     <!-- Language Sync Dialog -->
     <string name="language_sync_dialog_title">Загрузить данные для нового языка?</string>
     <string name="language_sync_dialog_message">Данные для выбранного языка не найдены. Загрузить их сейчас?</string>
     <string name="language_sync_dialog_download">Загрузить</string>
     <string name="language_sync_dialog_later">Позже</string>
+
+    <string name="camera_permission_required">Для сканирования артефактов требуется разрешение на использование камеры.</string>
+    <string name="grant_permission">Предоставить разрешение</string>
+    <string name="scan_with_camera">Сделать снимок камерой</string>
+    <string name="camera_instruction_steady">Наведите камеру на артефакт и замрите...</string>
+    <string name="camera_instruction_capturing">Делаем снимок...</string>
+    <string name="camera_error">Ошибка при запуске камеры</string>
+
+    <string name="choose_image_source">Источник изображения</string>
+    <string name="source_gallery">Галерея</string>
+    <string name="source_camera">Камера</string>
+
+    <string name="scan_failed_title">Артефакт не распознан</string>
+    <string name="scan_failed_message">Не удалось найти характеристики артефакта на снимке. Попробуйте еще раз или выберете другой снимок.</string>
+    <string name="action_manual">Ввести вручную</string>
 </resources>

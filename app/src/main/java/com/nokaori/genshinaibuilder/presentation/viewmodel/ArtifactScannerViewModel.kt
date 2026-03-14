@@ -46,14 +46,21 @@ class ArtifactScannerViewModel @Inject constructor(
                 val rawText = recognizer.extractTextFromUri(uri)
                 if (!rawText.isNullOrBlank()) {
                     val parsedData = ArtifactOcrParser.parse(rawText)
-                    _scannerState.update { it.copy(
-                        isProcessing = false,
-                        result = ScannerResult.Success(parsedData)
-                    )}
+                    if (isValidParsedArtifact(parsedData)) {
+                        _scannerState.update { it.copy(
+                            isProcessing = false,
+                            result = ScannerResult.Success(parsedData)
+                        )}
+                    } else {
+                        _scannerState.update { it.copy(
+                            isProcessing = false,
+                            result = ScannerResult.Error("Характеристики не распознаны. Убедитесь, что фото четкое.")
+                        )}
+                    }
                 } else {
                     _scannerState.update { it.copy(
                         isProcessing = false,
-                        result = ScannerResult.Error("Текст не найден. Попробуйте другой скриншот.")
+                        result = ScannerResult.Error("Текст не найден. Попробуйте другой снимок.")
                     )}
                 }
             } catch (e: Exception) {
@@ -66,80 +73,21 @@ class ArtifactScannerViewModel @Inject constructor(
     }
 
     fun scanMultipleImages(uris: List<Uri>) {
-        if (uris.isEmpty()) return
-        if (_scannerState.value.isProcessing) return
+        if (uris.isEmpty() || _scannerState.value.isProcessing) return
 
         viewModelScope.launch(Dispatchers.IO) {
             _scannerState.update { it.copy(
                 isProcessing = true,
                 totalToProcess = uris.size,
                 currentProcessingIndex = 0,
+                successfulScans = 0,
+                failedScans = 0,
                 result = ScannerResult.Scanning
             )}
             
             val results = mutableListOf<ParsedArtifactData>()
             
-            try {
-                uris.forEachIndexed { index, uri ->
-                    _scannerState.update { it.copy(
-                        currentProcessingIndex = index + 1,
-                        currentImageUri = uri
-                    )}
-                    
-                    try {
-                        delay(300)
-                        
-                        val rawText = recognizer.extractTextFromUri(uri)
-                        if (!rawText.isNullOrBlank()) {
-                            val parsedData = ArtifactOcrParser.parse(rawText)
-                            if (parsedData.slot != null && parsedData.mainStatType != null) {
-                                results.add(parsedData)
-                            }
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-                
-                if (results.isNotEmpty()) {
-                    _scannerState.update { it.copy(
-                        isProcessing = false,
-                        result = ScannerResult.BatchSuccess(results)
-                    )}
-                } else {
-                    _scannerState.update { it.copy(
-                        isProcessing = false,
-                        result = ScannerResult.Error("Не удалось распознать ни один артефакт.")
-                    )}
-                    _uiEvent.emit(ScannerUiEvent.ShowError("Не удалось распознать артефакты"))
-                }
-            } catch (e: Exception) {
-                _scannerState.update { it.copy(
-                    isProcessing = false,
-                    result = ScannerResult.Error(e.message ?: "Ошибка при обработке пакета")
-                )}
-                _uiEvent.emit(ScannerUiEvent.ShowError(e.message ?: "Ошибка при обработке пакета"))
-            }
-        }
-    }
-
-    fun onProcessMultipleImages(uris: List<Uri>) {
-        if (uris.isEmpty()) return
-        if (_scannerState.value.isProcessing) return
-
-        viewModelScope.launch(Dispatchers.IO) {
-            _scannerState.update { 
-                it.copy(
-                    isProcessing = true, 
-                    totalToProcess = uris.size, 
-                    currentProcessingIndex = 0,
-                    result = ScannerResult.Scanning
-                ) 
-            }
-
-            val parsedArtifacts = mutableListOf<ParsedArtifactData>()
-
-            for ((index, uri) in uris.withIndex()) {
+            uris.forEachIndexed { index, uri ->
                 _scannerState.update { it.copy(
                     currentProcessingIndex = index + 1,
                     currentImageUri = uri
@@ -147,45 +95,40 @@ class ArtifactScannerViewModel @Inject constructor(
                 
                 try {
                     delay(300)
-                    
                     val rawText = recognizer.extractTextFromUri(uri)
                     if (!rawText.isNullOrBlank()) {
-                        val result = ArtifactOcrParser.parse(rawText)
-                        
-                        if (isValidParsedArtifact(result)) {
-                            parsedArtifacts.add(result)
+                        val parsedData = ArtifactOcrParser.parse(rawText)
+                        if (isValidParsedArtifact(parsedData)) {
+                            results.add(parsedData)
+                            _scannerState.update { it.copy(successfulScans = it.successfulScans + 1) }
+                        } else {
+                            _scannerState.update { it.copy(failedScans = it.failedScans + 1) }
                         }
+                    } else {
+                        _scannerState.update { it.copy(failedScans = it.failedScans + 1) }
                     }
                 } catch (e: Exception) {
+                    _scannerState.update { it.copy(failedScans = it.failedScans + 1) }
                     e.printStackTrace()
                 }
             }
-
-            _scannerState.update { it.copy(isProcessing = false) }
-
-            if (parsedArtifacts.isNotEmpty()) {
-                navigateToEditorWithBatch(parsedArtifacts)
+            
+            if (results.isNotEmpty()) {
+                _scannerState.update { it.copy(
+                    isProcessing = false,
+                    result = ScannerResult.BatchSuccess(results)
+                )}
             } else {
                 _scannerState.update { it.copy(
-                    result = ScannerResult.Error("Не удалось распознать ни один артефакт.")
+                    isProcessing = false,
+                    result = ScannerResult.Error("Не удалось распознать ни один артефакт из пакета.")
                 )}
-                _uiEvent.emit(ScannerUiEvent.ShowError("Не удалось распознать артефакты"))
             }
         }
     }
 
     private fun isValidParsedArtifact(artifact: ParsedArtifactData): Boolean {
         return artifact.slot != null && artifact.mainStatType != null
-    }
-
-    private fun navigateToEditorWithBatch(artifacts: List<ParsedArtifactData>) {
-        // Сохраняем пакет в ScanSessionManager
-        ScanSessionManager.setBatch(artifacts)
-        
-        viewModelScope.launch {
-            // Отправляем событие навигации без аргументов
-            _uiEvent.emit(ScannerUiEvent.NavigateToEditor)
-        }
     }
 
     fun resetState() {
@@ -197,20 +140,14 @@ data class ArtifactScannerState(
     val isProcessing: Boolean = false,
     val totalToProcess: Int = 0,
     val currentProcessingIndex: Int = 0,
+    val successfulScans: Int = 0,
+    val failedScans: Int = 0,
     val currentImageUri: Uri? = null,
     val result: ScannerResult = ScannerResult.Idle
 ) {
     val progress: Float get() = if (totalToProcess > 0) {
         currentProcessingIndex.toFloat() / totalToProcess.toFloat()
-    } else {
-        0f
-    }
-    
-    val displayProgress: String get() = if (totalToProcess > 0) {
-        "$currentProcessingIndex / $totalToProcess"
-    } else {
-        ""
-    }
+    } else 0f
 }
 
 sealed class ScannerResult {
@@ -226,17 +163,3 @@ sealed class ScannerUiEvent {
     data object NavigateToEditor : ScannerUiEvent()
     data class BatchProcessingComplete(val artifacts: List<ParsedArtifactData>) : ScannerUiEvent()
 }
-
-// Для обратной совместимости
-sealed class ScannerState {
-    object Idle : ScannerState()
-    object Scanning : ScannerState()
-    data class Success(val data: ParsedArtifactData) : ScannerState()
-    data class BatchSuccess(val data: List<ParsedArtifactData>) : ScannerState()
-    data class Error(val message: String) : ScannerState()
-}
-
-data class BatchProgress(
-    val current: Int,
-    val total: Int
-)

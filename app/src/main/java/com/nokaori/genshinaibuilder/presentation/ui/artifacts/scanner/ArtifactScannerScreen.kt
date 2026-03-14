@@ -37,6 +37,8 @@ fun ArtifactScannerScreen(
     onScanComplete: (ParsedArtifactData) -> Unit,
     onBatchScanComplete: (List<ParsedArtifactData>) -> Unit,
     onBackClick: () -> Unit,
+    onManualEntryClick: () -> Unit,
+    onRepickClick: (() -> Unit)? = null,
     viewModel: ArtifactScannerViewModel = hiltViewModel()
 ) {
     var actualImageSize by remember { mutableStateOf(IntSize.Zero) }
@@ -66,6 +68,26 @@ fun ArtifactScannerScreen(
         }
     }
 
+    if (scannerState.result is ScannerResult.Error) {
+        AlertDialog(
+            onDismissRequest = onBackClick,
+            title = { Text(stringResource(R.string.scan_failed_title)) },
+            text = { Text((scannerState.result as ScannerResult.Error).message) },
+            confirmButton = {
+                if (onRepickClick != null) {
+                    TextButton(onClick = onRepickClick) {
+                        Text(stringResource(R.string.action_repick))
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onManualEntryClick) {
+                    Text(stringResource(R.string.action_manual))
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -75,9 +97,10 @@ fun ArtifactScannerScreen(
                         if (scannerState.totalToProcess > 0) {
                             Text(
                                 text = stringResource(
-                                    id = R.string.scanner_processing_batch,
-                                    scannerState.currentProcessingIndex,
-                                    scannerState.totalToProcess
+                                    id = R.string.scanner_batch_stats,
+                                    scannerState.totalToProcess,
+                                    scannerState.successfulScans,
+                                    scannerState.failedScans
                                 ),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -149,18 +172,6 @@ fun ArtifactScannerScreen(
                             )
                         }
                     }
-                }
-            }
-
-            if (scannerState.result is ScannerResult.Error) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = (scannerState.result as ScannerResult.Error).message,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                Button(onClick = onBackClick) {
-                    Text("Вернуться")
                 }
             }
 

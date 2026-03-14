@@ -41,6 +41,8 @@ biometric = "1.1.0"
 mlkit = "16.0.0-beta1"
 paddleocr = "1.2.9"
 
+camerax = "1.5.3"
+
 [libraries]
 
 # --- Kotlin / Build ---
@@ -128,6 +130,12 @@ androidx-runtime = { group = "androidx.compose.runtime", name = "runtime", versi
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkit" }
 paddleocr4android = { group = "com.github.equationl.PaddleOCR4Android", name = "paddleocr4android", version.ref = "paddleocr" }
+
+# --- CameraX ---
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
+androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
+androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
