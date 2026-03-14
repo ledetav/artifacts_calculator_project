@@ -3,6 +3,7 @@ package com.nokaori.genshinaibuilder.domain.util
 import android.os.Parcelable
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.StatType
+import com.nokaori.genshinaibuilder.domain.repository.PieceMatchInfo
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -13,12 +14,12 @@ data class ParsedArtifactData(
     val mainStatValue: Float? = null,
     val subStats: List<Pair<StatType, Float>> = emptyList(),
     val setName: String? = null,
+    val setId: Int? = null,
     val rawText: String = ""
 ) : Parcelable
 
 object ArtifactOcrParser {
 
-    // Карты сопоставления. Ключи специально написаны БЕЗ ПРОБЕЛОВ и в нижнем регистре
     private val slotMap = mapOf(
         "цветокжизни" to ArtifactSlot.FLOWER_OF_LIFE,
         "перосмерти" to ArtifactSlot.PLUME_OF_DEATH,
@@ -28,9 +29,9 @@ object ArtifactOcrParser {
     )
 
     private val statMap = mapOf(
-        "нр" to StatType.HP, // Обычная H (аш)
-        "hp" to StatType.HP, // Английская
-        "хп" to StatType.HP, // Русская (иногда так читается)
+        "нр" to StatType.HP, 
+        "hp" to StatType.HP, 
+        "хп" to StatType.HP, 
         "силаатаки" to StatType.ATK,
         "атк" to StatType.ATK,
         "защита" to StatType.DEF,
@@ -53,7 +54,7 @@ object ArtifactOcrParser {
         "бонусфизическогоурона" to StatType.PHYSICAL_DAMAGE_BONUS
     )
 
-    fun parse(rawText: String): ParsedArtifactData {
+    fun parse(rawText: String, availablePieces: List<PieceMatchInfo> = emptyList()): ParsedArtifactData {
         val lines = rawText.lines().map { it.trim() }.filter { it.isNotEmpty() }
         val linesLowercase = lines.map { it.lowercase() }
         
@@ -62,7 +63,26 @@ object ArtifactOcrParser {
         var mainStatType: StatType? = null
         var mainStatValue: Float? = null
         var setName: String? = null
+        var setId: Int? = null
         val subStats = mutableListOf<Pair<StatType, Float>>()
+
+        if (availablePieces.isNotEmpty() && lines.isNotEmpty()) {
+            val candidates = lines.take(2).mapNotNull { line ->
+                FuzzySearchUtils.findBestMatch(
+                    query = line,
+                    candidates = availablePieces,
+                    textSelector = { it.name },
+                    maxAllowedDistance = 2
+                )
+            }
+
+            val bestMatch = candidates.minByOrNull { it.second }?.first
+
+            if (bestMatch != null) {
+                foundSlot = bestMatch.slot
+                setId = bestMatch.setId
+            }
+        }
 
         val valueRegex = Regex("""[+:]?\s*(\d+[,.]?\d*)\s*(%?)""")
 
@@ -115,8 +135,7 @@ object ArtifactOcrParser {
             }
         }
         
-        // Пытаемся использовать первую строку как название сета
-        if (lines.isNotEmpty() && !linesLowercase[0].contains(Regex("[+:]")) && foundSlot == null) {
+        if (setId == null && lines.isNotEmpty() && !linesLowercase[0].contains(Regex("[+:]")) && foundSlot == null) {
             setName = lines[0]
         }
 
@@ -127,6 +146,7 @@ object ArtifactOcrParser {
             mainStatValue = mainStatValue,
             subStats = subStats,
             setName = setName,
+            setId = setId,
             rawText = rawText
         )
     }
