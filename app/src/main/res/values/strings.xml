@@ -165,7 +165,7 @@
 
     <string name="add_artifact_method_title">Как добавить артефакт?</string>
     <string name="add_artifact_manual">Ввести вручную</string>
-    <string name="add_artifact_scan">Считать со скриншота</string>
+    <string name="add_artifact_scan">Считать один артефакт</string>
     <string name="add_artifact_scan_desc">ИИ распознает характеристики по картинке</string>
     <string name="add_artifact_title">Добавить артефакт</string>
 
@@ -178,10 +178,10 @@
     <string name="editor_btn_save_and_finish">Сохранить и завершить</string>
     <string name="editor_btn_skip">Пропустить</string>
     <string name="scanner_batch_stats">Все: %1$d  Успешно: %2$d  Не удалось: %3$d</string>
-    <string name="action_repick">Выбрать другое фото</string>
+    <string name="action_repick">Попробовать еще раз</string>
 
     <string name="add_artifact_scan_multiple">Сканировать несколько артефактов</string>
-    <string name="add_artifact_scan_multiple_desc">Выберите до 15 скриншотов для пакетной обработки</string>
+    <string name="add_artifact_scan_multiple_desc">ИИ распознает характеристики по картинке; можно выбрать до 15 штук</string>
 
     <string name="lang_english">Английский</string>
     <string name="lang_russian">Русский</string>
@@ -189,8 +189,6 @@
     <!-- Language Settings -->
     <string name="settings_language_title">Язык данных</string>
     <string name="settings_language_desc">Язык имен персонажей, оружия и артефактов</string>
-    <string name="lang_en">Английский</string>
-    <string name="lang_ru">Русский</string>
     
     <!-- Language Sync Dialog -->
     <string name="language_sync_dialog_title">Загрузить данные для нового языка?</string>
@@ -210,7 +208,6 @@
     <string name="source_camera">Камера</string>
 
     <string name="scan_failed_title">Артефакт не распознан</string>
-    <string name="scan_failed_message">Не удалось найти характеристики артефакта на снимке. Попробуйте сделать фото еще раз при хорошем освещении.</string>
-    <string name="action_retake">Переснять камеру</string>
+    <string name="scan_failed_message">Не удалось найти характеристики артефакта на снимке. Попробуйте еще раз или выберете другой снимок.</string>
     <string name="action_manual">Ввести вручную</string>
 </resources>
