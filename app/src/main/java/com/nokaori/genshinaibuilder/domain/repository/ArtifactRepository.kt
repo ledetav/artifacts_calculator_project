@@ -2,6 +2,7 @@ package com.nokaori.genshinaibuilder.domain.repository
 
 import com.nokaori.genshinaibuilder.domain.model.Artifact
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
+import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import androidx.paging.PagingData
 import com.nokaori.genshinaibuilder.domain.model.StatCurve
 import com.nokaori.genshinaibuilder.domain.model.StatType
