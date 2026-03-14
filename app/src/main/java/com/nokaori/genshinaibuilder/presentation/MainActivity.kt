@@ -422,6 +422,11 @@ fun AppContent() {
                                 },
                                 onBatchScanComplete = {},
                                 onBackClick = { navController.popBackStack() },
+                                onManualEntryClick = {
+                                    navController.navigate("artifact/editor/null") {
+                                        popUpTo("artifact/scanner/{imageUri}") { inclusive = true }
+                                    }
+                                },
                                 onRepickClick = {
                                     navController.popBackStack()
                                     showAddArtifactSheet = true 
@@ -455,6 +460,11 @@ fun AppContent() {
                                         ?.set("scanned_artifact_batch", parsedBatch)
                                 },
                                 onBackClick = { navController.popBackStack() },
+                                onManualEntryClick = {
+                                    navController.navigate("artifact/editor/null") {
+                                        popUpTo("artifact/scanner/batch/{imageUris}") { inclusive = true }
+                                    }
+                                },
                                 onRepickClick = null 
                             )
                         }

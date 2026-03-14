@@ -91,7 +91,7 @@ fun SettingsScreen(
             onItemSelect = { settingsViewModel.setAppLanguage(it) },
             modifier = Modifier.fillMaxWidth()
         ) { lang, isSelected ->
-            val labelRes = if (lang == SupportedLanguages.EN) R.string.lang_en else R.string.lang_ru
+            val labelRes = if (lang == SupportedLanguages.EN) R.string.lang_english else R.string.lang_russian
             Text(stringResource(labelRes))
         }
 

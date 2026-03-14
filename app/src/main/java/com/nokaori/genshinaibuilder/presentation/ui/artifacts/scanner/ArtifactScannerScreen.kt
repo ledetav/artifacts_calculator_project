@@ -37,6 +37,7 @@ fun ArtifactScannerScreen(
     onScanComplete: (ParsedArtifactData) -> Unit,
     onBatchScanComplete: (List<ParsedArtifactData>) -> Unit,
     onBackClick: () -> Unit,
+    onManualEntryClick: () -> Unit,
     onRepickClick: (() -> Unit)? = null,
     viewModel: ArtifactScannerViewModel = hiltViewModel()
 ) {
@@ -80,9 +81,7 @@ fun ArtifactScannerScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = {
-                    onBackClick()
-                }) {
+                TextButton(onClick = onManualEntryClick) {
                     Text(stringResource(R.string.action_manual))
                 }
             }
