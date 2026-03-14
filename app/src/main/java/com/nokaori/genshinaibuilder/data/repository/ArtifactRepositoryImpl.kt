@@ -173,4 +173,14 @@ class ArtifactRepositoryImpl @Inject constructor (
 
         userDao.updateUserArtifact(entity)
     }
+
+    override suspend fun getAllPiecesForMatching(): List<PieceMatchInfo> {
+        return artifactDao.getAllArtifactPieces().map { entity ->
+            PieceMatchInfo(
+                setId = entity.setId,
+                slot = entity.slot,
+                name = entity.name
+            )
+        }
+    }
 }
