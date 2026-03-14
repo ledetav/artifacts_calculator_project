@@ -7,6 +7,12 @@ import com.nokaori.genshinaibuilder.domain.model.StatCurve
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import kotlinx.coroutines.flow.Flow
 
+data class PieceMatchInfo(
+    val setId: Int,
+    val slot: ArtifactSlot,
+    val name: String
+)
+
 interface ArtifactRepository {
     fun getArtifacts(): Flow<List<Artifact>>
     fun getAvailableArtifactSetsPaged(): Flow<PagingData<ArtifactSet>>
@@ -18,4 +24,5 @@ interface ArtifactRepository {
     suspend fun getArtifactSubStatRolls(rarity: Int, statType: StatType): List<Float>?
     suspend fun getArtifactById(id: Int): Artifact?
     suspend fun updateArtifact(artifact: Artifact)
+    suspend fun getAllPiecesForMatching(): List<PieceMatchInfo>
 }
