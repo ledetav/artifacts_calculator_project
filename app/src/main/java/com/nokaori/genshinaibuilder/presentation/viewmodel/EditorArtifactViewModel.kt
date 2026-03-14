@@ -442,10 +442,16 @@ class EditorArtifactViewModel @Inject constructor(
             onMainStatTypeChanged(data.mainStatType)
         }
         
-        if (data.setName != null) {
+        if (data.setId != null || data.setName != null) {
             viewModelScope.launch {
-                val allSets = _allSets.value
-                val matchedSet = allSets.find { it.name.equals(data.setName, ignoreCase = true) }
+                val allSets = _allSets.value.ifEmpty { artifactRepository.getAvailableArtifactSets().first() }
+                
+                val matchedSet = if (data.setId != null) {
+                    allSets.find { it.id == data.setId }
+                } else {
+                    allSets.find { it.name.equals(data.setName, ignoreCase = true) }
+                }
+                
                 if (matchedSet != null) {
                     onSetSelected(matchedSet)
                 }
@@ -513,15 +519,23 @@ class EditorArtifactViewModel @Inject constructor(
         if (artifactData.mainStatType != null) {
             onMainStatTypeChanged(artifactData.mainStatType)
         }
-        if (artifactData.setName != null) {
+        
+        if (artifactData.setId != null || artifactData.setName != null) {
             viewModelScope.launch {
-                val allSets = _allSets.value
-                val matchedSet = allSets.find { it.name.equals(artifactData.setName, ignoreCase = true) }
+                val allSets = _allSets.value.ifEmpty { artifactRepository.getAvailableArtifactSets().first() }
+                
+                val matchedSet = if (artifactData.setId != null) {
+                    allSets.find { it.id == artifactData.setId }
+                } else {
+                    allSets.find { it.name.equals(artifactData.setName, ignoreCase = true) }
+                }
+                
                 if (matchedSet != null) {
                     onSetSelected(matchedSet)
                 }
             }
         }
+        
         artifactData.subStats.forEach { (statType, value) ->
             onAddSubStat()
             val lastSubStat = _state.value.subStats.lastOrNull() ?: return@forEach
