@@ -24,5 +24,6 @@ data class CharacterEntity(
     @ColumnInfo(name = "ascension_stat_type") val ascensionStatType: StatType, // Enum
     @ColumnInfo(name = "curve_id") val curveId: String,
     @ColumnInfo(name = "icon_url") val iconUrl: String,
-    @ColumnInfo(name = "splash_url") val splashUrl: String
+    @ColumnInfo(name = "splash_url") val splashUrl: String,
+    @ColumnInfo(name = "tags_dictionary") val tagsDictionary: Map<String, String> = emptyMap()
 )
