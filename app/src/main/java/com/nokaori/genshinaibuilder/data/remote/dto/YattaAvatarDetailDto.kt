@@ -12,7 +12,8 @@ data class YattaAvatarDetailDto(
     @SerializedName("specialProp") val specialProp: String,
     @SerializedName("upgrade") val upgrade: YattaUpgradeDto,
     @SerializedName("talent") val talents: Map<String, YattaTalentDto>,
-    @SerializedName("constellation") val constellations: Map<String, YattaConstellationDto>?
+    @SerializedName("constellation") val constellations: Map<String, YattaConstellationDto>?,
+    @SerializedName("dictionary") val dictionary: YattaDictionaryDto?
 )
 
 data class YattaUpgradeDto(
@@ -71,4 +72,15 @@ data class YattaConstellationExtraDto(
 data class YattaAddLevelDto(
     @SerializedName("talentIndex") val talentIndex: Int?,
     @SerializedName("extraLevel") val extraLevel: Int?
+)
+
+// --- DICTIONARY (для tagsDictionary) ---
+data class YattaDictionaryDto(
+    @SerializedName("effectsInfo") val effectsInfo: Map<String, YattaEffectInfoDto>?
+)
+
+data class YattaEffectInfoDto(
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("description") val description: String
 )

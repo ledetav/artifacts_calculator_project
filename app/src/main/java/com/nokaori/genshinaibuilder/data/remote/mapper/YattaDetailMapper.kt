@@ -17,12 +17,17 @@ fun CharacterEntity.updateWithDetails(dto: YattaAvatarDetailDto): CharacterEntit
     val defProp = dto.upgrade.props.find { it.propType == "FIGHT_PROP_BASE_DEFENSE" }
     val mainCurveId = atkProp?.curveId ?: "GROW_CURVE_ATTACK_S4"
 
+    val parsedTagsDictionary = dto.dictionary?.effectsInfo?.mapValues { entry ->
+        entry.value.description
+    } ?: emptyMap()
+
     return this.copy(
         baseHpLvl1 = hpProp?.initValue?.toFloat() ?: 0f,
         baseAtkLvl1 = atkProp?.initValue?.toFloat() ?: 0f,
         baseDefLvl1 = defProp?.initValue?.toFloat() ?: 0f,
         ascensionStatType = parseYattaStatType(dto.specialProp),
-        curveId = mainCurveId
+        curveId = mainCurveId,
+        tagsDictionary = parsedTagsDictionary
     )
 }
 
