@@ -216,256 +216,260 @@ fun AppContent() {
                     }
                 }
             ) {
-                if (showCameraScreen) {
-                    ArtifactCameraScreen(
-                        onImageCaptured = { uri ->
-                            showCameraScreen = false
-                            val encodedUri = URLEncoder.encode(uri.toString(), StandardCharsets.UTF_8.toString())
-                            navController.navigate("artifact/scanner/$encodedUri")
-                        },
-                        onClose = {
-                            showCameraScreen = false
-                        }
-                    )
-                } else if (showAddArtifactSheet) {
-                    AddArtifactSelectionSheet(
-                        onDismissRequest = { showAddArtifactSheet = false },
-                        onManualEntrySelected = {
-                            showAddArtifactSheet = false
-                            navController.navigate("artifact/editor/null")
-                        },
-                        onImageSelected = { uri ->
-                            showAddArtifactSheet = false
-                            val encodedUri = URLEncoder.encode(uri.toString(), StandardCharsets.UTF_8.toString())
-                            navController.navigate("artifact/scanner/$encodedUri")
-                        },
-                        onMultipleImagesSelected = { uris ->
-                            showAddArtifactSheet = false
-                            val encodedUris = uris.map { URLEncoder.encode(it.toString(), StandardCharsets.UTF_8.toString()) }
-                            navController.navigate("artifact/scanner/batch/${encodedUris.joinToString(",")}")
-                        },
-                        onCameraClick = {
-                            showAddArtifactSheet = false
-                            showCameraScreen = true
-                        }
-                    )
-                }
-
-                Scaffold(
-                    topBar = {
-                        if (isTopLevelDestination) {
-                            MainTopAppBar(
-                                title = stringResource(
-                                    id = currentNavItem?.titleResId ?: R.string.app_name
-                                ),
-                                onNavigationIconClick = {
-                                    scope.launch { drawerState.open() }
-                                },
-                                actions = {
-                                    if (currentRoute == NavigationItem.Artifacts.route) {
-                                        IconButton(onClick = {
-                                            showAddArtifactSheet = true 
-                                        }) {
-                                            Icon(
-                                                Icons.Default.Add,
-                                                contentDescription = stringResource(R.string.artifact_add_button)
-                                            )
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Scaffold(
+                        topBar = {
+                            if (isTopLevelDestination) {
+                                MainTopAppBar(
+                                    title = stringResource(
+                                        id = currentNavItem?.titleResId ?: R.string.app_name
+                                    ),
+                                    onNavigationIconClick = {
+                                        scope.launch { drawerState.open() }
+                                    },
+                                    actions = {
+                                        if (currentRoute == NavigationItem.Artifacts.route) {
+                                            IconButton(onClick = {
+                                                showAddArtifactSheet = true 
+                                            }) {
+                                                Icon(
+                                                    Icons.Default.Add,
+                                                    contentDescription = stringResource(R.string.artifact_add_button)
+                                                )
+                                            }
                                         }
                                     }
+                                )
+                            }
+                        }
+                    ) { innerPadding ->
+                        val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
+                        val shouldApplyPadding = currentDestination?.startsWith("artifact/scanner") != true
+                        
+                        NavHost(
+                            navController = navController,
+                            startDestination = NavigationItem.Encyclopedia.route,
+                            modifier = if (shouldApplyPadding) Modifier.padding(innerPadding) else Modifier
+                        ) {
+                            composable(NavigationItem.Encyclopedia.route) {
+                                EncyclopediaScreen(
+                                    encyclopediaViewModel = encyclopediaViewModel,
+                                    onArtifactSetClick = { setId ->
+                                        navController.navigate("encyclopedia/artifact/$setId")
+                                    },
+                                    onWeaponClick = { weaponId ->
+                                        navController.navigate("encyclopedia/weapon/$weaponId")
+                                    }
+                                )
+                            }
+
+                            composable(NavigationItem.Characters.route) {
+                                CharacterScreen(
+                                    characterViewModel = characterViewModel,
+                                    onCharacterClick = { id -> navController.navigate("character/$id") }
+                                )
+                            }
+
+                            composable(NavigationItem.Artifacts.route) {
+                                ArtifactScreen(
+                                    artifactViewModel = artifactViewModel,
+                                    onArtifactClick = { artifactId ->
+                                        navController.navigate("artifact/editor/$artifactId")
+                                    }
+                                )
+                            }
+
+                            composable(NavigationItem.Weapons.route) {
+                                WeaponScreen(weaponViewModel = weaponViewModel)
+                            }
+
+                            composable(NavigationItem.Builds.route) {
+                                Surface(modifier = Modifier.fillMaxSize()) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text(stringResource(R.string.builds_coming_soon))
+                                    }
                                 }
-                            )
+                            }
+
+                            composable(NavigationItem.Settings.route) {
+                                SettingsScreen(
+                                    settingsViewModel = settingsViewModel,
+                                    onNavigateToGestures = {
+                                        navController.navigate("gesture_settings_route")
+                                    }
+                                )
+                            }
+
+                            composable("gesture_settings_route") {
+                                val gestureSettingsViewModel: GestureSettingsViewModel = hiltViewModel()
+                                GestureSettingsScreen(
+                                    viewModel = gestureSettingsViewModel,
+                                    onNavigateBack = { navController.popBackStack() }
+                                )
+                            }
+
+                            composable(
+                                route = "character/{characterId}",
+                                arguments = listOf(
+                                    navArgument("characterId") { type = NavType.IntType }
+                                )
+                            ) {
+                                CharacterDetailsScreen(
+                                    onBackClick = { navController.popBackStack() }
+                                )
+                            }
+
+                            composable(
+                                route = "encyclopedia/artifact/{setId}",
+                                arguments = listOf(navArgument("setId") { type = NavType.IntType })
+                            ) {
+                                ArtifactSetDetailsScreen(onBackClick = { navController.popBackStack() })
+                            }
+
+                            composable(
+                                route = "encyclopedia/weapon/{weaponId}",
+                                arguments = listOf(navArgument("weaponId") { type = NavType.IntType })
+                            ) {
+                                WeaponDetailsScreen(onBackClick = { navController.popBackStack() })
+                            }
+
+                            composable(
+                                route = "artifact/editor/{artifactId}",
+                                arguments = listOf(
+                                    navArgument("artifactId") {
+                                        type = NavType.StringType
+                                        nullable = true
+                                        defaultValue = null
+                                    }
+                                )
+                            ) { backStackEntry ->
+                                val savedStateHandle = backStackEntry.savedStateHandle
+                                val scannedData = savedStateHandle.get<ParsedArtifactData>("scanned_artifact_data")
+                                val scannedBatch = savedStateHandle.get<List<ParsedArtifactData>>("scanned_artifact_batch")
+                                val editorViewModel: com.nokaori.genshinaibuilder.presentation.viewmodel.EditorArtifactViewModel = hiltViewModel()
+                                
+                                LaunchedEffect(scannedBatch) {
+                                    if (scannedBatch != null && scannedBatch.isNotEmpty()) {
+                                        editorViewModel.initBatch(scannedBatch)
+                                    }
+                                }
+                                
+                                EditorArtifactScreen(
+                                    onBackClick = { navController.popBackStack() },
+                                    artifactId = backStackEntry.arguments?.getString("artifactId"),
+                                    scannedData = scannedData
+                                )
+                                
+                                if (scannedData != null) {
+                                    savedStateHandle.remove<ParsedArtifactData>("scanned_artifact_data")
+                                }
+                                if (scannedBatch != null) {
+                                    savedStateHandle.remove<List<ParsedArtifactData>>("scanned_artifact_batch")
+                                }
+                            }
+
+                            composable(
+                                route = "artifact/scanner/{imageUri}",
+                                arguments = listOf(navArgument("imageUri") { type = NavType.StringType })
+                            ) { backStackEntry ->
+                                val imageUri = backStackEntry.arguments?.getString("imageUri")
+                                
+                                ArtifactScannerScreen(
+                                    imageUriString = imageUri,
+                                    onScanComplete = { parsedData ->
+                                        navController.navigate("artifact/editor/null") {
+                                            popUpTo("artifact/scanner/{imageUri}") { inclusive = true }
+                                        }
+                                        navController.currentBackStackEntry
+                                            ?.savedStateHandle
+                                            ?.set("scanned_artifact_data", parsedData)
+                                    },
+                                    onBatchScanComplete = {},
+                                    onBackClick = { navController.popBackStack() },
+                                    onManualEntryClick = {
+                                        navController.navigate("artifact/editor/null") {
+                                            popUpTo("artifact/scanner/{imageUri}") { inclusive = true }
+                                        }
+                                    },
+                                    onRepickClick = {
+                                        navController.popBackStack()
+                                        showAddArtifactSheet = true 
+                                    }
+                                )
+                            }
+
+                            composable(
+                                route = "artifact/scanner/batch/{imageUris}",
+                                arguments = listOf(navArgument("imageUris") { type = NavType.StringType })
+                            ) { backStackEntry ->
+                                val imageUrisString = backStackEntry.arguments?.getString("imageUris")
+                                val imageUris = imageUrisString?.split(",")?.map { android.net.Uri.parse(java.net.URLDecoder.decode(it, "UTF-8")) } ?: emptyList()
+                                val scannerViewModel: com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactScannerViewModel = hiltViewModel()
+                                
+                                LaunchedEffect(imageUris) {
+                                    if (imageUris.isNotEmpty()) {
+                                        scannerViewModel.scanMultipleImages(imageUris)
+                                    }
+                                }
+                                
+                                ArtifactScannerScreen(
+                                    imageUriString = null,
+                                    onScanComplete = {},
+                                    onBatchScanComplete = { parsedBatch ->
+                                        navController.navigate("artifact/editor/null") {
+                                            popUpTo("artifact/scanner/batch/{imageUris}") { inclusive = true }
+                                        }
+                                        navController.currentBackStackEntry
+                                            ?.savedStateHandle
+                                            ?.set("scanned_artifact_batch", parsedBatch)
+                                    },
+                                    onBackClick = { navController.popBackStack() },
+                                    onManualEntryClick = {
+                                        navController.navigate("artifact/editor/null") {
+                                            popUpTo("artifact/scanner/batch/{imageUris}") { inclusive = true }
+                                        }
+                                    },
+                                    onRepickClick = null 
+                                )
+                            }
                         }
                     }
-                ) { innerPadding ->
-                    val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
-                    val shouldApplyPadding = currentDestination?.startsWith("artifact/scanner") != true
-                    
-                    NavHost(
-                        navController = navController,
-                        startDestination = NavigationItem.Encyclopedia.route,
-                        modifier = if (shouldApplyPadding) Modifier.padding(innerPadding) else Modifier
-                    ) {
-                        composable(NavigationItem.Encyclopedia.route) {
-                            EncyclopediaScreen(
-                                encyclopediaViewModel = encyclopediaViewModel,
-                                onArtifactSetClick = { setId ->
-                                    navController.navigate("encyclopedia/artifact/$setId")
-                                },
-                                onWeaponClick = { weaponId ->
-                                    navController.navigate("encyclopedia/weapon/$weaponId")
-                                }
-                            )
-                        }
 
-                        composable(NavigationItem.Characters.route) {
-                            CharacterScreen(
-                                characterViewModel = characterViewModel,
-                                onCharacterClick = { id -> navController.navigate("character/$id") }
-                            )
-                        }
-
-                        composable(NavigationItem.Artifacts.route) {
-                            ArtifactScreen(
-                                artifactViewModel = artifactViewModel,
-                                onArtifactClick = { artifactId ->
-                                    navController.navigate("artifact/editor/$artifactId")
-                                }
-                            )
-                        }
-
-                        composable(NavigationItem.Weapons.route) {
-                            WeaponScreen(weaponViewModel = weaponViewModel)
-                        }
-
-                        composable(NavigationItem.Builds.route) {
-                            Surface(modifier = Modifier.fillMaxSize()) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text(stringResource(R.string.builds_coming_soon))
-                                }
+                    if (showCameraScreen) {
+                        ArtifactCameraScreen(
+                            onImageCaptured = { uri ->
+                                showCameraScreen = false
+                                val encodedUri = URLEncoder.encode(uri.toString(), StandardCharsets.UTF_8.toString())
+                                navController.navigate("artifact/scanner/$encodedUri")
+                            },
+                            onClose = {
+                                showCameraScreen = false
                             }
-                        }
+                        )
+                    }
 
-                        composable(NavigationItem.Settings.route) {
-                            SettingsScreen(
-                                settingsViewModel = settingsViewModel,
-                                onNavigateToGestures = {
-                                    navController.navigate("gesture_settings_route")
-                                }
-                            )
-                        }
-
-                        composable("gesture_settings_route") {
-                            val gestureSettingsViewModel: GestureSettingsViewModel = hiltViewModel()
-                            GestureSettingsScreen(
-                                viewModel = gestureSettingsViewModel,
-                                onNavigateBack = { navController.popBackStack() }
-                            )
-                        }
-
-                        composable(
-                            route = "character/{characterId}",
-                            arguments = listOf(
-                                navArgument("characterId") { type = NavType.IntType }
-                            )
-                        ) {
-                            CharacterDetailsScreen(
-                                onBackClick = { navController.popBackStack() }
-                            )
-                        }
-
-                        composable(
-                            route = "encyclopedia/artifact/{setId}",
-                            arguments = listOf(navArgument("setId") { type = NavType.IntType })
-                        ) {
-                            ArtifactSetDetailsScreen(onBackClick = { navController.popBackStack() })
-                        }
-
-                        composable(
-                            route = "encyclopedia/weapon/{weaponId}",
-                            arguments = listOf(navArgument("weaponId") { type = NavType.IntType })
-                        ) {
-                            WeaponDetailsScreen(onBackClick = { navController.popBackStack() })
-                        }
-
-                        composable(
-                            route = "artifact/editor/{artifactId}",
-                            arguments = listOf(
-                                navArgument("artifactId") {
-                                    type = NavType.StringType
-                                    nullable = true
-                                    defaultValue = null
-                                }
-                            )
-                        ) { backStackEntry ->
-                            val savedStateHandle = backStackEntry.savedStateHandle
-                            val scannedData = savedStateHandle.get<ParsedArtifactData>("scanned_artifact_data")
-                            val scannedBatch = savedStateHandle.get<List<ParsedArtifactData>>("scanned_artifact_batch")
-                            val editorViewModel: com.nokaori.genshinaibuilder.presentation.viewmodel.EditorArtifactViewModel = hiltViewModel()
-                            
-                            LaunchedEffect(scannedBatch) {
-                                if (scannedBatch != null && scannedBatch.isNotEmpty()) {
-                                    editorViewModel.initBatch(scannedBatch)
-                                }
+                    if (showAddArtifactSheet) {
+                        AddArtifactSelectionSheet(
+                            onDismissRequest = { showAddArtifactSheet = false },
+                            onManualEntrySelected = {
+                                showAddArtifactSheet = false
+                                navController.navigate("artifact/editor/null")
+                            },
+                            onImageSelected = { uri ->
+                                showAddArtifactSheet = false
+                                val encodedUri = URLEncoder.encode(uri.toString(), StandardCharsets.UTF_8.toString())
+                                navController.navigate("artifact/scanner/$encodedUri")
+                            },
+                            onMultipleImagesSelected = { uris ->
+                                showAddArtifactSheet = false
+                                val encodedUris = uris.map { URLEncoder.encode(it.toString(), StandardCharsets.UTF_8.toString()) }
+                                navController.navigate("artifact/scanner/batch/${encodedUris.joinToString(",")}")
+                            },
+                            onCameraClick = {
+                                showAddArtifactSheet = false
+                                showCameraScreen = true
                             }
-                            
-                            EditorArtifactScreen(
-                                onBackClick = { navController.popBackStack() },
-                                artifactId = backStackEntry.arguments?.getString("artifactId"),
-                                scannedData = scannedData
-                            )
-                            
-                            if (scannedData != null) {
-                                savedStateHandle.remove<ParsedArtifactData>("scanned_artifact_data")
-                            }
-                            if (scannedBatch != null) {
-                                savedStateHandle.remove<List<ParsedArtifactData>>("scanned_artifact_batch")
-                            }
-                        }
-
-                        composable(
-                            route = "artifact/scanner/{imageUri}",
-                            arguments = listOf(navArgument("imageUri") { type = NavType.StringType })
-                        ) { backStackEntry ->
-                            val imageUri = backStackEntry.arguments?.getString("imageUri")
-                            
-                            ArtifactScannerScreen(
-                                imageUriString = imageUri,
-                                onScanComplete = { parsedData ->
-                                    navController.navigate("artifact/editor/null") {
-                                        popUpTo("artifact/scanner/{imageUri}") { inclusive = true }
-                                    }
-                                    navController.currentBackStackEntry
-                                        ?.savedStateHandle
-                                        ?.set("scanned_artifact_data", parsedData)
-                                },
-                                onBatchScanComplete = {},
-                                onBackClick = { navController.popBackStack() },
-                                onManualEntryClick = {
-                                    navController.navigate("artifact/editor/null") {
-                                        popUpTo("artifact/scanner/{imageUri}") { inclusive = true }
-                                    }
-                                },
-                                onRepickClick = {
-                                    navController.popBackStack()
-                                    showAddArtifactSheet = true 
-                                }
-                            )
-                        }
-
-                        composable(
-                            route = "artifact/scanner/batch/{imageUris}",
-                            arguments = listOf(navArgument("imageUris") { type = NavType.StringType })
-                        ) { backStackEntry ->
-                            val imageUrisString = backStackEntry.arguments?.getString("imageUris")
-                            val imageUris = imageUrisString?.split(",")?.map { android.net.Uri.parse(java.net.URLDecoder.decode(it, "UTF-8")) } ?: emptyList()
-                            val scannerViewModel: com.nokaori.genshinaibuilder.presentation.viewmodel.ArtifactScannerViewModel = hiltViewModel()
-                            
-                            LaunchedEffect(imageUris) {
-                                if (imageUris.isNotEmpty()) {
-                                    scannerViewModel.scanMultipleImages(imageUris)
-                                }
-                            }
-                            
-                            ArtifactScannerScreen(
-                                imageUriString = null,
-                                onScanComplete = {},
-                                onBatchScanComplete = { parsedBatch ->
-                                    navController.navigate("artifact/editor/null") {
-                                        popUpTo("artifact/scanner/batch/{imageUris}") { inclusive = true }
-                                    }
-                                    navController.currentBackStackEntry
-                                        ?.savedStateHandle
-                                        ?.set("scanned_artifact_batch", parsedBatch)
-                                },
-                                onBackClick = { navController.popBackStack() },
-                                onManualEntryClick = {
-                                    navController.navigate("artifact/editor/null") {
-                                        popUpTo("artifact/scanner/batch/{imageUris}") { inclusive = true }
-                                    }
-                                },
-                                onRepickClick = null 
-                            )
-                        }
+                        )
                     }
                 }
             }
