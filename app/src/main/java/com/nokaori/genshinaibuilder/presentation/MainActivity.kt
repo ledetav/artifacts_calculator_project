@@ -227,9 +227,7 @@ fun AppContent() {
                             showCameraScreen = false
                         }
                     )
-                }
-
-                if (showAddArtifactSheet) {
+                } else if (showAddArtifactSheet) {
                     AddArtifactSelectionSheet(
                         onDismissRequest = { showAddArtifactSheet = false },
                         onManualEntrySelected = {
