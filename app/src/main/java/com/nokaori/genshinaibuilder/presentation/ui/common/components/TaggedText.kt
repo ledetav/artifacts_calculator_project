@@ -13,12 +13,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nokaori.genshinaibuilder.R
 
 // Ключ - ID тега (например, "N11280001"), Значение - Описание
 typealias TagDictionary = Map<String, String>
@@ -30,7 +33,9 @@ fun TaggedText(
     tagDictionary: TagDictionary,
     modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.bodyMedium,
-    textColor: Color = MaterialTheme.colorScheme.onSurface
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Clip
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var dialogTitle by remember { mutableStateOf("") }
@@ -79,6 +84,8 @@ fun TaggedText(
         text = annotatedString,
         modifier = modifier,
         style = style.copy(color = textColor),
+        maxLines = maxLines,
+        overflow = overflow,
         onClick = { offset ->
             annotatedString.getStringAnnotations(tag = "TAG_LINK", start = offset, end = offset)
                 .firstOrNull()?.let { annotation ->
@@ -94,14 +101,14 @@ fun TaggedText(
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = {
-                Text(text = "Информация", color = elementColor) // Заглушка, позже вынести в стринги
+                Text(text = stringResource(R.string.dialog_info_title), color = elementColor)
             },
             text = {
                 Text(text = dialogDescription, fontSize = 14.sp)
             },
             confirmButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text("Закрыть") // Заглушка, позже вынести в стринги
+                    Text(stringResource(R.string.dialog_close_btn))
                 }
             }
         )

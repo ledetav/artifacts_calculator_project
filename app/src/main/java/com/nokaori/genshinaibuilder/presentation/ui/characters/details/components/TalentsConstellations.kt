@@ -19,13 +19,16 @@ import com.nokaori.genshinaibuilder.domain.model.CharacterConstellation
 import com.nokaori.genshinaibuilder.domain.model.CharacterTalent
 import com.nokaori.genshinaibuilder.domain.model.TalentType
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import com.nokaori.genshinaibuilder.R
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.TaggedText
 
 @Composable
 fun TalentsList(
     talents: List<CharacterTalent>,
     userLevels: List<Int>?,
-    elementColor: Color
+    elementColor: Color,
+    tagDictionary: Map<String, String> = emptyMap()
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         talents.forEachIndexed { index, talent ->
@@ -35,7 +38,8 @@ fun TalentsList(
                 talent = talent,
                 isLocked = false,
                 level = level,
-                elementColor = elementColor
+                elementColor = elementColor,
+                tagDictionary = tagDictionary
             )
         }
     }
@@ -46,7 +50,8 @@ fun TalentItem(
     talent: CharacterTalent,
     isLocked: Boolean,
     level: Int,
-    elementColor: Color
+    elementColor: Color,
+    tagDictionary: Map<String, String> = emptyMap()
 ) {
     val alpha = if (isLocked) 0.5f else 1f
 
@@ -120,11 +125,12 @@ fun TalentItem(
             HorizontalDivider(color = elementColor.copy(alpha = 0.3f), thickness = 1.dp)
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
+            TaggedText(
                 text = talent.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface, 
-                lineHeight = 20.sp
+                elementColor = elementColor,
+                tagDictionary = tagDictionary,
+                style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 20.sp),
+                textColor = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -134,12 +140,13 @@ fun TalentItem(
 fun ConstellationsList(
     constellations: List<CharacterConstellation>,
     unlockedCount: Int,
-    elementColor: Color
+    elementColor: Color,
+    tagDictionary: Map<String, String> = emptyMap()
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         constellations.forEach { cons ->
             val isUnlocked = cons.order <= unlockedCount
-            ConstellationItem(cons, isUnlocked, elementColor)
+            ConstellationItem(cons, isUnlocked, elementColor, tagDictionary)
         }
     }
 }
@@ -148,7 +155,8 @@ fun ConstellationsList(
 fun ConstellationItem(
     cons: CharacterConstellation,
     isUnlocked: Boolean,
-    elementColor: Color
+    elementColor: Color,
+    tagDictionary: Map<String, String> = emptyMap()
 ) {
     val alpha = if (isUnlocked) 1f else 0.4f
 
@@ -173,11 +181,14 @@ fun ConstellationItem(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Text(
+                TaggedText(
                     text = cons.description,
+                    elementColor = elementColor,
+                    tagDictionary = tagDictionary,
                     style = MaterialTheme.typography.bodyMedium,
+                    textColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = if(isUnlocked) 10 else 2,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

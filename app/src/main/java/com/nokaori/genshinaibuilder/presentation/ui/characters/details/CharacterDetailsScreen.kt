@@ -126,17 +126,20 @@ fun CharacterDetailsScreen(
                 verticalAlignment = Alignment.Top
             ) { page ->
                 val elementColor = getElementColor(character!!.element)
+                val tagsDictionary = character?.tagsDictionary ?: emptyMap()
 
                 when(page) {
                     0 -> TalentsList(
                         talents, 
                         if(userCharacter != null) listOf(1,1,1) else null,
-                        elementColor = elementColor
+                        elementColor = elementColor,
+                        tagDictionary = tagsDictionary
                     )
                     1 -> ConstellationsList(
                         constellations, 
                         userCharacter?.constellation ?: 0, 
-                        elementColor = elementColor
+                        elementColor = elementColor,
+                        tagDictionary = tagsDictionary
                         )
                 }
             }
