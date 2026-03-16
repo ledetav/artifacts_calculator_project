@@ -40,6 +40,9 @@ interface ArtifactDao {
     @Query("SELECT * FROM artifact_pieces_data WHERE set_id = :setId AND language = :language")
     fun getPiecesBySetId(setId: Int, language: String): Flow<List<ArtifactPieceEntity>>
 
+    @Query("SELECT * FROM artifact_pieces_data")
+    suspend fun getAllArtifactPieces(): List<ArtifactPieceEntity>
+
     @Upsert
     suspend fun insertArtifactPieces(pieces: List<ArtifactPieceEntity>)
 

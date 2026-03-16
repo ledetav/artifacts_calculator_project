@@ -4,10 +4,10 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
 import com.nokaori.genshinaibuilder.domain.util.ArtifactOcrParser
 import com.nokaori.genshinaibuilder.domain.util.ArtifactTextRecognizer
 import com.nokaori.genshinaibuilder.domain.util.ParsedArtifactData
-import com.nokaori.genshinaibuilder.presentation.util.ScanSessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +23,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ArtifactScannerViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val artifactRepository: ArtifactRepository
 ) : ViewModel() {
 
     private val recognizer = ArtifactTextRecognizer(context)
@@ -42,10 +43,12 @@ class ArtifactScannerViewModel @Inject constructor(
             _scannerState.update { it.copy(isProcessing = true, result = ScannerResult.Scanning) }
             try {
                 delay(800)
+
+                val availablePieces = artifactRepository.getAllPiecesForMatching()
                 
                 val rawText = recognizer.extractTextFromUri(uri)
                 if (!rawText.isNullOrBlank()) {
-                    val parsedData = ArtifactOcrParser.parse(rawText)
+                    val parsedData = ArtifactOcrParser.parse(rawText, availablePieces)
                     if (isValidParsedArtifact(parsedData)) {
                         _scannerState.update { it.copy(
                             isProcessing = false,
@@ -86,6 +89,7 @@ class ArtifactScannerViewModel @Inject constructor(
             )}
             
             val results = mutableListOf<ParsedArtifactData>()
+            val availablePieces = artifactRepository.getAllPiecesForMatching()
             
             uris.forEachIndexed { index, uri ->
                 _scannerState.update { it.copy(
@@ -97,7 +101,8 @@ class ArtifactScannerViewModel @Inject constructor(
                     delay(300)
                     val rawText = recognizer.extractTextFromUri(uri)
                     if (!rawText.isNullOrBlank()) {
-                        val parsedData = ArtifactOcrParser.parse(rawText)
+                        // Передаем куски в парсер
+                        val parsedData = ArtifactOcrParser.parse(rawText, availablePieces)
                         if (isValidParsedArtifact(parsedData)) {
                             results.add(parsedData)
                             _scannerState.update { it.copy(successfulScans = it.successfulScans + 1) }
