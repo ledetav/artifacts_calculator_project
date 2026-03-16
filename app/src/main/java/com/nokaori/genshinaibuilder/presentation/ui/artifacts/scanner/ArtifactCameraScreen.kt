@@ -76,30 +76,27 @@ fun ArtifactCameraScreen(
 
     if (hasPermission) {
         Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-            
             CameraPreview(
                 imageCapture = imageCapture,
                 onPreviewStarted = { isPreviewReady = true },
                 modifier = Modifier.fillMaxSize()
             )
 
-            if (cameraState == CameraState.AIMING) {
-                SteadySensorEffect(
-                    isActive = true,
-                    onSteady = {
-                        cameraState = CameraState.CAPTURING
-                        takePhoto(
-                            context = context,
-                            imageCapture = imageCapture,
-                            onImageCaptured = onImageCaptured,
-                            onError = { 
-                                cameraState = CameraState.AIMING // Возвращаем в сканирование при ошибке
-                                Log.e("ArtifactCameraScreen", "Capture error", it)
-                            }
-                        )
-                    }
-                )
-            }
+            SteadySensorEffect(
+                isActive = cameraState == CameraState.AIMING,
+                onSteady = {
+                    cameraState = CameraState.CAPTURING
+                    takePhoto(
+                        context = context,
+                        imageCapture = imageCapture,
+                        onImageCaptured = onImageCaptured,
+                        onError = { 
+                            cameraState = CameraState.AIMING
+                            Log.e("ArtifactCameraScreen", "Capture error", it)
+                        }
+                    )
+                }
+            )
 
             CameraOverlay(
                 cameraState = cameraState,
@@ -144,7 +141,7 @@ private fun CameraPreview(
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
             scaleType = PreviewView.ScaleType.FILL_CENTER
-            implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+            implementationMode = PreviewView.ImplementationMode.PERFORMANCE
         }
     }
 
