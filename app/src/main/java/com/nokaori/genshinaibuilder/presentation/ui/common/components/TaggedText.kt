@@ -43,12 +43,12 @@ fun TaggedText(
 
     // Регулярное выражение для поиска тегов вида {LINK#N11280001}Текст{/LINK}
     val linkRegex = "\\{LINK#([^}]*)\\}(.*?)\\{/LINK\\}".toRegex()
-    // Регулярное выражение для удаления тегов вида {LINK#S11142} и {/LINK}, оставляя текст между ними
-    val skipTagRegex = "\\{LINK#S[^}]*\\}|\\{/LINK\\}".toRegex()
+    // Регулярное выражение для удаления тегов вида {LINK#S11142}Текст{/LINK}
+    val skipTagRegex = "\\{LINK#S[^}]*\\}(.*?)\\{/LINK\\}".toRegex()
 
     val annotatedString = buildAnnotatedString {
-        // Сначала удаляем теги с S
-        var processedText = text.replace(skipTagRegex, "")
+        // Сначала удаляем теги с S вместе с их содержимым и закрывающим тегом
+        var processedText = text.replace(skipTagRegex, "$1")
         var lastIndex = 0
         val matches = linkRegex.findAll(processedText)
 
