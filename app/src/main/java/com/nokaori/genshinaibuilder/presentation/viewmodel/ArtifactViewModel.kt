@@ -7,7 +7,7 @@ import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.ArtifactSlot
 import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
-import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
+import com.nokaori.genshinaibuilder.domain.repository.SettingsRepository
 import com.nokaori.genshinaibuilder.domain.usecase.FilterArtifactsUseCase
 import com.nokaori.genshinaibuilder.presentation.ui.artifacts.data.ArtifactFilterState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +29,7 @@ import javax.inject.Inject
 class ArtifactViewModel @Inject constructor (
     private val artifactRepository: ArtifactRepository,
     private val filterArtifactsUseCase: FilterArtifactsUseCase,
-    private val themeRepository: ThemeRepository
+    private val themeRepository: SettingsRepository
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()

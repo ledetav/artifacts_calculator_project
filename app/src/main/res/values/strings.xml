@@ -30,7 +30,6 @@
     <string name="search_nothing">Ничего не найдено</string>
     <string name="nav_open">Открыть меню</string>
     <string name="filter_dialog_close">Закрыть фильтры</string>
-    <string name="theme_switch">Сменить тему</string>
     <string name="artifact_add_button">Добавить артефакт</string>
     <string name="stat_type_atk">Сила атаки</string>
     <string name="stat_type_def">Защита</string>

@@ -5,14 +5,11 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Brightness4
-import androidx.compose.material.icons.filled.Brightness7
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -35,14 +32,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -74,7 +69,6 @@ import com.nokaori.genshinaibuilder.presentation.viewmodel.CharacterViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.EncyclopediaViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.GestureSettingsViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
-import com.nokaori.genshinaibuilder.presentation.viewmodel.ThemeViewModel
 import com.nokaori.genshinaibuilder.presentation.viewmodel.WeaponViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.URLEncoder
@@ -101,14 +95,11 @@ fun AppContent() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val themeViewModel: ThemeViewModel = hiltViewModel()
     val encyclopediaViewModel: EncyclopediaViewModel = hiltViewModel()
     val artifactViewModel: ArtifactViewModel = hiltViewModel()
     val weaponViewModel: WeaponViewModel = hiltViewModel()
     val characterViewModel: CharacterViewModel = hiltViewModel()
     val settingsViewModel: SettingsViewModel = hiltViewModel()
-
-    val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
 
     var showAddArtifactSheet by remember { mutableStateOf(false) }
     var showCameraScreen by remember { mutableStateOf(false) }
@@ -155,7 +146,7 @@ fun AppContent() {
         }
     )
 
-    GenshinAIBuilderTheme(darkTheme = isDarkTheme) {
+    GenshinAIBuilderTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
@@ -164,10 +155,8 @@ fun AppContent() {
             if (!view.isInEditMode) {
                 SideEffect {
                     val window = (view.context as Activity).window
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
-                        !isDarkTheme
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars =
-                        !isDarkTheme
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = false
                 }
             }
 
@@ -175,28 +164,11 @@ fun AppContent() {
                 drawerState = drawerState,
                 drawerContent = {
                     ModalDrawerSheet {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.app_name),
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.weight(1f)
-                            )
-                            IconButton(
-                                onClick = { themeViewModel.toggleTheme() },
-                                modifier = Modifier.alpha(0.7f)
-                            ) {
-                                Icon(
-                                    imageVector = if (isDarkTheme) Icons.Default.Brightness7
-                                    else Icons.Default.Brightness4,
-                                    contentDescription = stringResource(R.string.theme_switch)
-                                )
-                            }
-                        }
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
 
                         HorizontalDivider()
 

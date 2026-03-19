@@ -6,7 +6,7 @@ import com.nokaori.genshinaibuilder.domain.model.ArtifactSet
 import com.nokaori.genshinaibuilder.domain.model.Weapon
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
 import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
-import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
+import com.nokaori.genshinaibuilder.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class EncyclopediaViewModel @Inject constructor (
     artifactRepository: ArtifactRepository,
     weaponRepository: WeaponRepository,
-    themeRepository: ThemeRepository
+    themeRepository: SettingsRepository
 ) : ViewModel() {
 
     val artifactSetsPaged: Flow<PagingData<ArtifactSet>> = themeRepository.appLanguage

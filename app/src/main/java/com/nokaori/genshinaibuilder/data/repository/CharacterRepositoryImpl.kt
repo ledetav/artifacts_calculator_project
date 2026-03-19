@@ -13,7 +13,7 @@ import com.nokaori.genshinaibuilder.domain.model.StatCurve
 import com.nokaori.genshinaibuilder.domain.model.SupportedLanguages
 import com.nokaori.genshinaibuilder.domain.model.UserCharacter
 import com.nokaori.genshinaibuilder.domain.repository.CharacterRepository
-import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
+import com.nokaori.genshinaibuilder.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
@@ -24,7 +24,7 @@ class CharacterRepositoryImpl @Inject constructor (
     private val characterDao: CharacterDao,
     private val userDao: UserDao,
     private val statCurveDao: StatCurveDao,
-    private val themeRepository: ThemeRepository
+    private val themeRepository: SettingsRepository
 ) : CharacterRepository {
 
     override fun getCharacters(): Flow<List<Character>> {

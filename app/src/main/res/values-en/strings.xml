@@ -30,7 +30,6 @@
     <string name="search_nothing">Nothing was found</string>
     <string name="nav_open">Open menu</string>
     <string name="filter_dialog_close">Close filters</string>
-    <string name="theme_switch">Switch theme</string>
     <string name="artifact_add_button">Add artifact</string>
     <string name="stat_type_atk">ATK</string>
     <string name="stat_type_def">DEF</string>

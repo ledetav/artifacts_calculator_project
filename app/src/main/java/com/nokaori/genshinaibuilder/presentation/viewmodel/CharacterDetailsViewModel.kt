@@ -7,7 +7,7 @@ import com.nokaori.genshinaibuilder.domain.model.*
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
 import com.nokaori.genshinaibuilder.domain.repository.CharacterRepository
 import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
-import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
+import com.nokaori.genshinaibuilder.domain.repository.SettingsRepository
 import com.nokaori.genshinaibuilder.domain.usecase.CalculateCharacterStatsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -21,7 +21,7 @@ class CharacterDetailsViewModel @Inject constructor(
     private val weaponRepository: WeaponRepository,
     private val artifactRepository: ArtifactRepository,
     private val calculateStatsUseCase: CalculateCharacterStatsUseCase,
-    private val themeRepository: ThemeRepository
+    private val themeRepository: SettingsRepository
 ) : ViewModel() {
 
     private val characterId: Int = checkNotNull(savedStateHandle["characterId"])

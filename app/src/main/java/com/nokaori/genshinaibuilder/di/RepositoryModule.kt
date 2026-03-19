@@ -38,9 +38,9 @@ abstract class RepositoryModule {
     
     @Binds
     @Singleton
-    abstract fun bindThemeRepository(
-        impl: ThemeRepositoryImpl
-    ): ThemeRepository
+    abstract fun bindSettingsRepository(
+        impl: SettingsRepositoryImpl
+    ): SettingsRepository
 
     @Binds
     @Singleton
