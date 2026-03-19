@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -40,6 +41,27 @@ fun TaggedText(
     var showDialog by remember { mutableStateOf(false) }
     var dialogTitle by remember { mutableStateOf("") }
     var dialogDescription by remember { mutableStateOf("") }
+
+    fun formatDialogText(rawText: String): AnnotatedString = buildAnnotatedString {
+        // Обрабатываем <color ...>текст</color> - делаем жирным
+        val colorRegex = "<color[^>]*>(.*?)</color>".toRegex()
+        
+        var text = rawText
+        // Заменяем <color>текст</color> на маркер для жирного
+        text = text.replace(colorRegex) { "<BOLD>${it.groupValues[1]}</BOLD>" }
+        
+        val boldMarkerRegex = "<BOLD>(.*?)</BOLD>".toRegex()
+        var lastIndex = 0
+        
+        for (match in boldMarkerRegex.findAll(text)) {
+            append(text.substring(lastIndex, match.range.first))
+            pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+            append(match.groupValues[1])
+            pop()
+            lastIndex = match.range.last + 1
+        }
+        append(text.substring(lastIndex))
+    }
 
     // Регулярное выражение для поиска тегов вида {LINK#N11280001}Текст{/LINK}
     val linkRegex = "\\{LINK#([^}]*)\\}(.*?)\\{/LINK\\}".toRegex()
@@ -108,7 +130,11 @@ fun TaggedText(
                 Text(text = stringResource(R.string.dialog_info_title), color = elementColor)
             },
             text = {
-                Text(text = dialogDescription, fontSize = 14.sp)
+                Text(
+                    text = formatDialogText(dialogDescription),
+                    fontSize = 14.sp,
+                    lineHeight = 18.sp
+                )
             },
             confirmButton = {
                 TextButton(onClick = { showDialog = false }) {
