@@ -20,48 +20,60 @@ data class ParsedArtifactData(
 
 object ArtifactOcrParser {
 
-    private val slotMap = mapOf(
+    val defaultSlotMap = mapOf(
         "цветокжизни" to ArtifactSlot.FLOWER_OF_LIFE,
+        "floweroflife" to ArtifactSlot.FLOWER_OF_LIFE,
+        
         "перосмерти" to ArtifactSlot.PLUME_OF_DEATH,
+        "plumeofdeath" to ArtifactSlot.PLUME_OF_DEATH,
+        
         "пескивремени" to ArtifactSlot.SANDS_OF_EON,
+        "sandsofeon" to ArtifactSlot.SANDS_OF_EON,
+        
         "кубокпространства" to ArtifactSlot.GOBLET_OF_EONOTHEM,
-        "коронаразума" to ArtifactSlot.CIRCLET_OF_LOGOS
+        "gobletofeonothem" to ArtifactSlot.GOBLET_OF_EONOTHEM,
+        
+        "коронаразума" to ArtifactSlot.CIRCLET_OF_LOGOS,
+        "circletoflogos" to ArtifactSlot.CIRCLET_OF_LOGOS
     )
 
-    private val statMap = mapOf(
-        "нр" to StatType.HP, 
-        "hp" to StatType.HP, 
-        "хп" to StatType.HP, 
-        "силаатаки" to StatType.ATK,
-        "атк" to StatType.ATK,
-        "защита" to StatType.DEF,
-        "мастерствостихий" to StatType.ELEMENTAL_MASTERY,
-        "мс" to StatType.ELEMENTAL_MASTERY,
-        "восст.энергии" to StatType.ENERGY_RECHARGE,
-        "восстановлениеэнергии" to StatType.ENERGY_RECHARGE,
-        "вэ" to StatType.ENERGY_RECHARGE,
-        "шанскрит.попадания" to StatType.CRIT_RATE,
-        "шанскрита" to StatType.CRIT_RATE,
-        "кш" to StatType.CRIT_RATE,
-        "крит.урон" to StatType.CRIT_DMG,
-        "критурон" to StatType.CRIT_DMG,
-        "ку" to StatType.CRIT_DMG,
-        "бонуслечения" to StatType.HEALING_BONUS,
-        "бонуспироурона" to StatType.PYRO_DAMAGE_BONUS,
-        "бонусгидроурона" to StatType.HYDRO_DAMAGE_BONUS,
-        "бонусдендроурона" to StatType.DENDRO_DAMAGE_BONUS,
-        "бонусэлектроурона" to StatType.ELECTRO_DAMAGE_BONUS,
-        "бонусанемоурона" to StatType.ANEMO_DAMAGE_BONUS,
-        "бонускриоурона" to StatType.CRYO_DAMAGE_BONUS,
-        "бонусгеоурона" to StatType.GEO_DAMAGE_BONUS,
-        "бонусфиз.урона" to StatType.PHYSICAL_DAMAGE_BONUS,
-        "бонусфизическогоурона" to StatType.PHYSICAL_DAMAGE_BONUS
+    val defaultStatMap = mapOf(
+        "нр" to StatType.HP, "hp" to StatType.HP, "хп" to StatType.HP,
+        
+        "силаатаки" to StatType.ATK, "атк" to StatType.ATK, "atk" to StatType.ATK,
+        
+        "защита" to StatType.DEF, "def" to StatType.DEF,
+        
+        "мастерствостихий" to StatType.ELEMENTAL_MASTERY, "мс" to StatType.ELEMENTAL_MASTERY, "elementalmastery" to StatType.ELEMENTAL_MASTERY, "em" to StatType.ELEMENTAL_MASTERY,
+        
+        "восст.энергии" to StatType.ENERGY_RECHARGE, "восстановлениеэнергии" to StatType.ENERGY_RECHARGE, "вэ" to StatType.ENERGY_RECHARGE, "energyrecharge" to StatType.ENERGY_RECHARGE, "er" to StatType.ENERGY_RECHARGE,
+        
+        "шанскрит.попадания" to StatType.CRIT_RATE, "шанскрита" to StatType.CRIT_RATE, "кш" to StatType.CRIT_RATE, "critrate" to StatType.CRIT_RATE, "cr" to StatType.CRIT_RATE,
+        
+        "крит.урон" to StatType.CRIT_DMG, "критурон" to StatType.CRIT_DMG, "ку" to StatType.CRIT_DMG, "critdmg" to StatType.CRIT_DMG, "cd" to StatType.CRIT_DMG, "critdamage" to StatType.CRIT_DMG,
+        
+        "бонуслечения" to StatType.HEALING_BONUS, "healingbonus" to StatType.HEALING_BONUS,
+        "бонуспироурона" to StatType.PYRO_DAMAGE_BONUS, "pyrodmgbonus" to StatType.PYRO_DAMAGE_BONUS,
+        "бонусгидроурона" to StatType.HYDRO_DAMAGE_BONUS, "hydrodmgbonus" to StatType.HYDRO_DAMAGE_BONUS,
+        "бонусдендроурона" to StatType.DENDRO_DAMAGE_BONUS, "dendrodmgbonus" to StatType.DENDRO_DAMAGE_BONUS,
+        "бонусэлектроурона" to StatType.ELECTRO_DAMAGE_BONUS, "electrodmgbonus" to StatType.ELECTRO_DAMAGE_BONUS,
+        "бонусанемоурона" to StatType.ANEMO_DAMAGE_BONUS, "anemodmgbonus" to StatType.ANEMO_DAMAGE_BONUS,
+        "бонускриоурона" to StatType.CRYO_DAMAGE_BONUS, "cryodmgbonus" to StatType.CRYO_DAMAGE_BONUS,
+        "бонусгеоурона" to StatType.GEO_DAMAGE_BONUS, "geodmgbonus" to StatType.GEO_DAMAGE_BONUS,
+        "бонусфиз.урона" to StatType.PHYSICAL_DAMAGE_BONUS, "бонусфизическогоурона" to StatType.PHYSICAL_DAMAGE_BONUS, "physicaldmgbonus" to StatType.PHYSICAL_DAMAGE_BONUS
     )
 
-    fun parse(rawText: String, availablePieces: List<PieceMatchInfo> = emptyList()): ParsedArtifactData {
+    fun parse(
+        rawText: String, 
+        availablePieces: List<PieceMatchInfo> = emptyList(),
+        slotMap: Map<String, ArtifactSlot> = defaultSlotMap,
+        statMap: Map<String, StatType> = defaultStatMap
+    ): ParsedArtifactData {
         val lines = rawText.lines().map { it.trim() }.filter { it.isNotEmpty() }
         
-        val cleanText = rawText.lowercase().replace(Regex("""\s+"""), "")
+        val cleanText = rawText.lowercase()
+            .replace("ё", "е")
+            .replace(Regex("""\s+"""), "")
         
         var foundSlot: ArtifactSlot? = null
         var foundLevel: Int? = null
@@ -75,7 +87,10 @@ object ArtifactOcrParser {
             var globalBestMatch: PieceMatchInfo? = null
             var globalMinDistance = Int.MAX_VALUE
 
-            for (line in lines) {
+            val pairedLines = lines.windowed(2).map { "${it[0]} ${it[1]}" }
+            val allSearchCandidates = lines + pairedLines
+
+            for (line in allSearchCandidates) {
                 val match = FuzzySearchUtils.findBestMatch(
                     query = line,
                     candidates = availablePieces,
@@ -107,7 +122,6 @@ object ArtifactOcrParser {
         val statKeysPattern = statMap.keys.sortedByDescending { it.length }.joinToString("|") { Regex.escape(it) }
         
         val statsRegex = Regex("""($statKeysPattern)[^0-9]*?(\d+[,.]?\d*%?)""")
-        
         val statMatches = statsRegex.findAll(cleanText).toList()
 
         statMatches.forEachIndexed { index, match ->
