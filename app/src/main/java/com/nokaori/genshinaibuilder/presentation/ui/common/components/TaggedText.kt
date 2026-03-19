@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -42,22 +43,36 @@ fun TaggedText(
     var dialogTitle by remember { mutableStateOf("") }
     var dialogDescription by remember { mutableStateOf("") }
 
-    fun formatDialogText(rawText: String): AnnotatedString = buildAnnotatedString {
+    fun formatDialogText(rawText: String, elementColor: Color): AnnotatedString = buildAnnotatedString {
         // Обрабатываем <color ...>текст</color> - делаем жирным
         val colorRegex = "<color[^>]*>(.*?)</color>".toRegex()
+        // Обрабатываем {LINK#S...}текст{/LINK} - делаем цветным
+        val skipLinkRegex = "\\{LINK#S[^}]*\\}(.*?)\\{/LINK\\}".toRegex()
         
         var text = rawText
         // Заменяем <color>текст</color> на маркер для жирного
         text = text.replace(colorRegex) { "<BOLD>${it.groupValues[1]}</BOLD>" }
+        // Заменяем {LINK#S}текст{/LINK} на маркер для цвета
+        text = text.replace(skipLinkRegex) { "<COLOR>${it.groupValues[1]}</COLOR>" }
         
-        val boldMarkerRegex = "<BOLD>(.*?)</BOLD>".toRegex()
+        val allMarkersRegex = "<BOLD>(.*?)</BOLD>|<COLOR>(.*?)</COLOR>".toRegex()
         var lastIndex = 0
         
-        for (match in boldMarkerRegex.findAll(text)) {
+        for (match in allMarkersRegex.findAll(text)) {
             append(text.substring(lastIndex, match.range.first))
-            pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-            append(match.groupValues[1])
-            pop()
+            
+            if (match.groupValues[1].isNotEmpty()) {
+                // Это BOLD
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                append(match.groupValues[1])
+                pop()
+            } else {
+                // Это COLOR
+                pushStyle(SpanStyle(color = elementColor))
+                append(match.groupValues[2])
+                pop()
+            }
+            
             lastIndex = match.range.last + 1
         }
         append(text.substring(lastIndex))
@@ -131,7 +146,7 @@ fun TaggedText(
             },
             text = {
                 Text(
-                    text = formatDialogText(dialogDescription),
+                    text = formatDialogText(dialogDescription, elementColor),
                     fontSize = 14.sp,
                     lineHeight = 18.sp
                 )
