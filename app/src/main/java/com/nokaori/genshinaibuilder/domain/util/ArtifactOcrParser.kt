@@ -60,7 +60,8 @@ object ArtifactOcrParser {
 
     fun parse(rawText: String, availablePieces: List<PieceMatchInfo> = emptyList()): ParsedArtifactData {
         val lines = rawText.lines().map { it.trim() }.filter { it.isNotEmpty() }
-        val linesLowercase = lines.map { it.lowercase() }
+        
+        val cleanText = rawText.lowercase().replace(Regex("""\s+"""), "")
         
         var foundSlot: ArtifactSlot? = null
         var foundLevel: Int? = null
@@ -79,7 +80,7 @@ object ArtifactOcrParser {
                     query = line,
                     candidates = availablePieces,
                     textSelector = { it.name },
-                    maxAllowedDistance = 3 // Увеличено для лучшего срабатывания
+                    maxAllowedDistance = 3
                 )
                 if (match != null && match.second < globalMinDistance) {
                     globalMinDistance = match.second
@@ -90,88 +91,60 @@ object ArtifactOcrParser {
             if (globalBestMatch != null) {
                 foundSlot = globalBestMatch.slot
                 setId = globalBestMatch.setId
-                // Если в PieceMatchInfo есть поле setName, можно его привязать: setName = globalBestMatch.setName
             }
         }
 
-        val valueRegex = Regex("""[+:]?\s*(\d+[,.]?\d*)\s*(%?)""")
-        // Паттерн для поиска уровня вида "+20", "+ 15"
-        val levelRegex = Regex("""\+\s*([0-2]?[0-9])\b""") 
-
-        for (i in linesLowercase.indices) {
-            val originalLineLower = linesLowercase[i]
-            val cleanLine = originalLineLower.replace(Regex("""\s+"""), "")
-
-            // Поиск слота фоллбэком (если база PieceMatchInfo не помогла)
-            if (foundSlot == null) {
-                foundSlot = slotMap.entries.firstOrNull { cleanLine.contains(it.key) }?.value
-            }
-
-            // Поиск уровня (допускаем пробелы, поэтому ищем в originalLineLower)
-            if (foundLevel == null) {
-                val levelMatch = levelRegex.find(originalLineLower)
-                if (levelMatch != null) {
-                    val lvl = levelMatch.groupValues[1].toIntOrNull()
-                    if (lvl != null && lvl <= 20) {
-                        foundLevel = lvl
-                        // Если строка очень короткая (только уровень), пропускаем поиск статов в ней
-                        if (cleanLine.length <= 5) continue
-                    }
-                }
-            }
-
-            val matchedStatEntry = statMap.entries.firstOrNull { cleanLine.contains(it.key) }
-            if (matchedStatEntry != null) {
-                val statType = matchedStatEntry.value
-                val isPercentageStat = cleanLine.contains("%") || statType.isPercentage
-
-                // Вырезаем название стата, чтобы не спутать цифры из названия со значением
-                val cleanLineWithoutStatName = cleanLine.replace(matchedStatEntry.key, "")
-                val matchResult = valueRegex.find(cleanLineWithoutStatName)
-                
-                var valueStr = matchResult?.groupValues?.get(1)?.replace(",", ".")
-                
-                // Если значение не нашли на текущей строке, ищем на следующей
-                if (valueStr == null && i + 1 < linesLowercase.size) {
-                    val nextLineMatch = valueRegex.find(linesLowercase[i + 1])
-                    if (nextLineMatch != null) {
-                        valueStr = nextLineMatch.groupValues[1].replace(",", ".")
-                    }
-                }
-
-                val valueFloat = valueStr?.toFloatOrNull()
-
-                if (valueFloat != null) {
-                    val finalStatType = if (isPercentageStat && !statType.isPercentage) {
-                        when (statType) {
-                            StatType.HP -> StatType.HP_PERCENT
-                            StatType.ATK -> StatType.ATK_PERCENT
-                            StatType.DEF -> StatType.DEF_PERCENT
-                            else -> statType
-                        }
-                    } else statType
-
-                    if (mainStatType == null) {
-                        mainStatType = finalStatType
-                        mainStatValue = valueFloat
-                    } else {
-                        // Добавляем подстат, только если такого еще нет (защита от дублирования строк OCR)
-                        if (subStats.none { it.first == finalStatType && it.second == valueFloat }) {
-                            subStats.add(finalStatType to valueFloat)
-                        }
-                    }
-                }
-            }
+        if (foundSlot == null) {
+            foundSlot = slotMap.entries.firstOrNull { cleanText.contains(it.key) }?.value
         }
+
+        val levelRegex = Regex("""\+([0-2]?[0-9])(?!\d)""")
+        val levelMatch = levelRegex.find(cleanText)
+        if (levelMatch != null) {
+            foundLevel = levelMatch.groupValues[1].toIntOrNull()
+        }
+
+        val statKeysPattern = statMap.keys.sortedByDescending { it.length }.joinToString("|") { Regex.escape(it) }
         
-        // Попытка выцепить имя сета из текста, если оно не нашлось по базе (Берем самую длинную строку без цифр)
+        val statsRegex = Regex("""($statKeysPattern)[^0-9]*?(\d+[,.]?\d*%?)""")
+        
+        val statMatches = statsRegex.findAll(cleanText).toList()
+
+        statMatches.forEachIndexed { index, match ->
+            val statName = match.groupValues[1]
+            val valueStrRaw = match.groupValues[2]
+            
+            val statType = statMap[statName] ?: return@forEachIndexed
+            val isPercentageStat = valueStrRaw.contains("%") || statType.isPercentage
+            
+            val valueFloat = valueStrRaw.replace("%", "").replace(",", ".").toFloatOrNull() ?: return@forEachIndexed
+
+            val finalStatType = if (isPercentageStat && !statType.isPercentage) {
+                when (statType) {
+                    StatType.HP -> StatType.HP_PERCENT
+                    StatType.ATK -> StatType.ATK_PERCENT
+                    StatType.DEF -> StatType.DEF_PERCENT
+                    else -> statType
+                }
+            } else statType
+
+            if (index == 0) {
+                mainStatType = finalStatType
+                mainStatValue = valueFloat
+            } else {
+                if (subStats.none { it.first == finalStatType && it.second == valueFloat }) {
+                    subStats.add(finalStatType to valueFloat)
+                }
+            }
+        }
+
         if (setId == null && setName == null && lines.isNotEmpty()) {
             setName = lines.firstOrNull { !it.contains(Regex("""\d""")) && it.length > 6 && !it.startsWith("+") }
         }
 
         return ParsedArtifactData(
             slot = foundSlot,
-            level = foundLevel ?: 0, // Fallback, чтобы парсер не возвращал null-уровень и не падал
+            level = foundLevel ?: 0,
             mainStatType = mainStatType,
             mainStatValue = mainStatValue,
             subStats = subStats,
