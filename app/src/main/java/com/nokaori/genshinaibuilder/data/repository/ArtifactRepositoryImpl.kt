@@ -18,7 +18,7 @@ import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.SupportedLanguages
 import com.nokaori.genshinaibuilder.domain.repository.ArtifactRepository
 import com.nokaori.genshinaibuilder.domain.repository.PieceMatchInfo
-import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
+import com.nokaori.genshinaibuilder.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
@@ -29,7 +29,7 @@ class ArtifactRepositoryImpl @Inject constructor (
     private val artifactDao: ArtifactDao,
     private val userDao: UserDao,
     private val statCurveDao: StatCurveDao,
-    private val themeRepository: ThemeRepository
+    private val themeRepository: SettingsRepository
 ) : ArtifactRepository {
     private val defaultLanguage = SupportedLanguages.EN
 

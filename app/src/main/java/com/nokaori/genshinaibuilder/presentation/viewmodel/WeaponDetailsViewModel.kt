@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nokaori.genshinaibuilder.domain.model.Weapon
 import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
-import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
+import com.nokaori.genshinaibuilder.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class WeaponDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: WeaponRepository,
-    private val themeRepository: ThemeRepository
+    private val themeRepository: SettingsRepository
 ) : ViewModel() {
 
     private val weaponId: Int = checkNotNull(savedStateHandle["weaponId"])

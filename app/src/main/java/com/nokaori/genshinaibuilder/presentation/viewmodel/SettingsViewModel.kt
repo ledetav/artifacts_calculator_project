@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nokaori.genshinaibuilder.domain.model.SyncStatus
 import com.nokaori.genshinaibuilder.domain.repository.GameDataRepository
-import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
+import com.nokaori.genshinaibuilder.domain.repository.SettingsRepository
 import com.nokaori.genshinaibuilder.domain.repository.CharacterRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 @HiltViewModel
 class SettingsViewModel @Inject constructor (
     private val gameDataRepository: GameDataRepository,
-    private val themeRepository: ThemeRepository,
+    private val languageRepository: SettingsRepository,
     private val characterRepository: CharacterRepository
 ) : ViewModel() {
 
@@ -29,7 +29,7 @@ class SettingsViewModel @Inject constructor (
     private val _shouldShowLanguageSyncDialog = MutableStateFlow(false)
     val shouldShowLanguageSyncDialog: StateFlow<Boolean> = _shouldShowLanguageSyncDialog.asStateFlow()
 
-    val appLanguage: StateFlow<String> = themeRepository.appLanguage
+    val appLanguage: StateFlow<String> = languageRepository.appLanguage
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -39,7 +39,7 @@ class SettingsViewModel @Inject constructor (
     init {
         // Мониторим смену языка и проверяем наличие данных
         viewModelScope.launch {
-            themeRepository.appLanguage.collectLatest { newLanguage ->
+            languageRepository.appLanguage.collectLatest { newLanguage ->
                 checkIfDataExistsForLanguage(newLanguage)
             }
         }
@@ -54,7 +54,7 @@ class SettingsViewModel @Inject constructor (
 
     fun setAppLanguage(languageCode: String) {
         viewModelScope.launch {
-            themeRepository.setAppLanguage(languageCode)
+            languageRepository.setAppLanguage(languageCode)
         }
     }
 
