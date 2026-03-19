@@ -36,12 +36,16 @@ object ArtifactOcrParser {
         "атк" to StatType.ATK,
         "защита" to StatType.DEF,
         "мастерствостихий" to StatType.ELEMENTAL_MASTERY,
+        "мс" to StatType.ELEMENTAL_MASTERY,
         "восст.энергии" to StatType.ENERGY_RECHARGE,
         "восстановлениеэнергии" to StatType.ENERGY_RECHARGE,
+        "вэ" to StatType.ENERGY_RECHARGE,
         "шанскрит.попадания" to StatType.CRIT_RATE,
         "шанскрита" to StatType.CRIT_RATE,
+        "кш" to StatType.CRIT_RATE,
         "крит.урон" to StatType.CRIT_DMG,
         "критурон" to StatType.CRIT_DMG,
+        "ку" to StatType.CRIT_DMG,
         "бонуслечения" to StatType.HEALING_BONUS,
         "бонуспироурона" to StatType.PYRO_DAMAGE_BONUS,
         "бонусгидроурона" to StatType.HYDRO_DAMAGE_BONUS,
@@ -67,35 +71,53 @@ object ArtifactOcrParser {
         val subStats = mutableListOf<Pair<StatType, Float>>()
 
         if (availablePieces.isNotEmpty() && lines.isNotEmpty()) {
-            val candidates = lines.take(2).mapNotNull { line ->
-                FuzzySearchUtils.findBestMatch(
+            var globalBestMatch: PieceMatchInfo? = null
+            var globalMinDistance = Int.MAX_VALUE
+
+            for (line in lines) {
+                val match = FuzzySearchUtils.findBestMatch(
                     query = line,
                     candidates = availablePieces,
                     textSelector = { it.name },
-                    maxAllowedDistance = 2
+                    maxAllowedDistance = 3 // Увеличено для лучшего срабатывания
                 )
+                if (match != null && match.second < globalMinDistance) {
+                    globalMinDistance = match.second
+                    globalBestMatch = match.first
+                }
             }
 
-            val bestMatch = candidates.minByOrNull { it.second }?.first
-
-            if (bestMatch != null) {
-                foundSlot = bestMatch.slot
-                setId = bestMatch.setId
+            if (globalBestMatch != null) {
+                foundSlot = globalBestMatch.slot
+                setId = globalBestMatch.setId
+                // Если в PieceMatchInfo есть поле setName, можно его привязать: setName = globalBestMatch.setName
             }
         }
 
         val valueRegex = Regex("""[+:]?\s*(\d+[,.]?\d*)\s*(%?)""")
+        // Паттерн для поиска уровня вида "+20", "+ 15"
+        val levelRegex = Regex("""\+\s*([0-2]?[0-9])\b""") 
 
         for (i in linesLowercase.indices) {
-            val cleanLine = linesLowercase[i].replace(Regex("""\s+"""), "")
+            val originalLineLower = linesLowercase[i]
+            val cleanLine = originalLineLower.replace(Regex("""\s+"""), "")
 
+            // Поиск слота фоллбэком (если база PieceMatchInfo не помогла)
             if (foundSlot == null) {
                 foundSlot = slotMap.entries.firstOrNull { cleanLine.contains(it.key) }?.value
             }
 
-            if (foundLevel == null && cleanLine.startsWith("+") && cleanLine.length <= 4) {
-                foundLevel = cleanLine.replace("+", "").toIntOrNull()
-                continue
+            // Поиск уровня (допускаем пробелы, поэтому ищем в originalLineLower)
+            if (foundLevel == null) {
+                val levelMatch = levelRegex.find(originalLineLower)
+                if (levelMatch != null) {
+                    val lvl = levelMatch.groupValues[1].toIntOrNull()
+                    if (lvl != null && lvl <= 20) {
+                        foundLevel = lvl
+                        // Если строка очень короткая (только уровень), пропускаем поиск статов в ней
+                        if (cleanLine.length <= 5) continue
+                    }
+                }
             }
 
             val matchedStatEntry = statMap.entries.firstOrNull { cleanLine.contains(it.key) }
@@ -103,11 +125,14 @@ object ArtifactOcrParser {
                 val statType = matchedStatEntry.value
                 val isPercentageStat = cleanLine.contains("%") || statType.isPercentage
 
-                val matchResult = valueRegex.find(cleanLine.replace(matchedStatEntry.key, ""))
+                // Вырезаем название стата, чтобы не спутать цифры из названия со значением
+                val cleanLineWithoutStatName = cleanLine.replace(matchedStatEntry.key, "")
+                val matchResult = valueRegex.find(cleanLineWithoutStatName)
                 
                 var valueStr = matchResult?.groupValues?.get(1)?.replace(",", ".")
                 
-                if (valueStr == null && i + 1 < linesLowercase.indices.last) {
+                // Если значение не нашли на текущей строке, ищем на следующей
+                if (valueStr == null && i + 1 < linesLowercase.size) {
                     val nextLineMatch = valueRegex.find(linesLowercase[i + 1])
                     if (nextLineMatch != null) {
                         valueStr = nextLineMatch.groupValues[1].replace(",", ".")
@@ -125,23 +150,28 @@ object ArtifactOcrParser {
                             else -> statType
                         }
                     } else statType
+
                     if (mainStatType == null) {
                         mainStatType = finalStatType
                         mainStatValue = valueFloat
                     } else {
-                        subStats.add(finalStatType to valueFloat)
+                        // Добавляем подстат, только если такого еще нет (защита от дублирования строк OCR)
+                        if (subStats.none { it.first == finalStatType && it.second == valueFloat }) {
+                            subStats.add(finalStatType to valueFloat)
+                        }
                     }
                 }
             }
         }
         
-        if (setId == null && lines.isNotEmpty() && !linesLowercase[0].contains(Regex("[+:]")) && foundSlot == null) {
-            setName = lines[0]
+        // Попытка выцепить имя сета из текста, если оно не нашлось по базе (Берем самую длинную строку без цифр)
+        if (setId == null && setName == null && lines.isNotEmpty()) {
+            setName = lines.firstOrNull { !it.contains(Regex("""\d""")) && it.length > 6 && !it.startsWith("+") }
         }
 
         return ParsedArtifactData(
             slot = foundSlot,
-            level = foundLevel,
+            level = foundLevel ?: 0, // Fallback, чтобы парсер не возвращал null-уровень и не падал
             mainStatType = mainStatType,
             mainStatValue = mainStatValue,
             subStats = subStats,
