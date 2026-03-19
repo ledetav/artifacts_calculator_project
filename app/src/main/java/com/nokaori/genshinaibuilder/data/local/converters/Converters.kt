@@ -171,4 +171,17 @@ class Converters {
     fun toSynergyRating(name: String): com.nokaori.genshinaibuilder.domain.model.SynergyRating {
         return com.nokaori.genshinaibuilder.domain.model.SynergyRating.valueOf(name)
     }
+
+    // --- String Map (для tagsDictionary) ---
+    @TypeConverter
+    fun fromStringMap(value: String?): Map<String, String> {
+        if (value == null) return emptyMap()
+        val mapType = object : TypeToken<Map<String, String>>() {}.type
+        return gson.fromJson(value, mapType)
+    }
+
+    @TypeConverter
+    fun toStringMap(map: Map<String, String>?): String {
+        return gson.toJson(map ?: emptyMap<String, String>())
+    }
 }

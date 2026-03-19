@@ -52,7 +52,8 @@ fun YattaAvatarDto.toEntity(language: String): CharacterEntity {
         ascensionStatType = StatType.ATK_PERCENT,
         curveId = "GROWTH_INFO_NOT_LOADED",
         iconUrl = "$ASSETS_URL/$safeIcon.png",
-        splashUrl = splashUrl
+        splashUrl = splashUrl,
+        tagsDictionary = emptyMap()
     )
 }
 
