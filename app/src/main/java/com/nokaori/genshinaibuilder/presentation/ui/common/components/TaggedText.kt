@@ -50,6 +50,8 @@ fun TaggedText(
         val skipLinkRegex = "\\{LINK#S[^}]*\\}(.*?)\\{/LINK\\}".toRegex()
         
         var text = rawText
+        // Заменяем экранированные переносы на реальные
+        text = text.replace("\\n", "\n")
         // Заменяем <color>текст</color> на маркер для жирного
         text = text.replace(colorRegex) { "<BOLD>${it.groupValues[1]}</BOLD>" }
         // Заменяем {LINK#S}текст{/LINK} на маркер для цвета
