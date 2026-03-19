@@ -43,14 +43,18 @@ fun TaggedText(
 
     // Регулярное выражение для поиска тегов вида {LINK#N11280001}Текст{/LINK}
     val linkRegex = "\\{LINK#([^}]*)\\}(.*?)\\{/LINK\\}".toRegex()
+    // Регулярное выражение для удаления тегов вида {LINK#S11142} и {/LINK}, оставляя текст между ними
+    val skipTagRegex = "\\{LINK#S[^}]*\\}|\\{/LINK\\}".toRegex()
 
     val annotatedString = buildAnnotatedString {
+        // Сначала удаляем теги с S
+        var processedText = text.replace(skipTagRegex, "")
         var lastIndex = 0
-        val matches = linkRegex.findAll(text)
+        val matches = linkRegex.findAll(processedText)
 
         for (match in matches) {
             // Добавляем обычный текст до совпадения
-            append(text.substring(lastIndex, match.range.first))
+            append(processedText.substring(lastIndex, match.range.first))
 
             val tagId = match.groupValues[1]
             val tagText = match.groupValues[2]
@@ -75,8 +79,8 @@ fun TaggedText(
             lastIndex = match.range.last + 1
         }
         // Добавляем оставшийся хвост текста
-        if (lastIndex < text.length) {
-            append(text.substring(lastIndex))
+        if (lastIndex < processedText.length) {
+            append(processedText.substring(lastIndex))
         }
     }
 
