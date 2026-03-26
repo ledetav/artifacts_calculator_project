@@ -12,5 +12,6 @@ data class Character(
     val baseAtk: Float,
     val baseDef: Float,
     val ascensionStatType: StatType,
-    val curveId: String
+    val curveId: String,
+    val tagsDictionary: Map<String, String> = emptyMap()
 )

@@ -30,7 +30,6 @@
     <string name="search_nothing">Nothing was found</string>
     <string name="nav_open">Open menu</string>
     <string name="filter_dialog_close">Close filters</string>
-    <string name="theme_switch">Switch theme</string>
     <string name="artifact_add_button">Add artifact</string>
     <string name="stat_type_atk">ATK</string>
     <string name="stat_type_def">DEF</string>
@@ -210,4 +209,8 @@
     <string name="scan_failed_title">Artifact Not Recognized</string>
     <string name="scan_failed_message">Could not find artifact stats in the image. Try again or select a different image.</string>
     <string name="action_manual">Enter Manually</string>
+    
+    <!-- TaggedText Dialog -->
+    <string name="dialog_info_title">Information</string>
+    <string name="dialog_close_btn">Close</string>
 </resources>

@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.first
 import java.util.Collections
 import javax.inject.Inject
-import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
+import com.nokaori.genshinaibuilder.domain.repository.SettingsRepository
 
 class GameDataRepositoryImpl @Inject constructor(
     private val characterDao: CharacterDao,
@@ -25,7 +25,7 @@ class GameDataRepositoryImpl @Inject constructor(
     private val weaponDao: WeaponDao,
     private val artifactDao: ArtifactDao,
     private val api: YattaApi,
-    private val themeRepository: ThemeRepository
+    private val themeRepository: SettingsRepository
 ) : GameDataRepository {
 
     override fun updateGameData(): Flow<SyncStatus> = channelFlow {

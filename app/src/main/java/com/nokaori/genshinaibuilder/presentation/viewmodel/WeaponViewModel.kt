@@ -6,7 +6,7 @@ import com.nokaori.genshinaibuilder.domain.model.StatType
 import com.nokaori.genshinaibuilder.domain.model.UserWeapon
 import com.nokaori.genshinaibuilder.domain.model.WeaponType
 import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
-import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
+import com.nokaori.genshinaibuilder.domain.repository.SettingsRepository
 import com.nokaori.genshinaibuilder.domain.usecase.FilterWeaponsUseCase
 import com.nokaori.genshinaibuilder.presentation.ui.weapons.data.WeaponFilterState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +24,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 class WeaponViewModel @Inject constructor (
     private val weaponRepository: WeaponRepository,
     private val filterWeaponsUseCase: FilterWeaponsUseCase,
-    private val themeRepository: ThemeRepository
+    private val themeRepository: SettingsRepository
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")

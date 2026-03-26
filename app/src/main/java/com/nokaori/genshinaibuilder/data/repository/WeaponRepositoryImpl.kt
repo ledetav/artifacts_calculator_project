@@ -8,7 +8,7 @@ import com.nokaori.genshinaibuilder.domain.model.UserWeapon
 import com.nokaori.genshinaibuilder.domain.model.Weapon
 import com.nokaori.genshinaibuilder.domain.model.SupportedLanguages
 import com.nokaori.genshinaibuilder.domain.repository.WeaponRepository
-import com.nokaori.genshinaibuilder.domain.repository.ThemeRepository
+import com.nokaori.genshinaibuilder.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
@@ -22,7 +22,7 @@ import javax.inject.Inject
 class WeaponRepositoryImpl @Inject constructor (
     private val weaponDao: WeaponDao,
     private val userDao: UserDao,
-    private val themeRepository: ThemeRepository
+    private val themeRepository: SettingsRepository
 ) : WeaponRepository {
     private val defaultLanguage = SupportedLanguages.EN
 

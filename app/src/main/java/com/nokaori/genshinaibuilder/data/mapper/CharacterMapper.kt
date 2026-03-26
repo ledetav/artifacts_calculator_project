@@ -26,7 +26,8 @@ fun CharacterEntity.toDomain(isOwned: Boolean): Character {
         baseAtk = this.baseAtkLvl1,
         baseDef = this.baseDefLvl1,
         ascensionStatType = this.ascensionStatType,
-        curveId = this.curveId
+        curveId = this.curveId,
+        tagsDictionary = this.tagsDictionary
     )
 }
 

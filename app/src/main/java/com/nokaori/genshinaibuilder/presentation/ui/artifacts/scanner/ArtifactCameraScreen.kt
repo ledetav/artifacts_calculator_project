@@ -76,30 +76,27 @@ fun ArtifactCameraScreen(
 
     if (hasPermission) {
         Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-            
             CameraPreview(
                 imageCapture = imageCapture,
                 onPreviewStarted = { isPreviewReady = true },
                 modifier = Modifier.fillMaxSize()
             )
 
-            if (cameraState == CameraState.AIMING) {
-                SteadySensorEffect(
-                    isActive = true,
-                    onSteady = {
-                        cameraState = CameraState.CAPTURING
-                        takePhoto(
-                            context = context,
-                            imageCapture = imageCapture,
-                            onImageCaptured = onImageCaptured,
-                            onError = { 
-                                cameraState = CameraState.AIMING // Возвращаем в сканирование при ошибке
-                                Log.e("ArtifactCameraScreen", "Capture error", it)
-                            }
-                        )
-                    }
-                )
-            }
+            SteadySensorEffect(
+                isActive = cameraState == CameraState.AIMING,
+                onSteady = {
+                    cameraState = CameraState.CAPTURING
+                    takePhoto(
+                        context = context,
+                        imageCapture = imageCapture,
+                        onImageCaptured = onImageCaptured,
+                        onError = { 
+                            cameraState = CameraState.AIMING
+                            Log.e("ArtifactCameraScreen", "Capture error", it)
+                        }
+                    )
+                }
+            )
 
             CameraOverlay(
                 cameraState = cameraState,
@@ -136,7 +133,17 @@ private fun CameraPreview(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val previewView = remember { PreviewView(context) }
+    
+    val previewView = remember { 
+        PreviewView(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            scaleType = PreviewView.ScaleType.FILL_CENTER
+            implementationMode = PreviewView.ImplementationMode.PERFORMANCE
+        }
+    }
 
     DisposableEffect(previewView, lifecycleOwner) {
         val observer = Observer<PreviewView.StreamState> { state ->
@@ -151,7 +158,21 @@ private fun CameraPreview(
         }
     }
 
-    LaunchedEffect(previewView) {
+    // Гарантированная отвязка камеры при закрытии экрана
+    DisposableEffect(lifecycleOwner) {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+        onDispose {
+            cameraProviderFuture.addListener({
+                try {
+                    cameraProviderFuture.get().unbindAll()
+                } catch (e: Exception) {
+                    Log.e("CameraPreview", "Failed to unbind camera", e)
+                }
+            }, ContextCompat.getMainExecutor(context))
+        }
+    }
+
+    LaunchedEffect(previewView, lifecycleOwner) {
         val cameraProvider = context.getCameraProvider()
         val preview = Preview.Builder().build().also {
             it.setSurfaceProvider(previewView.surfaceProvider)
@@ -172,14 +193,7 @@ private fun CameraPreview(
     }
 
     AndroidView(
-        factory = {
-            previewView.apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-            }
-        },
+        factory = { previewView },
         modifier = modifier
     )
 }
