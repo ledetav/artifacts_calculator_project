@@ -87,7 +87,7 @@ object ArtifactOcrParser {
 
     fun parse(rawText: String, availablePieces: List<PieceMatchInfo> = emptyList()): ParsedArtifactData {
         val lines = rawText.lines().map { it.trim() }.filter { it.isNotEmpty() }
-        val linesLowercase = lines.map { it.lowercase() }
+        val remainingLines = lines.toMutableList()
         
         var foundSlot: ArtifactSlot? = null
         var foundLevel: Int? = null
@@ -97,56 +97,69 @@ object ArtifactOcrParser {
         var setId: Int? = null
         val subStats = mutableListOf<Pair<StatType, Float>>()
 
-        if (availablePieces.isNotEmpty() && lines.isNotEmpty()) {
-            val candidates = lines.take(2).mapNotNull { line ->
-                FuzzySearchUtils.findBestMatch(
-                    query = line,
-                    candidates = availablePieces,
-                    textSelector = { it.name },
-                    maxAllowedDistance = 2
-                )
+        if (availablePieces.isNotEmpty() && remainingLines.isNotEmpty()) {
+            val pieceMatch = remainingLines.take(3).mapIndexedNotNull { index, line ->
+                FuzzySearchUtils.findBestMatch(line, availablePieces, { it.name }, 2)?.let { index to it }
+            }.minByOrNull { it.second.second }
+
+            if (pieceMatch != null) {
+                foundSlot = pieceMatch.second.first.slot
+                setId = pieceMatch.second.first.setId
+                setName = pieceMatch.second.first.setName
+                remainingLines[pieceMatch.first] = ""
             }
 
-            val bestMatch = candidates.minByOrNull { it.second }?.first
+            val setMatch = remainingLines.take(3).filter { it.isNotBlank() }.mapIndexedNotNull { _, line ->
+                val idx = remainingLines.indexOf(line)
+                FuzzySearchUtils.findBestMatch(line, availablePieces, { it.setName }, 2)?.let { idx to it }
+            }.minByOrNull { it.second.second }
 
-            if (bestMatch != null) {
-                foundSlot = bestMatch.slot
-                setId = bestMatch.setId
+            if (setMatch != null) {
+                if (setId == null) {
+                    setId = setMatch.second.first.setId
+                    setName = setMatch.second.first.setName
+                }
+                remainingLines[setMatch.first] = ""
+            }
+        }
+
+        for (i in remainingLines.indices) {
+            val cleanLine = remainingLines[i].lowercase().replace(Regex("""\s+"""), "")
+            val matchedSlot = slotMap.entries.firstOrNull { cleanLine.contains(it.key) }
+            if (matchedSlot != null) {
+                if (foundSlot == null) foundSlot = matchedSlot.value
+                remainingLines[i] = cleanLine.replace(matchedSlot.key, "")
             }
         }
 
         val valueRegex = Regex("""[+:]?\s*(\d+[,.]?\d*)\s*(%?)""")
 
-        for (i in linesLowercase.indices) {
-            val cleanLine = linesLowercase[i].replace(Regex("""\s+"""), "")
+        for (i in remainingLines.indices) {
+            var line = remainingLines[i].lowercase().replace(Regex("""\s+"""), "")
+            if (line.isEmpty()) continue
 
-            if (foundSlot == null) {
-                foundSlot = slotMap.entries.firstOrNull { cleanLine.contains(it.key) }?.value
-            }
-
-            if (foundLevel == null && cleanLine.startsWith("+") && cleanLine.length <= 4) {
-                foundLevel = cleanLine.replace("+", "").toIntOrNull()
-                continue
-            }
-
-            val matchedStatEntry = statMap.entries.firstOrNull { cleanLine.contains(it.key) }
-            if (matchedStatEntry != null) {
+            var matchedStatEntry = statMap.entries.firstOrNull { line.contains(it.key) }
+            while (matchedStatEntry != null) {
                 val statType = matchedStatEntry.value
-                val isPercentageStat = cleanLine.contains("%") || statType.isPercentage
+                val isPercentageStat = line.contains("%") || statType.isPercentage
 
-                val matchResult = valueRegex.find(cleanLine.replace(matchedStatEntry.key, ""))
+                line = line.replaceFirst(matchedStatEntry.key, "")
                 
+                val matchResult = valueRegex.find(line)
                 var valueStr = matchResult?.groupValues?.get(1)?.replace(",", ".")
                 
-                if (valueStr == null && i + 1 < linesLowercase.indices.last) {
-                    val nextLineMatch = valueRegex.find(linesLowercase[i + 1])
+                if (valueStr != null) {
+                    line = line.replaceFirst(matchResult!!.value, "")
+                } else if (i + 1 < remainingLines.size) {
+                    val nextLine = remainingLines[i + 1].lowercase().replace(Regex("""\s+"""), "")
+                    val nextLineMatch = valueRegex.find(nextLine)
                     if (nextLineMatch != null) {
                         valueStr = nextLineMatch.groupValues[1].replace(",", ".")
+                        remainingLines[i + 1] = nextLine.replaceFirst(nextLineMatch.value, "")
                     }
                 }
 
                 val valueFloat = valueStr?.toFloatOrNull()
-
                 if (valueFloat != null) {
                     val finalStatType = if (isPercentageStat && !statType.isPercentage) {
                         when (statType) {
@@ -156,6 +169,7 @@ object ArtifactOcrParser {
                             else -> statType
                         }
                     } else statType
+                    
                     if (mainStatType == null) {
                         mainStatType = finalStatType
                         mainStatValue = valueFloat
@@ -163,11 +177,29 @@ object ArtifactOcrParser {
                         subStats.add(finalStatType to valueFloat)
                     }
                 }
+                matchedStatEntry = statMap.entries.firstOrNull { line.contains(it.key) }
             }
+            remainingLines[i] = line
         }
         
-        if (setId == null && lines.isNotEmpty() && !linesLowercase[0].contains(Regex("[+:]")) && foundSlot == null) {
-            setName = lines[0]
+        for (line in remainingLines) {
+            val cleanLine = line.trim()
+            if (cleanLine.startsWith("+") && cleanLine.length <= 4 && !cleanLine.contains("%")) {
+                val lvl = cleanLine.replace("+", "").toIntOrNull()
+                if (lvl != null && lvl in 0..20) {
+                    foundLevel = lvl
+                    break
+                }
+            } else if (cleanLine.matches(Regex("""^\+?\d{1,2}$"""))) {
+               val lvl = cleanLine.replace("+", "").toIntOrNull()
+               if (lvl != null && lvl in 0..20 && foundLevel == null) {
+                   foundLevel = lvl
+               }
+            }
+        }
+
+        if (setId == null && lines.isNotEmpty() && foundSlot == null) {
+            if (setName == null) setName = lines[0]
         }
 
         return ParsedArtifactData(
