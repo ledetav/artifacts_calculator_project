@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -81,14 +82,31 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppContent()
+            val settingsViewModel: com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+            val appLanguage by settingsViewModel.appLanguage.collectAsStateWithLifecycle(initialValue = "en")
+            
+            val context = androidx.compose.ui.platform.LocalContext.current
+            val (localeContext, configuration) = remember(context, appLanguage) {
+                val locale = java.util.Locale(appLanguage)
+                val config = android.content.res.Configuration(context.resources.configuration)
+                config.setLocale(locale)
+                java.util.Locale.setDefault(locale)
+                Pair(context.createConfigurationContext(config), config)
+            }
+
+            androidx.compose.runtime.CompositionLocalProvider(
+                androidx.compose.ui.platform.LocalContext provides localeContext,
+                androidx.compose.ui.platform.LocalConfiguration provides configuration
+            ) {
+                AppContent(settingsViewModel)
+            }
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppContent() {
+fun AppContent(settingsViewModel: com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel = hiltViewModel()) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
@@ -99,7 +117,6 @@ fun AppContent() {
     val artifactViewModel: ArtifactViewModel = hiltViewModel()
     val weaponViewModel: WeaponViewModel = hiltViewModel()
     val characterViewModel: CharacterViewModel = hiltViewModel()
-    val settingsViewModel: SettingsViewModel = hiltViewModel()
 
     var showAddArtifactSheet by remember { mutableStateOf(false) }
     var showCameraScreen by remember { mutableStateOf(false) }
