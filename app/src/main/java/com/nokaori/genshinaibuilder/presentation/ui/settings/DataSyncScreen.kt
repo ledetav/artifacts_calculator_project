@@ -51,12 +51,10 @@ fun DataSyncScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            
             Icon(
                 imageVector = Icons.Default.Sync,
                 contentDescription = null,
-                modifier = Modifier.size(72.dp),
+                modifier = Modifier.size(72.dp).padding(top = 16.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
             
@@ -114,23 +112,27 @@ fun DataSyncScreen(
 
 @Composable
 fun LogConsole(logs: List<UiText>) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.05f)),
-        modifier = Modifier.fillMaxWidth().height(200.dp).padding(top = 8.dp)
+    ElevatedCard(
+        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        modifier = Modifier.fillMaxWidth().height(250.dp).padding(top = 16.dp)
     ) {
         val scrollState = rememberScrollState()
         LaunchedEffect(logs.size) {
             scrollState.animateScrollTo(scrollState.maxValue)
         }
 
-        Column(modifier = Modifier.padding(8.dp).verticalScroll(scrollState)) {
+        Column(modifier = Modifier.padding(12.dp).verticalScroll(scrollState)) {
             logs.forEach { log ->
                 Text(
                     text = log.asString(),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontSize = 10.sp,
-                    lineHeight = 12.sp
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    fontSize = 11.sp,
+                    lineHeight = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                Spacer(modifier = Modifier.height(2.dp))
             }
         }
     }
