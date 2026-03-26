@@ -52,4 +52,18 @@ interface ArtifactDao {
 
     @Query("DELETE FROM artifact_sets_data")
     suspend fun clearAllArtifactSets()
+
+    @Query("""
+        SELECT p.set_id, s.name AS set_name, p.slot, p.name AS piece_name 
+        FROM artifact_pieces_data p 
+        INNER JOIN artifact_sets_data s ON p.set_id = s.id AND p.language = s.language
+    """)
+    suspend fun getAllPiecesWithSetNames(): List<PieceWithSetNameTuple>
 }
+
+data class PieceWithSetNameTuple(
+    @androidx.room.ColumnInfo(name = "set_id") val setId: Int,
+    @androidx.room.ColumnInfo(name = "set_name") val setName: String,
+    val slot: com.nokaori.genshinaibuilder.domain.model.ArtifactSlot,
+    @androidx.room.ColumnInfo(name = "piece_name") val pieceName: String
+)

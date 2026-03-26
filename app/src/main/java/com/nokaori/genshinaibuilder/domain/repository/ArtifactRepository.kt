@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 data class PieceMatchInfo(
     val setId: Int,
+    val setName: String,
     val slot: ArtifactSlot,
     val name: String
 )
