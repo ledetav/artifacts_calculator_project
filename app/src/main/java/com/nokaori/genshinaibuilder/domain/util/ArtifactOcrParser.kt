@@ -85,6 +85,9 @@ object ArtifactOcrParser {
         "physicaldamagebonus" to StatType.PHYSICAL_DAMAGE_BONUS
     )
 
+    private fun String.normalizeForLocate(): String = 
+        this.lowercase().replace("ё", "е").replace("й", "и").replace(Regex("""[\s\-.,:'"«»()]"""), "")
+
     fun parse(rawText: String, availablePieces: List<PieceMatchInfo> = emptyList()): ParsedArtifactData {
         val lines = rawText.lines().map { it.trim() }.filter { it.isNotEmpty() }
         var remainingLines = lines.toMutableList()
@@ -99,8 +102,11 @@ object ArtifactOcrParser {
 
         if (availablePieces.isNotEmpty() && remainingLines.isNotEmpty()) {
             val pieceMatch = remainingLines.take(4).mapIndexedNotNull { index, line ->
-                val lineLower = line.lowercase()
-                val match = availablePieces.firstOrNull { lineLower.contains(it.name.lowercase()) }
+                val cleanLine = line.normalizeForLocate()
+                val match = availablePieces.firstOrNull { 
+                    val normalizedName = it.name.normalizeForLocate()
+                    normalizedName.length > 3 && cleanLine.contains(normalizedName) 
+                }
                 if (match != null) {
                     index to Pair(match, 0)
                 } else {
@@ -112,13 +118,15 @@ object ArtifactOcrParser {
                 foundSlot = pieceMatch.second.first.slot
                 setId = pieceMatch.second.first.setId
                 setName = pieceMatch.second.first.setName
-                remainingLines[pieceMatch.first] = remainingLines[pieceMatch.first].replace(pieceMatch.second.first.name, "", ignoreCase = true)
             }
 
             val setMatch = remainingLines.mapIndexedNotNull { index, line ->
                 if (line.isNotBlank()) {
-                    val lineLower = line.lowercase()
-                    val match = availablePieces.firstOrNull { lineLower.contains(it.setName.lowercase()) }
+                    val cleanLine = line.normalizeForLocate()
+                    val match = availablePieces.firstOrNull { 
+                        val normalizedSet = it.setName.normalizeForLocate()
+                        normalizedSet.length > 3 && cleanLine.contains(normalizedSet)
+                    }
                     if (match != null) {
                         index to Pair(match, 0)
                     } else {
@@ -133,15 +141,14 @@ object ArtifactOcrParser {
                     setName = setMatch.second.first.setName
                 }
                 val setLineIndex = setMatch.first
-                remainingLines[setLineIndex] = remainingLines[setLineIndex].replace(setMatch.second.first.setName, "", ignoreCase = true)
                 
                 if (setLineIndex + 1 < remainingLines.size) {
                     remainingLines = remainingLines.subList(0, setLineIndex + 1)
                 }
             } else {
                 val descIndex = remainingLines.indexOfFirst { 
-                    val l = it.lowercase().replace(Regex("""\s+"""), "")
-                    l.contains("2предмета") || l.contains("2-piece") || l.contains("увеличивает") || l.contains("increases") || l.contains("набор") || l.contains("set")
+                    val l = it.normalizeForLocate()
+                    l.contains("2предмета") || l.contains("2piece") || l.contains("увеличивает") || l.contains("increases") || l.contains("набор") || l.contains("set")
                 }
                 if (descIndex != -1) {
                     remainingLines = remainingLines.subList(0, descIndex)
@@ -173,7 +180,6 @@ object ArtifactOcrParser {
 
         if (slotMatch != null) {
             if (foundSlot == null) foundSlot = slotMatch.second
-            remainingLines[slotMatch.first] = ""
         }
 
         val valueRegex = Regex("""[+:]?\s*(\d+[,.]?\d*)\s*(%?)""")
