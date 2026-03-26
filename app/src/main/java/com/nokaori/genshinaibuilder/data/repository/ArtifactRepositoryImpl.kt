@@ -34,8 +34,10 @@ class ArtifactRepositoryImpl @Inject constructor (
     private val defaultLanguage = SupportedLanguages.EN
 
     override fun getArtifacts(): Flow<List<Artifact>> {
-        return userDao.getUserArtifactsComplete().map { list ->
-            list.map { it.toDomain() }
+        return themeRepository.appLanguage.flatMapLatest { language ->
+            userDao.getUserArtifactsComplete(language).map { list ->
+                list.map { it.toDomain() }
+            }
         }
     }
 
@@ -144,7 +146,8 @@ class ArtifactRepositoryImpl @Inject constructor (
     }
 
     override suspend fun getArtifactById(id: Int): Artifact? {
-        return userDao.getUserArtifactCompleteById(id)?.toDomain()
+        val language = themeRepository.appLanguage.first()
+        return userDao.getUserArtifactCompleteById(id, language)?.toDomain()
     }
 
     override suspend fun updateArtifact(artifact: Artifact) {

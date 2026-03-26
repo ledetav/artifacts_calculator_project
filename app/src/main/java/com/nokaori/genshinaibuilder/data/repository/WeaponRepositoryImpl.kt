@@ -54,8 +54,10 @@ class WeaponRepositoryImpl @Inject constructor (
     }
 
     override fun getUserWeapons(): Flow<List<UserWeapon>> {
-        return userDao.getUserWeaponsComplete().map { list ->
-            list.map { it.toDomain() }
+        return themeRepository.appLanguage.flatMapLatest { language ->
+            userDao.getUserWeaponsComplete(language).map { list ->
+                list.map { it.toDomain() }
+            }
         }
     }
 
