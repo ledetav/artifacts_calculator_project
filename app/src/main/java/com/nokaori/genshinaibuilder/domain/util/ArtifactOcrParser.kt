@@ -99,19 +99,31 @@ object ArtifactOcrParser {
 
         if (availablePieces.isNotEmpty() && remainingLines.isNotEmpty()) {
             val pieceMatch = remainingLines.take(4).mapIndexedNotNull { index, line ->
-                FuzzySearchUtils.findBestMatch(line, availablePieces, { it.name }, 2)?.let { index to it }
+                val lineLower = line.lowercase()
+                val match = availablePieces.firstOrNull { lineLower.contains(it.name.lowercase()) }
+                if (match != null) {
+                    index to Pair(match, 0)
+                } else {
+                    FuzzySearchUtils.findBestMatch(line, availablePieces, { it.name }, 2)?.let { index to it }
+                }
             }.minByOrNull { it.second.second }
 
             if (pieceMatch != null) {
                 foundSlot = pieceMatch.second.first.slot
                 setId = pieceMatch.second.first.setId
                 setName = pieceMatch.second.first.setName
-                remainingLines[pieceMatch.first] = ""
+                remainingLines[pieceMatch.first] = remainingLines[pieceMatch.first].replace(pieceMatch.second.first.name, "", ignoreCase = true)
             }
 
             val setMatch = remainingLines.mapIndexedNotNull { index, line ->
                 if (line.isNotBlank()) {
-                    FuzzySearchUtils.findBestMatch(line, availablePieces, { it.setName }, 2)?.let { index to it }
+                    val lineLower = line.lowercase()
+                    val match = availablePieces.firstOrNull { lineLower.contains(it.setName.lowercase()) }
+                    if (match != null) {
+                        index to Pair(match, 0)
+                    } else {
+                        FuzzySearchUtils.findBestMatch(line, availablePieces, { it.setName }, 2)?.let { index to it }
+                    }
                 } else null
             }.minByOrNull { it.second.second }
 
@@ -121,15 +133,15 @@ object ArtifactOcrParser {
                     setName = setMatch.second.first.setName
                 }
                 val setLineIndex = setMatch.first
-                remainingLines[setLineIndex] = ""
+                remainingLines[setLineIndex] = remainingLines[setLineIndex].replace(setMatch.second.first.setName, "", ignoreCase = true)
                 
                 if (setLineIndex + 1 < remainingLines.size) {
                     remainingLines = remainingLines.subList(0, setLineIndex + 1)
                 }
             } else {
                 val descIndex = remainingLines.indexOfFirst { 
-                    val l = it.lowercase()
-                    l.contains("2 предмета") || l.contains("2-piece") || l.contains("увеличивает") || l.contains("increases") || l.contains("набор") || l.contains("set")
+                    val l = it.lowercase().replace(Regex("""\s+"""), "")
+                    l.contains("2предмета") || l.contains("2-piece") || l.contains("увеличивает") || l.contains("increases") || l.contains("набор") || l.contains("set")
                 }
                 if (descIndex != -1) {
                     remainingLines = remainingLines.subList(0, descIndex)
@@ -235,7 +247,7 @@ object ArtifactOcrParser {
         }
         
         for (line in remainingLines) {
-            val cleanLine = line.trim()
+            val cleanLine = line.replace(Regex("""\s+"""), "")
             if (cleanLine.startsWith("+") && cleanLine.length <= 4 && !cleanLine.contains("%")) {
                 val lvl = cleanLine.replace("+", "").toIntOrNull()
                 if (lvl != null && lvl in 0..20) {
