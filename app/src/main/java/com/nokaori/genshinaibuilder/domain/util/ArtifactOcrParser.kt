@@ -148,7 +148,7 @@ object ArtifactOcrParser {
             } else {
                 val descIndex = remainingLines.indexOfFirst { 
                     val l = it.normalizeForLocate()
-                    l.contains("2предмета") || l.contains("2piece") || l.contains("увеличивает") || l.contains("increases") || l.contains("набор") || l.contains("set")
+                    l.contains("2предмета") || l.contains("2piece") || l.contains("увеличивает") || l.contains("increases")
                 }
                 if (descIndex != -1) {
                     remainingLines = remainingLines.subList(0, descIndex)
@@ -157,7 +157,7 @@ object ArtifactOcrParser {
         }
 
         val slotMatch = remainingLines.mapIndexedNotNull { index, line ->
-            val cleanLine = line.lowercase().replace(Regex("""[\s.,:]"""), "")
+            val cleanLine = line.lowercase().replace(Regex("""[\s.,:/\\]"""), "")
             var bestSlot: ArtifactSlot? = null
             var bestDist = Int.MAX_VALUE
             for (entry in slotMap.entries) {
@@ -169,7 +169,7 @@ object ArtifactOcrParser {
                 }
                 if (key.length > 5 && cleanLine.isNotEmpty()) {
                     val dist = FuzzySearchUtils.levenshteinDistance(cleanLine, key)
-                    if (dist <= 1 && dist < bestDist) {
+                    if (dist <= 2 && dist < bestDist) {
                         bestDist = dist
                         bestSlot = entry.value
                     }
@@ -219,15 +219,16 @@ object ArtifactOcrParser {
                 
                 if (valueStr != null) {
                     remainingLines[i] = originalLine.replaceFirst(matchResult!!.value, "")
-                } else if (i + 1 < remainingLines.size) {
-                    val nextLine = remainingLines[i + 1].lowercase().replace(Regex("""\s+"""), "")
-                    val nextLineMatch = valueRegex.find(nextLine)
-                    if (nextLineMatch != null) {
-                        valueStr = nextLineMatch.groupValues[1].replace(",", ".")
-                        remainingLines[i + 1] = nextLine.replaceFirst(nextLineMatch.value, "")
-                        remainingLines[i] = ""
-                    }
                 } else {
+                    for (j in i + 1 until minOf(i + 4, remainingLines.size)) {
+                        val nextLine = remainingLines[j].lowercase().replace(Regex("""\s+"""), "")
+                        val nextLineMatch = valueRegex.find(nextLine)
+                        if (nextLineMatch != null) {
+                            valueStr = nextLineMatch.groupValues[1].replace(",", ".")
+                            remainingLines[j] = nextLine.replaceFirst(nextLineMatch.value, "")
+                            break
+                        }
+                    }
                     remainingLines[i] = ""
                 }
 
