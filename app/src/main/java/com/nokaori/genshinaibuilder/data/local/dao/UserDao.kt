@@ -25,10 +25,10 @@ interface UserDao {
             uc.*, 
             c.id AS char_dict_id, c.language AS char_dict_language, c.name AS char_dict_name, 
             c.rarity AS char_dict_rarity, c.element AS char_dict_element, c.weapon_type AS char_dict_weapon_type, 
-            c.icon_url AS char_dict_icon_url, c.base_hp_lvl1 AS char_dict_base_hp_lvl1, c.base_atk_lvl1 AS char_dict_base_atk_lvl1, 
-            c.base_def_lvl1 AS char_dict_base_def_lvl1, c.hp_curve_id AS char_dict_hp_curve_id, 
-            c.atk_curve_id AS char_dict_atk_curve_id, c.def_curve_id AS char_dict_def_curve_id, 
-            c.specialized_stat_type AS char_dict_specialized_stat_type, c.specialized_stat_curve_id AS char_dict_specialized_stat_curve_id
+            c.base_hp_lvl1 AS char_dict_base_hp_lvl1, c.base_atk_lvl1 AS char_dict_base_atk_lvl1, 
+            c.base_def_lvl1 AS char_dict_base_def_lvl1, c.ascension_stat_type AS char_dict_ascension_stat_type, 
+            c.curve_id AS char_dict_curve_id, c.icon_url AS char_dict_icon_url, 
+            c.splash_url AS char_dict_splash_url, c.tags_dictionary AS char_dict_tags_dictionary
         FROM user_characters AS uc
         INNER JOIN characters_data AS c ON uc.character_encyclopedia_id = c.id AND c.language = :language
     """)
@@ -40,10 +40,10 @@ interface UserDao {
             uc.*, 
             c.id AS char_dict_id, c.language AS char_dict_language, c.name AS char_dict_name, 
             c.rarity AS char_dict_rarity, c.element AS char_dict_element, c.weapon_type AS char_dict_weapon_type, 
-            c.icon_url AS char_dict_icon_url, c.base_hp_lvl1 AS char_dict_base_hp_lvl1, c.base_atk_lvl1 AS char_dict_base_atk_lvl1, 
-            c.base_def_lvl1 AS char_dict_base_def_lvl1, c.hp_curve_id AS char_dict_hp_curve_id, 
-            c.atk_curve_id AS char_dict_atk_curve_id, c.def_curve_id AS char_dict_def_curve_id, 
-            c.specialized_stat_type AS char_dict_specialized_stat_type, c.specialized_stat_curve_id AS char_dict_specialized_stat_curve_id
+            c.base_hp_lvl1 AS char_dict_base_hp_lvl1, c.base_atk_lvl1 AS char_dict_base_atk_lvl1, 
+            c.base_def_lvl1 AS char_dict_base_def_lvl1, c.ascension_stat_type AS char_dict_ascension_stat_type, 
+            c.curve_id AS char_dict_curve_id, c.icon_url AS char_dict_icon_url, 
+            c.splash_url AS char_dict_splash_url, c.tags_dictionary AS char_dict_tags_dictionary
         FROM user_characters AS uc
         INNER JOIN characters_data AS c ON uc.character_encyclopedia_id = c.id AND c.language = :language
         WHERE uc.character_encyclopedia_id = :encyclopediaId
