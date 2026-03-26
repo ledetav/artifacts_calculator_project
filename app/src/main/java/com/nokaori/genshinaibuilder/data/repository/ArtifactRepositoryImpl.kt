@@ -176,11 +176,12 @@ class ArtifactRepositoryImpl @Inject constructor (
     }
 
     override suspend fun getAllPiecesForMatching(): List<PieceMatchInfo> {
-        return artifactDao.getAllArtifactPieces().map { entity ->
+        return artifactDao.getAllPiecesWithSetNames().map { tuple ->
             PieceMatchInfo(
-                setId = entity.setId,
-                slot = entity.slot,
-                name = entity.name
+                setId = tuple.setId,
+                setName = tuple.setName,
+                slot = tuple.slot,
+                name = tuple.pieceName
             )
         }
     }
