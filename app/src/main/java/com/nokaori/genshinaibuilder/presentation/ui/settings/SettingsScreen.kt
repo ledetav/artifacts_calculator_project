@@ -58,24 +58,42 @@ fun SettingsScreen(
             .padding(vertical = 16.dp),
     ) {
         SettingsSectionTitle(stringResource(R.string.settings_language_title))
-        ElevatedCard(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                SingleSelectToggleButtonGroup(
-                    title = "",
-                    items = listOf(SupportedLanguages.EN, SupportedLanguages.RU),
-                    selectedItem = appLanguage,
-                    onItemSelect = { settingsViewModel.setAppLanguage(it) },
-                    modifier = Modifier.fillMaxWidth()
-                ) { lang, _ ->
-                    val labelRes = if (lang == SupportedLanguages.EN) R.string.lang_english else R.string.lang_russian
-                    Text(stringResource(labelRes))
-                }
+            val isEn = appLanguage == SupportedLanguages.EN
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { settingsViewModel.setAppLanguage(SupportedLanguages.EN) }
+                    .background(if (isEn) MaterialTheme.colorScheme.primary else Color.Transparent)
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.lang_english),
+                    color = if (isEn) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { settingsViewModel.setAppLanguage(SupportedLanguages.RU) }
+                    .background(if (!isEn) MaterialTheme.colorScheme.primary else Color.Transparent)
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.lang_russian),
+                    color = if (!isEn) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
         }
 
