@@ -86,16 +86,17 @@ class MainActivity : FragmentActivity() {
             val appLanguage by settingsViewModel.appLanguage.collectAsStateWithLifecycle(initialValue = "en")
             
             val context = androidx.compose.ui.platform.LocalContext.current
-            val (localeContext, configuration) = remember(context, appLanguage) {
+            val configuration = remember(context, appLanguage) {
                 val locale = java.util.Locale(appLanguage)
                 val config = android.content.res.Configuration(context.resources.configuration)
                 config.setLocale(locale)
                 java.util.Locale.setDefault(locale)
-                Pair(context.createConfigurationContext(config), config)
+                @Suppress("DEPRECATION")
+                context.resources.updateConfiguration(config, context.resources.displayMetrics)
+                config
             }
 
             androidx.compose.runtime.CompositionLocalProvider(
-                androidx.compose.ui.platform.LocalContext provides localeContext,
                 androidx.compose.ui.platform.LocalConfiguration provides configuration
             ) {
                 AppContent(settingsViewModel)
