@@ -1,32 +1,35 @@
 package com.nokaori.genshinaibuilder.presentation.ui.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nokaori.genshinaibuilder.R
-import com.nokaori.genshinaibuilder.domain.model.SyncStatus
-import com.nokaori.genshinaibuilder.domain.model.UiText
 import com.nokaori.genshinaibuilder.domain.model.SupportedLanguages
-import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
 import com.nokaori.genshinaibuilder.presentation.ui.common.components.SingleSelectToggleButtonGroup
+import com.nokaori.genshinaibuilder.presentation.viewmodel.SettingsViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel,
-    onNavigateToGestures: () -> Unit
+    onNavigateToGestures: () -> Unit,
+    onNavigateToDataSync: () -> Unit
 ) {
-    val syncStatus by settingsViewModel.syncStatus.collectAsStateWithLifecycle()
     val appLanguage by settingsViewModel.appLanguage.collectAsStateWithLifecycle()
     val shouldShowLanguageSyncDialog by settingsViewModel.shouldShowLanguageSyncDialog.collectAsStateWithLifecycle()
 
@@ -51,116 +54,93 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .verticalScroll(rememberScrollState())
+            .padding(vertical = 16.dp),
     ) {
-        Text(
-            text = stringResource(R.string.settings_title),
-            style = MaterialTheme.typography.headlineMedium
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = onNavigateToGestures,
-            modifier = Modifier.fillMaxWidth()
+        SettingsSectionTitle(stringResource(R.string.settings_language_title))
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
         ) {
-            Text(text = stringResource(R.string.settings_gesture_controls))
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = stringResource(R.string.settings_language_title),
-            style = MaterialTheme.typography.titleLarge
-        )
-        Text(
-            text = stringResource(R.string.settings_language_desc),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        SingleSelectToggleButtonGroup(
-            title = "",
-            items = listOf(SupportedLanguages.EN, SupportedLanguages.RU),
-            selectedItem = appLanguage,
-            onItemSelect = { settingsViewModel.setAppLanguage(it) },
-            modifier = Modifier.fillMaxWidth()
-        ) { lang, isSelected ->
-            val labelRes = if (lang == SupportedLanguages.EN) R.string.lang_english else R.string.lang_russian
-            Text(stringResource(labelRes))
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = stringResource(R.string.settings_app_data),
-            style = MaterialTheme.typography.titleLarge
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { settingsViewModel.updateDatabase() },
-            enabled = syncStatus !is SyncStatus.InProgress,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = stringResource(R.string.settings_update_database))
+            Column(modifier = Modifier.padding(16.dp)) {
+                SingleSelectToggleButtonGroup(
+                    title = "",
+                    items = listOf(SupportedLanguages.EN, SupportedLanguages.RU),
+                    selectedItem = appLanguage,
+                    onItemSelect = { settingsViewModel.setAppLanguage(it) },
+                    modifier = Modifier.fillMaxWidth()
+                ) { lang, _ ->
+                    val labelRes = if (lang == SupportedLanguages.EN) R.string.lang_english else R.string.lang_russian
+                    Text(stringResource(labelRes))
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+        
+        SettingsSectionTitle("Preferences")
+        SettingsItemCard(
+            icon = Icons.Default.TouchApp,
+            title = stringResource(R.string.settings_gesture_controls),
+            onClick = onNavigateToGestures
+        )
 
-        when (val status = syncStatus) {
-            is SyncStatus.Idle -> Text(stringResource(R.string.settings_status_waiting))
-
-            is SyncStatus.InProgress -> {
-                LinearProgressIndicator(
-                    progress = { status.progress },
-                    modifier = Modifier.fillMaxWidth().height(8.dp),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(status.message.asString(), style = MaterialTheme.typography.labelLarge)
-
-                LogConsole(logs = status.logs)
-            }
-
-            is SyncStatus.Success -> {
-                Text(status.summary.asString(), color = Color.Green, style = MaterialTheme.typography.titleMedium)
-                LogConsole(logs = status.fullLogs)
-            }
-
-            is SyncStatus.Error -> {
-                Text(stringResource(R.string.settings_error_prefix, status.message.asString()), color = Color.Red)
-            }
-        }
+        SettingsItemCard(
+            icon = Icons.Default.Sync,
+            title = stringResource(R.string.data_sync_title),
+            onClick = onNavigateToDataSync
+        )
+        
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
 @Composable
-fun LogConsole(logs: List<UiText>) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.05f)),
-        modifier = Modifier.fillMaxWidth().height(200.dp).padding(top = 8.dp)
-    ) {
-        val scrollState = rememberScrollState()
-        LaunchedEffect(logs.size) {
-            scrollState.animateScrollTo(scrollState.maxValue)
-        }
+fun SettingsSectionTitle(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
+    )
+}
 
-        Column(modifier = Modifier.padding(8.dp).verticalScroll(scrollState)) {
-            logs.forEach { log ->
-                Text(
-                    text = log.asString(),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontSize = 10.sp,
-                    lineHeight = 12.sp
-                )
-            }
+@Composable
+fun SettingsItemCard(icon: ImageVector, title: String, onClick: () -> Unit) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .clickable { onClick() },
+        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(28.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

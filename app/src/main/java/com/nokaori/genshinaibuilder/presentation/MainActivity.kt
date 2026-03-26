@@ -268,6 +268,9 @@ fun AppContent() {
                                     settingsViewModel = settingsViewModel,
                                     onNavigateToGestures = {
                                         navController.navigate("gesture_settings_route")
+                                    },
+                                    onNavigateToDataSync = {
+                                        navController.navigate("data_sync_route")
                                     }
                                 )
                             }
@@ -276,6 +279,13 @@ fun AppContent() {
                                 val gestureSettingsViewModel: GestureSettingsViewModel = hiltViewModel()
                                 GestureSettingsScreen(
                                     viewModel = gestureSettingsViewModel,
+                                    onNavigateBack = { navController.popBackStack() }
+                                )
+                            }
+                            
+                            composable("data_sync_route") {
+                                com.nokaori.genshinaibuilder.presentation.ui.settings.DataSyncScreen(
+                                    viewModel = settingsViewModel,
                                     onNavigateBack = { navController.popBackStack() }
                                 )
                             }
