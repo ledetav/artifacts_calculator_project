@@ -213,4 +213,11 @@
     <!-- TaggedText Dialog -->
     <string name="dialog_info_title">Информация</string>
     <string name="dialog_close_btn">Закрыть</string>
+
+    <!-- Data Sync Screen -->
+    <string name="data_sync_title">Обновление базы данных</string>
+    <string name="data_sync_description">Загрузите последние данные о персонажах, оружии и артефактах с сервера. Данные обновляются автоматически каждый день в 12:00.</string>
+    <string name="data_sync_button_update">Запустить обновление</string>
+    <string name="data_sync_last_updated">Последнее обновление: %1$s</string>
+    <string name="data_sync_never_updated">Никогда</string>
 </resources>
