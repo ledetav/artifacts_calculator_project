@@ -87,7 +87,7 @@ object ArtifactOcrParser {
 
     fun parse(rawText: String, availablePieces: List<PieceMatchInfo> = emptyList()): ParsedArtifactData {
         val lines = rawText.lines().map { it.trim() }.filter { it.isNotEmpty() }
-        val remainingLines = lines.toMutableList()
+        var remainingLines = lines.toMutableList()
         
         var foundSlot: ArtifactSlot? = null
         var foundLevel: Int? = null
@@ -98,7 +98,7 @@ object ArtifactOcrParser {
         val subStats = mutableListOf<Pair<StatType, Float>>()
 
         if (availablePieces.isNotEmpty() && remainingLines.isNotEmpty()) {
-            val pieceMatch = remainingLines.take(3).mapIndexedNotNull { index, line ->
+            val pieceMatch = remainingLines.take(4).mapIndexedNotNull { index, line ->
                 FuzzySearchUtils.findBestMatch(line, availablePieces, { it.name }, 2)?.let { index to it }
             }.minByOrNull { it.second.second }
 
@@ -109,9 +109,10 @@ object ArtifactOcrParser {
                 remainingLines[pieceMatch.first] = ""
             }
 
-            val setMatch = remainingLines.take(3).filter { it.isNotBlank() }.mapIndexedNotNull { _, line ->
-                val idx = remainingLines.indexOf(line)
-                FuzzySearchUtils.findBestMatch(line, availablePieces, { it.setName }, 2)?.let { idx to it }
+            val setMatch = remainingLines.mapIndexedNotNull { index, line ->
+                if (line.isNotBlank()) {
+                    FuzzySearchUtils.findBestMatch(line, availablePieces, { it.setName }, 2)?.let { index to it }
+                } else null
             }.minByOrNull { it.second.second }
 
             if (setMatch != null) {
@@ -119,44 +120,97 @@ object ArtifactOcrParser {
                     setId = setMatch.second.first.setId
                     setName = setMatch.second.first.setName
                 }
-                remainingLines[setMatch.first] = ""
+                val setLineIndex = setMatch.first
+                remainingLines[setLineIndex] = ""
+                
+                if (setLineIndex + 1 < remainingLines.size) {
+                    remainingLines = remainingLines.subList(0, setLineIndex + 1)
+                }
+            } else {
+                val descIndex = remainingLines.indexOfFirst { 
+                    val l = it.lowercase()
+                    l.contains("2 предмета") || l.contains("2-piece") || l.contains("увеличивает") || l.contains("increases") || l.contains("набор") || l.contains("set")
+                }
+                if (descIndex != -1) {
+                    remainingLines = remainingLines.subList(0, descIndex)
+                }
             }
         }
 
-        for (i in remainingLines.indices) {
-            val cleanLine = remainingLines[i].lowercase().replace(Regex("""\s+"""), "")
-            val matchedSlot = slotMap.entries.firstOrNull { cleanLine.contains(it.key) }
-            if (matchedSlot != null) {
-                if (foundSlot == null) foundSlot = matchedSlot.value
-                remainingLines[i] = cleanLine.replace(matchedSlot.key, "")
+        val slotMatch = remainingLines.mapIndexedNotNull { index, line ->
+            val cleanLine = line.lowercase().replace(Regex("""[\s.,:]"""), "")
+            var bestSlot: ArtifactSlot? = null
+            var bestDist = Int.MAX_VALUE
+            for (entry in slotMap.entries) {
+                val key = entry.key
+                if (cleanLine.contains(key)) {
+                    bestSlot = entry.value
+                    bestDist = 0
+                    break
+                }
+                if (key.length > 5 && cleanLine.isNotEmpty()) {
+                    val dist = FuzzySearchUtils.levenshteinDistance(cleanLine, key)
+                    if (dist <= 1 && dist < bestDist) {
+                        bestDist = dist
+                        bestSlot = entry.value
+                    }
+                }
             }
+            if (bestSlot != null) index to bestSlot else null
+        }.firstOrNull()
+
+        if (slotMatch != null) {
+            if (foundSlot == null) foundSlot = slotMatch.second
+            remainingLines[slotMatch.first] = ""
         }
 
         val valueRegex = Regex("""[+:]?\s*(\d+[,.]?\d*)\s*(%?)""")
 
         for (i in remainingLines.indices) {
-            var line = remainingLines[i].lowercase().replace(Regex("""\s+"""), "")
-            if (line.isEmpty()) continue
+            val originalLine = remainingLines[i].lowercase().replace(Regex("""\s+"""), "")
+            if (originalLine.isEmpty()) continue
 
-            var matchedStatEntry = statMap.entries.firstOrNull { line.contains(it.key) }
-            while (matchedStatEntry != null) {
+            var matchedStatEntry: Map.Entry<String, StatType>? = null
+            var bestDist = Int.MAX_VALUE
+            val cleanTextForMatch = originalLine.replace(Regex("""[\d.,+%:]"""), "")
+
+            for (entry in statMap.entries) {
+                val key = entry.key
+                if (originalLine.contains(key)) {
+                    matchedStatEntry = entry
+                    bestDist = 0
+                    break
+                }
+                if (key.length > 3 && cleanTextForMatch.isNotEmpty()) {
+                    val dist = FuzzySearchUtils.levenshteinDistance(cleanTextForMatch, key)
+                    val maxDist = if (key.length <= 6) 1 else 2
+                    if (dist <= maxDist && dist < bestDist) {
+                        bestDist = dist
+                        matchedStatEntry = entry
+                        if (dist == 0) break
+                    }
+                }
+            }
+
+            if (matchedStatEntry != null) {
                 val statType = matchedStatEntry.value
-                val isPercentageStat = line.contains("%") || statType.isPercentage
+                val isPercentageStat = originalLine.contains("%") || statType.isPercentage
 
-                line = line.replaceFirst(matchedStatEntry.key, "")
-                
-                val matchResult = valueRegex.find(line)
+                val matchResult = valueRegex.find(originalLine)
                 var valueStr = matchResult?.groupValues?.get(1)?.replace(",", ".")
                 
                 if (valueStr != null) {
-                    line = line.replaceFirst(matchResult!!.value, "")
+                    remainingLines[i] = originalLine.replaceFirst(matchResult!!.value, "")
                 } else if (i + 1 < remainingLines.size) {
                     val nextLine = remainingLines[i + 1].lowercase().replace(Regex("""\s+"""), "")
                     val nextLineMatch = valueRegex.find(nextLine)
                     if (nextLineMatch != null) {
                         valueStr = nextLineMatch.groupValues[1].replace(",", ".")
                         remainingLines[i + 1] = nextLine.replaceFirst(nextLineMatch.value, "")
+                        remainingLines[i] = ""
                     }
+                } else {
+                    remainingLines[i] = ""
                 }
 
                 val valueFloat = valueStr?.toFloatOrNull()
@@ -177,9 +231,7 @@ object ArtifactOcrParser {
                         subStats.add(finalStatType to valueFloat)
                     }
                 }
-                matchedStatEntry = statMap.entries.firstOrNull { line.contains(it.key) }
             }
-            remainingLines[i] = line
         }
         
         for (line in remainingLines) {
