@@ -220,4 +220,6 @@
     <string name="data_sync_button_update">Start Update</string>
     <string name="data_sync_last_updated">Last updated: %1$s</string>
     <string name="data_sync_never_updated">Never</string>
+
+    <string name="settings_preferences_title">Settings</string>
 </resources>
