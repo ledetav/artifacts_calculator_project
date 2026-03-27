@@ -147,6 +147,7 @@ fun BaseCalibrationDialog(
                 }
             }
         }
+        }
     }
 }
 
