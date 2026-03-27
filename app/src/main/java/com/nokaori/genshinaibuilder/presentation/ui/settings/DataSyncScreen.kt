@@ -18,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.text.format.DateUtils
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.SyncStatus
@@ -31,6 +32,7 @@ fun DataSyncScreen(
     onNavigateBack: () -> Unit
 ) {
     val syncStatus by viewModel.syncStatus.collectAsStateWithLifecycle()
+    val lastSyncTime by viewModel.lastSyncTime.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -70,7 +72,30 @@ fun DataSyncScreen(
                 textAlign = TextAlign.Center
             )
             
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            if (lastSyncTime > 0L) {
+                val timeString = DateUtils.getRelativeTimeSpanString(
+                    lastSyncTime,
+                    System.currentTimeMillis(),
+                    DateUtils.MINUTE_IN_MILLIS
+                )
+                
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.data_sync_last_updated, timeString),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
             
             Button(
                 onClick = { viewModel.updateDatabase() },

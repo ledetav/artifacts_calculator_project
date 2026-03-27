@@ -3,6 +3,7 @@ package com.nokaori.genshinaibuilder.data.repository
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import android.content.Context
@@ -23,6 +24,7 @@ class SettingsRepositoryImpl @Inject constructor(
 
     private object PreferencesKeys {
         val APP_LANGUAGE_KEY = stringPreferencesKey("app_language")
+        val LAST_SYNC_TIME_KEY = longPreferencesKey("last_sync_time")
     }
 
     override val appLanguage: Flow<String> = dataStore.data.map { preferences ->
@@ -32,6 +34,16 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setAppLanguage(language: String) {
         dataStore.edit { settings ->
             settings[PreferencesKeys.APP_LANGUAGE_KEY] = language
+        }
+    }
+
+    override val lastSyncTime: Flow<Long> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.LAST_SYNC_TIME_KEY] ?: 0L
+    }
+
+    override suspend fun setLastSyncTime(time: Long) {
+        dataStore.edit { settings ->
+            settings[PreferencesKeys.LAST_SYNC_TIME_KEY] = time
         }
     }
 
