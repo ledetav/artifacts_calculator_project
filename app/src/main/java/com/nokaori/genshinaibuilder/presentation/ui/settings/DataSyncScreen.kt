@@ -18,7 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import android.text.format.DateUtils
+import androidx.compose.ui.platform.LocalContext
+import android.text.format.DateFormat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nokaori.genshinaibuilder.R
 import com.nokaori.genshinaibuilder.domain.model.SyncStatus
@@ -75,11 +76,11 @@ fun DataSyncScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             if (lastSyncTime > 0L) {
-                val timeString = DateUtils.getRelativeTimeSpanString(
-                    lastSyncTime,
-                    System.currentTimeMillis(),
-                    DateUtils.MINUTE_IN_MILLIS
-                )
+                val context = LocalContext.current
+                val date = java.util.Date(lastSyncTime)
+                val dateFormatted = DateFormat.getMediumDateFormat(context).format(date)
+                val timeFormatted = DateFormat.getTimeFormat(context).format(date)
+                val timeString = "$dateFormatted, $timeFormatted"
                 
                 Surface(
                     shape = MaterialTheme.shapes.small,
