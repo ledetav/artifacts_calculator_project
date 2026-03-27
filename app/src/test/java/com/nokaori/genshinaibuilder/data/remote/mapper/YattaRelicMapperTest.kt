@@ -22,7 +22,7 @@ class YattaRelicMapperTest {
             suit = null
         )
 
-        val result = dto.toSetEntity()
+        val result = dto.toSetEntity(language = "en")
 
         assertEquals(15001, result.id)
         assertEquals("Crimson Witch of Flames", result.name)
@@ -43,7 +43,7 @@ class YattaRelicMapperTest {
             suit = null
         )
 
-        val result = dto.toSetEntity()
+        val result = dto.toSetEntity(language = "en")
 
         assertEquals(15002, result.id)
         assertEquals("Noblesse Oblige", result.name)
@@ -62,7 +62,7 @@ class YattaRelicMapperTest {
             suit = null
         )
 
-        val result = dto.toSetEntity()
+        val result = dto.toSetEntity(language = "en")
 
         assertEquals("", result.bonus2pc)
         assertEquals("", result.bonus4pc)
@@ -81,7 +81,7 @@ class YattaRelicMapperTest {
             suit = null
         )
 
-        val result = mapRelicPieces(15006, dto)
+        val result = mapRelicPieces(15006, "en", dto)
 
         assertEquals(0, result.size)
     }
@@ -97,7 +97,7 @@ class YattaRelicMapperTest {
             suit = emptyMap()
         )
 
-        val result = mapRelicPieces(15007, dto)
+        val result = mapRelicPieces(15007, "en", dto)
 
         assertEquals(0, result.size)
     }
@@ -117,7 +117,7 @@ class YattaRelicMapperTest {
             )
         )
 
-        val result = mapRelicPieces(setId, dto)
+        val result = mapRelicPieces(setId, "en", dto)
 
         result.forEach { piece ->
             assertEquals(setId, piece.setId)
@@ -139,7 +139,7 @@ class YattaRelicMapperTest {
             )
         )
 
-        val result = mapRelicPieces(setId, dto)
+        val result = mapRelicPieces(setId, "en", dto)
 
         result.forEach { piece ->
             val expectedId = setId * 10 + (piece.slot.ordinal + 1)
@@ -158,7 +158,7 @@ class YattaRelicMapperTest {
             suit = null
         )
 
-        val result = dto.toSetEntity()
+        val result = dto.toSetEntity(language = "en")
 
         assertTrue(result.iconUrl.contains("UI_RelicIcon_15010_4"))
         assertTrue(result.iconUrl.contains("https://gi.yatta.moe/assets/UI/reliquary"))

@@ -55,6 +55,7 @@ class CharacterRepositoryImplTest {
         val mockCharacter = CharacterWithOwnership(
             character = CharacterEntity(
                 id = 1,
+                language = "en",
                 name = "Nahida",
                 element = Element.DENDRO,
                 rarity = 5,
@@ -82,6 +83,7 @@ class CharacterRepositoryImplTest {
     fun getCharacterById_withValidId_returnsCharacter() = runTest {
         val mockEntity = CharacterEntity(
             id = 1,
+            language = "en",
             name = "Nahida",
             element = Element.DENDRO,
             rarity = 5,
@@ -166,6 +168,7 @@ class CharacterRepositoryImplTest {
             ),
             characterEntity = CharacterEntity(
                 id = 1,
+                language = "en",
                 name = "Nahida",
                 element = Element.DENDRO,
                 rarity = 5,
@@ -193,6 +196,7 @@ class CharacterRepositoryImplTest {
         val mockTalent = CharacterTalentEntity(
             id = 1,
             characterId = 1,
+            language = "en",
             orderIndex = 0,
             type = TalentType.NORMAL_ATTACK,
             name = "Normal Attack",
@@ -213,6 +217,7 @@ class CharacterRepositoryImplTest {
     fun getConstellations_returnsFlowOfConstellations() = runTest {
         val mockConstellation = CharacterConstellationEntity(
             characterId = 1,
+            language = "en",
             order = 1,
             name = "Constellation 1",
             description = "Test",
@@ -232,6 +237,7 @@ class CharacterRepositoryImplTest {
     fun getCharacterPromotions_returnsListOfPromotions() = runTest {
         val mockPromotion = CharacterPromotionEntity(
             characterId = 1,
+            language = "en",
             ascensionLevel = 1,
             addHp = 100f,
             addAtk = 10f,

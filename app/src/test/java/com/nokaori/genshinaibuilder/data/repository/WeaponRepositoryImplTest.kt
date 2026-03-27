@@ -42,6 +42,7 @@ class WeaponRepositoryImplTest {
     fun getAllWeapons_returnsFlowOfWeapons() = runTest {
         val mockWeapon = WeaponEntity(
             id = 1,
+            language = "en",
             name = "Aqua Simulacra",
             type = WeaponType.BOW,
             rarity = 5,
@@ -85,6 +86,7 @@ class WeaponRepositoryImplTest {
             ),
             weaponEntity = WeaponEntity(
                 id = 1,
+                language = "en",
                 name = "Aqua Simulacra",
                 type = WeaponType.BOW,
                 rarity = 5,
@@ -134,6 +136,7 @@ class WeaponRepositoryImplTest {
     fun getWeaponDetails_withValidWeaponId_returnsWeapon() = runTest {
         val mockWeapon = WeaponEntity(
             id = 1,
+            language = "en",
             name = "Aqua Simulacra",
             type = WeaponType.BOW,
             rarity = 5,

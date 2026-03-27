@@ -16,8 +16,8 @@ class UpdateGameDataUseCaseTest {
     fun setup() {
         mockRepository = object : GameDataRepository {
             override fun updateGameData() = flowOf(
-                SyncStatus.InProgress("Fetching data", 0.5f, listOf("Started")),
-                SyncStatus.Success("Update complete", listOf("Success"))
+                SyncStatus.InProgress(UiText.DynamicString("Fetching data"), 0.5f, listOf(UiText.DynamicString("Started"))),
+                SyncStatus.Success(UiText.DynamicString("Update complete"), listOf(UiText.DynamicString("Success")))
             )
         }
         useCase = UpdateGameDataUseCase(mockRepository)
@@ -53,7 +53,7 @@ class UpdateGameDataUseCaseTest {
     fun invoke_withErrorStatus_emitsError() = runBlocking {
         val errorRepository = object : GameDataRepository {
             override fun updateGameData() = flowOf(
-                SyncStatus.Error("Network error")
+                SyncStatus.Error(UiText.DynamicString("Network error"))
             )
         }
         val errorUseCase = UpdateGameDataUseCase(errorRepository)

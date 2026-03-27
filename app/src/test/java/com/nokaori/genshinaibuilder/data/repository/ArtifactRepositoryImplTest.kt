@@ -60,6 +60,7 @@ class ArtifactRepositoryImplTest {
             ),
             setEntity = ArtifactSetEntity(
                 id = 1,
+                language = "en",
                 name = "Crimson Witch",
                 rarities = listOf(4, 5),
                 bonus2pc = "Test",
@@ -68,6 +69,7 @@ class ArtifactRepositoryImplTest {
             ),
             pieceEntity = ArtifactPieceEntity(
                 id = 1,
+                language = "en",
                 setId = 1,
                 slot = ArtifactSlot.FLOWER_OF_LIFE,
                 name = "Flower",
@@ -87,6 +89,7 @@ class ArtifactRepositoryImplTest {
     fun getAvailableArtifactSets_returnsFlowOfSets() = runTest {
         val mockSet = ArtifactSetEntity(
             id = 1,
+            language = "en",
             name = "Crimson Witch",
             rarities = listOf(4, 5),
             bonus2pc = "Test",
@@ -128,6 +131,7 @@ class ArtifactRepositoryImplTest {
 
         val mockSet = ArtifactSetEntity(
             id = 1,
+            language = "en",
             name = "Crimson Witch",
             rarities = listOf(4, 5),
             bonus2pc = "Test",

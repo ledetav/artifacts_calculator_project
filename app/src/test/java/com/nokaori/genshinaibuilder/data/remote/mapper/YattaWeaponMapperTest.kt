@@ -26,7 +26,7 @@ class YattaWeaponMapperTest {
             isWeaponSkin = false
         )
 
-        val result = dto.toEntity()
+        val result = dto.toEntity(language = "en")
 
         assertEquals(11401, result.id)
         assertEquals("Mistsplitter Reforged", result.name)
@@ -48,7 +48,7 @@ class YattaWeaponMapperTest {
             isWeaponSkin = null
         )
 
-        val result = dto.toEntity()
+        val result = dto.toEntity(language = "en")
 
         assertNotNull(result.name)
         assertEquals(1, result.rarity)
@@ -67,7 +67,7 @@ class YattaWeaponMapperTest {
             isWeaponSkin = false
         )
 
-        val result = dto.toEntity()
+        val result = dto.toEntity(language = "en")
 
         assertNotNull(result.id)
         assertEquals("Test Weapon", result.name)
@@ -176,7 +176,7 @@ class YattaWeaponMapperTest {
             upgrade = null
         )
 
-        val result = mapWeaponRefinements(11405, detailDto)
+        val result = mapWeaponRefinements(11405, "en", detailDto)
 
         assertNotNull(result)
         assertEquals("Protector's Virtue", result?.passiveName)
@@ -196,7 +196,7 @@ class YattaWeaponMapperTest {
             upgrade = null
         )
 
-        val result = mapWeaponRefinements(11406, detailDto)
+        val result = mapWeaponRefinements(11406, "en", detailDto)
 
         assertNull(result)
     }
@@ -214,7 +214,7 @@ class YattaWeaponMapperTest {
             upgrade = null
         )
 
-        val result = mapWeaponRefinements(11407, detailDto)
+        val result = mapWeaponRefinements(11407, "en", detailDto)
 
         assertNull(result)
     }
@@ -250,7 +250,7 @@ class YattaWeaponMapperTest {
             )
         )
 
-        val result = mapWeaponPromotions(11408, detailDto)
+        val result = mapWeaponPromotions(11408, "en", detailDto)
 
         assertEquals(2, result.size)
         assertEquals(1, result[0].ascensionLevel)
@@ -271,7 +271,7 @@ class YattaWeaponMapperTest {
             upgrade = YattaWeaponUpgradeDto(props = null, promote = null)
         )
 
-        val result = mapWeaponPromotions(11409, detailDto)
+        val result = mapWeaponPromotions(11409, "en", detailDto)
 
         assertEquals(0, result.size)
     }
@@ -289,7 +289,7 @@ class YattaWeaponMapperTest {
             upgrade = null
         )
 
-        val result = mapWeaponPromotions(11410, detailDto)
+        val result = mapWeaponPromotions(11410, "en", detailDto)
 
         assertEquals(0, result.size)
     }
@@ -315,7 +315,7 @@ class YattaWeaponMapperTest {
                 isWeaponSkin = false
             )
 
-            val result = dto.toEntity()
+            val result = dto.toEntity(language = "en")
             assertEquals(expectedType, result.type)
         }
     }

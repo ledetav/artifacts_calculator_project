@@ -17,6 +17,7 @@ class WeaponMapperTest {
     fun testWeaponEntityToDomain() {
         val weaponEntity = WeaponEntity(
             id = 1,
+            language = "en",
             name = "Mistsplitter Reforged",
             type = WeaponType.SWORD,
             rarity = 5,
@@ -45,6 +46,7 @@ class WeaponMapperTest {
     fun testWeaponEntityToDomainWithoutSubStat() {
         val weaponEntity = WeaponEntity(
             id = 2,
+            language = "en",
             name = "Iron Sting",
             type = WeaponType.SWORD,
             rarity = 3,
@@ -68,6 +70,7 @@ class WeaponMapperTest {
     fun testWeaponEntityToDomainWithRefinement() {
         val weaponEntity = WeaponEntity(
             id = 3,
+            language = "en",
             name = "Primordial Jade Cutter",
             type = WeaponType.SWORD,
             rarity = 5,
@@ -101,6 +104,7 @@ class WeaponMapperTest {
     fun testUserWeaponCompleteToDomain() {
         val weaponEntity = WeaponEntity(
             id = 4,
+            language = "en",
             name = "Aqua Simulacra",
             type = WeaponType.BOW,
             rarity = 5,
@@ -141,6 +145,7 @@ class WeaponMapperTest {
     fun testUserWeaponCompleteToDomainWithLowLevel() {
         val weaponEntity = WeaponEntity(
             id = 5,
+            language = "en",
             name = "Favonius Sword",
             type = WeaponType.SWORD,
             rarity = 4,
@@ -180,6 +185,7 @@ class WeaponMapperTest {
     fun testWeaponEntityToDomainWithIntegerSubStat() {
         val weaponEntity = WeaponEntity(
             id = 6,
+            language = "en",
             name = "Skyward Blade",
             type = WeaponType.SWORD,
             rarity = 5,
@@ -202,6 +208,7 @@ class WeaponMapperTest {
     fun testWeaponEntityToDomainPreservesAllData() {
         val weaponEntity = WeaponEntity(
             id = 7,
+            language = "en",
             name = "Wolf's Gravestone",
             type = WeaponType.CLAYMORE,
             rarity = 5,

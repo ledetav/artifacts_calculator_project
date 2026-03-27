@@ -34,6 +34,7 @@ class ArtifactMapperTest {
 
         val setEntity = ArtifactSetEntity(
             id = 1,
+            language = "en",
             name = "Crimson Witch of Flames",
             rarities = listOf(4, 5),
             bonus2pc = "Pyro DMG Bonus +15%",
@@ -43,6 +44,7 @@ class ArtifactMapperTest {
 
         val pieceEntity = ArtifactPieceEntity(
             id = 11,
+            language = "en",
             setId = 1,
             slot = ArtifactSlot.FLOWER_OF_LIFE,
             name = "Witch's Flower of Life",
@@ -73,6 +75,7 @@ class ArtifactMapperTest {
     fun testArtifactSetEntityToDomain() {
         val setEntity = ArtifactSetEntity(
             id = 2,
+            language = "en",
             name = "Noblesse Oblige",
             rarities = listOf(4, 5),
             bonus2pc = "Elemental Burst DMG +20%",
@@ -83,6 +86,7 @@ class ArtifactMapperTest {
         val pieceEntities = listOf(
             ArtifactPieceEntity(
                 id = 21,
+                language = "en",
                 setId = 2,
                 slot = ArtifactSlot.FLOWER_OF_LIFE,
                 name = "Royal Flora",
@@ -104,6 +108,7 @@ class ArtifactMapperTest {
     fun testArtifactSetEntityToDomainWithoutPieces() {
         val setEntity = ArtifactSetEntity(
             id = 3,
+            language = "en",
             name = "Viridescent Venerer",
             rarities = listOf(4, 5),
             bonus2pc = "Anemo DMG Bonus +15%",
@@ -122,6 +127,7 @@ class ArtifactMapperTest {
     fun testArtifactPieceEntityToDomain() {
         val pieceEntity = ArtifactPieceEntity(
             id = 31,
+            language = "en",
             setId = 3,
             slot = ArtifactSlot.CIRCLET_OF_LOGOS,
             name = "Circlet of Logos",
@@ -153,6 +159,7 @@ class ArtifactMapperTest {
 
         val setEntity = ArtifactSetEntity(
             id = 1,
+            language = "en",
             name = "Test Set",
             rarities = listOf(5),
             bonus2pc = "Test",
@@ -162,6 +169,7 @@ class ArtifactMapperTest {
 
         val pieceEntity = ArtifactPieceEntity(
             id = 12,
+            language = "en",
             setId = 1,
             slot = ArtifactSlot.SANDS_OF_EON,
             name = "Sands",

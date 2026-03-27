@@ -53,7 +53,7 @@ class YattaAvatarMapperTest {
                 releaseDate = null
             )
 
-            val result = dto.toEntity()
+            val result = dto.toEntity(language = "en")
             assertEquals(expectedType, result.weaponType)
         }
     }

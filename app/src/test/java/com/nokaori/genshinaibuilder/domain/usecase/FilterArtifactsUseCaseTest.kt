@@ -25,6 +25,7 @@ class FilterArtifactsUseCaseTest {
                 rarity = Rarity.FIVE_STARS,
                 setName = "Crimson Witch",
                 artifactName = "Crimson Witch Flower",
+                iconUrl = "",
                 level = 20,
                 mainStat = Stat(StatType.HP, StatValue.IntValue(4780)),
                 subStats = emptyList()
@@ -35,6 +36,7 @@ class FilterArtifactsUseCaseTest {
                 rarity = Rarity.FOUR_STARS,
                 setName = "Noblesse Oblige",
                 artifactName = "Noblesse Plume",
+                iconUrl = "",
                 level = 16,
                 mainStat = Stat(StatType.ATK, StatValue.IntValue(311)),
                 subStats = emptyList()
@@ -45,6 +47,7 @@ class FilterArtifactsUseCaseTest {
                 rarity = Rarity.FIVE_STARS,
                 setName = "Crimson Witch",
                 artifactName = "Crimson Witch Sands",
+                iconUrl = "",
                 level = 20,
                 mainStat = Stat(StatType.ATK_PERCENT, StatValue.DoubleValue(0.466)),
                 subStats = emptyList()

@@ -58,7 +58,8 @@ class YattaDetailMapperTest {
                 promote = null
             ),
             talents = emptyMap(),
-            constellations = null
+            constellations = null,
+            dictionary = null
         )
 
         val result = characterEntity.updateWithDetails(detailDto)
@@ -92,7 +93,8 @@ class YattaDetailMapperTest {
             specialProp = "FIGHT_PROP_ATTACK_PERCENT",
             upgrade = YattaUpgradeDto(props = emptyList(), promote = null),
             talents = emptyMap(),
-            constellations = null
+            constellations = null,
+            dictionary = null
         )
 
         val result = characterEntity.updateWithDetails(detailDto)
@@ -131,10 +133,11 @@ class YattaDetailMapperTest {
                 )
             ),
             talents = emptyMap(),
-            constellations = null
+            constellations = null,
+            dictionary = null
         )
 
-        val result = mapPromotions(1, detailDto)
+        val result = mapPromotions(1, "en", detailDto)
 
         assertEquals(2, result.size)
         assertEquals(1, result[0].ascensionLevel)
@@ -151,10 +154,11 @@ class YattaDetailMapperTest {
             specialProp = "FIGHT_PROP_ATTACK_PERCENT",
             upgrade = YattaUpgradeDto(props = emptyList(), promote = null),
             talents = emptyMap(),
-            constellations = null
+            constellations = null,
+            dictionary = null
         )
 
-        val result = mapPromotions(2, detailDto)
+        val result = mapPromotions(2, "en", detailDto)
 
         assertEquals(0, result.size)
     }
@@ -174,10 +178,11 @@ class YattaDetailMapperTest {
                 )
             ),
             talents = emptyMap(),
-            constellations = null
+            constellations = null,
+            dictionary = null
         )
 
-        val result = mapPromotions(3, detailDto)
+        val result = mapPromotions(3, "en", detailDto)
 
         assertEquals(1, result.size)
         assertEquals(0f, result[0].addHp, 0.01f)
@@ -220,10 +225,11 @@ class YattaDetailMapperTest {
                     icon = "UI_Talent_Const_01",
                     extraData = null
                 )
-            )
+            ),
+            dictionary = null
         )
 
-        val (talents, constellations) = mapTalentsAndConstellations(1, detailDto)
+        val (talents, constellations) = mapTalentsAndConstellations(1, "en", detailDto)
 
         assertEquals(2, talents.size)
         assertEquals(1, constellations.size)
@@ -247,10 +253,11 @@ class YattaDetailMapperTest {
                     linkedConstellations = null
                 )
             ),
-            constellations = null
+            constellations = null,
+            dictionary = null
         )
 
-        val (talents, constellations) = mapTalentsAndConstellations(2, detailDto)
+        val (talents, constellations) = mapTalentsAndConstellations(2, "en", detailDto)
 
         assertEquals(1, talents.size)
         assertEquals(0, constellations.size)
@@ -272,10 +279,11 @@ class YattaDetailMapperTest {
                     linkedConstellations = null
                 )
             ),
-            constellations = emptyMap()
+            constellations = emptyMap(),
+            dictionary = null
         )
 
-        val (talents, constellations) = mapTalentsAndConstellations(3, detailDto)
+        val (talents, constellations) = mapTalentsAndConstellations(3, "en", detailDto)
 
         assertEquals(1, talents.size)
         assertEquals(0, constellations.size)
@@ -313,10 +321,11 @@ class YattaDetailMapperTest {
                     linkedConstellations = null
                 )
             ),
-            constellations = null
+            constellations = null,
+            dictionary = null
         )
 
-        val (talents, _) = mapTalentsAndConstellations(4, detailDto)
+        val (talents, _) = mapTalentsAndConstellations(4, "en", detailDto)
 
         assertEquals(0, talents[0].orderIndex)
         assertEquals(1, talents[1].orderIndex)
@@ -343,10 +352,11 @@ class YattaDetailMapperTest {
                     icon = "UI_Talent_Const_02",
                     extraData = null
                 )
-            )
+            ),
+            dictionary = null
         )
 
-        val (_, constellations) = mapTalentsAndConstellations(5, detailDto)
+        val (_, constellations) = mapTalentsAndConstellations(5, "en", detailDto)
 
         assertEquals(1, constellations[0].order)
         assertEquals(2, constellations[1].order)
@@ -379,7 +389,8 @@ class YattaDetailMapperTest {
                 promote = null
             ),
             talents = emptyMap(),
-            constellations = null
+            constellations = null,
+            dictionary = null
         )
 
         val result = characterEntity.updateWithDetails(detailDto)

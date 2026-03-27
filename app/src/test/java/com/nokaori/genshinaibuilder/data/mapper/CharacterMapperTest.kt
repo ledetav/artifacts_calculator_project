@@ -17,6 +17,7 @@ class CharacterMapperTest {
     fun testCharacterWithOwnershipToDomain() {
         val characterEntity = CharacterEntity(
             id = 1,
+            language = "en",
             name = "Ayaka",
             element = Element.CRYO,
             weaponType = WeaponType.SWORD,
@@ -49,6 +50,7 @@ class CharacterMapperTest {
     fun testCharacterWithOwnershipToDomainNotOwned() {
         val characterEntity = CharacterEntity(
             id = 2,
+            language = "en",
             name = "Ganyu",
             element = Element.CRYO,
             weaponType = WeaponType.BOW,
@@ -78,6 +80,7 @@ class CharacterMapperTest {
     fun testCharacterEntityToDomainWithOwnedFlag() {
         val characterEntity = CharacterEntity(
             id = 3,
+            language = "en",
             name = "Fischl",
             element = Element.ELECTRO,
             weaponType = WeaponType.BOW,
@@ -103,6 +106,7 @@ class CharacterMapperTest {
     fun testUserCharacterCompleteToDomain() {
         val characterEntity = CharacterEntity(
             id = 4,
+            language = "en",
             name = "Zhongli",
             element = Element.GEO,
             weaponType = WeaponType.POLEARM,
@@ -149,6 +153,7 @@ class CharacterMapperTest {
     fun testUserCharacterCompleteToDomainWithLowLevelCharacter() {
         val characterEntity = CharacterEntity(
             id = 5,
+            language = "en",
             name = "Barbara",
             element = Element.HYDRO,
             weaponType = WeaponType.CATALYST,
@@ -191,6 +196,7 @@ class CharacterMapperTest {
     fun testCharacterEntityToDomainPreservesAllStats() {
         val characterEntity = CharacterEntity(
             id = 6,
+            language = "en",
             name = "Hu Tao",
             element = Element.PYRO,
             weaponType = WeaponType.POLEARM,
