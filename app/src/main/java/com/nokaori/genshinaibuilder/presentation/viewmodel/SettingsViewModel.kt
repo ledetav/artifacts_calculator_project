@@ -47,7 +47,11 @@ class SettingsViewModel @Inject constructor (
         // Мониторим смену языка и проверяем наличие данных
         viewModelScope.launch {
             languageRepository.appLanguage.collectLatest { newLanguage ->
-                checkIfDataExistsForLanguage(newLanguage)
+                try {
+                    checkIfDataExistsForLanguage(newLanguage)
+                } catch (_: Exception) {
+                    // БД может быть ещё не инициализирована при первом запуске — пропускаем
+                }
             }
         }
     }

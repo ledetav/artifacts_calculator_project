@@ -11,6 +11,7 @@ import coil3.memory.MemoryCache
 import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.util.DebugLogger
+import com.nokaori.genshinaibuilder.data.local.AppDatabase
 import com.nokaori.genshinaibuilder.data.worker.WorkerScheduler
 import com.nokaori.genshinaibuilder.domain.usecase.OfflineDataUpdater
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +31,9 @@ class GenshinBuilderApplication : Application(), SingletonImageLoader.Factory, C
     @Inject
     lateinit var offlineDataUpdater: OfflineDataUpdater
 
+    @Inject
+    lateinit var db: AppDatabase
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     override val workManagerConfiguration: Configuration
@@ -41,7 +45,10 @@ class GenshinBuilderApplication : Application(), SingletonImageLoader.Factory, C
         super.onCreate()
         WorkerScheduler.scheduleDailySync(this)
         // Обновление встроенных игровых данных в фоне, не блокирует UI
-        applicationScope.launch {
+        applicationScope.launch(Dispatchers.IO) {
+            // Принудительно инициализируем БД (копирование из assets при первом запуске).
+            // Это предотвращает гонку между OfflineDataUpdater и UI-запросами.
+            db.openHelper.writableDatabase
             offlineDataUpdater.runIfNeeded()
         }
     }
