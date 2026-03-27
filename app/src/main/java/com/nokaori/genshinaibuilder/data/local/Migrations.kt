@@ -178,6 +178,11 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
 
 val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        // No changes needed for version 4
+        // Adds tags_dictionary column that was missing from MIGRATION_2_3.
+        // The column stores a JSON-serialised Map<String,String> via Room TypeConverter.
+        // DEFAULT '' is needed for existing rows; Room TypeConverter maps '' to emptyMap().
+        db.execSQL(
+            "ALTER TABLE characters_data ADD COLUMN tags_dictionary TEXT NOT NULL DEFAULT '{}'"
+        )
     }
 }

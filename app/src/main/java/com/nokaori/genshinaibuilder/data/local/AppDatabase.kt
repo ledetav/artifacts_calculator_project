@@ -37,7 +37,7 @@ import com.nokaori.genshinaibuilder.data.local.entity.*
         TeamBuildEntity::class,
         SyncMetadataEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
