@@ -36,6 +36,13 @@ class SettingsViewModel @Inject constructor (
             initialValue = "en"
         )
 
+    val lastSyncTime: StateFlow<Long> = languageRepository.lastSyncTime
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = 0L
+        )
+
     init {
         // Мониторим смену языка и проверяем наличие данных
         viewModelScope.launch {
@@ -71,6 +78,9 @@ class SettingsViewModel @Inject constructor (
         viewModelScope.launch {
             gameDataRepository.updateGameData().collect { status ->
                 _syncStatus.value = status
+                if (status is SyncStatus.Success) {
+                    languageRepository.setLastSyncTime(System.currentTimeMillis())
+                }
             }
         }
     }

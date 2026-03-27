@@ -17,12 +17,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.clickable
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.SliderThumb
 import com.nokaori.genshinaibuilder.R
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.sqrt
 
+private fun roundedFloatToString(value: Float, decimals: Int): String {
+    return if (decimals == 0) {
+        value.toInt().toString()
+    } else {
+        String.format(java.util.Locale.US, "%.${decimals}f", value)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BaseCalibrationDialog(
     title: String,
@@ -32,16 +46,36 @@ fun BaseCalibrationDialog(
     onValueChange: (Float) -> Unit,
     onDismiss: () -> Unit,
     isGestureDetected: Boolean,
-    unit: String = ""
+    unit: String = "",
+    stepSize: Float = 0.1f
 ) {
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = MaterialTheme.shapes.extraLarge,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.3f))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismiss
+                ),
+            contentAlignment = Alignment.Center
         ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.92f)
+                    .padding(16.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {}
+                    ),
+                shape = MaterialTheme.shapes.extraLarge,
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -93,13 +127,18 @@ fun BaseCalibrationDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Slider(
-                    value = currentValue,
-                    onValueChange = onValueChange,
-                    valueRange = valueRange
+                    value = currentValue.coerceIn(valueRange),
+                    onValueChange = { newValue ->
+                        val rounded = Math.round(newValue / stepSize) * stepSize
+                        // Предотвращаем выход за пределы (на случай погрешностей округления)
+                        onValueChange(rounded.coerceIn(valueRange))
+                    },
+                    valueRange = valueRange,
+                    thumb = { SliderThumb() }
                 )
                 
                 Text(
-                    text = stringResource(R.string.calibration_current_threshold, String.format("%.1f", currentValue), unit),
+                    text = stringResource(R.string.calibration_current_threshold, currentValue, unit),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -108,7 +147,7 @@ fun BaseCalibrationDialog(
                     onClick = { onValueChange(defaultValue) },
                     modifier = Modifier.padding(top = 8.dp)
                 ) {
-                    Text(stringResource(R.string.calibration_reset_default, String.format("%.1f", defaultValue), unit))
+                    Text(stringResource(R.string.calibration_reset_default, defaultValue, unit))
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -120,6 +159,7 @@ fun BaseCalibrationDialog(
                     Text(stringResource(R.string.calibration_done))
                 }
             }
+        }
         }
     }
 }
@@ -323,6 +363,7 @@ fun TiltCalibrationDialog(
         onValueChange = onSave,
         onDismiss = onDismiss,
         isGestureDetected = isDetected,
-        unit = "°"
+        unit = "°",
+        stepSize = 1.0f
     )
 }

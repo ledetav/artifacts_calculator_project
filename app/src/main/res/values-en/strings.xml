@@ -138,11 +138,11 @@
     <string name="sync_log_curves_start">📥 Loading curves…</string>
     <string name="sync_log_curves_done">✅ Curves updated (%1$d items)</string>
     <string name="sync_log_parallel_start">🚀 Starting parallel download…</string>
-    <string name="sync_log_success">✅ Success! Took: %1$.2fs. New: %2$d</string>
+    <string name="sync_log_success">Success! Took: %1$.2fs. New: %2$d</string>
     <string name="sync_error_unknown">Unknown error</string>
     
     <string name="sync_log_chars_start">👤 [Characters] Start…</string>
-    <string name="sync_log_chars_error">⚠️ Error: %1$s</string>
+    <string name="sync_log_chars_error">Error: %1$s</string>
     <string name="sync_log_chars_progress">👤 Characters: %1$d/%2$d</string>
     <string name="sync_log_chars_done">✅ [Characters] Done (+%1$d)</string>
 
@@ -213,4 +213,11 @@
     <!-- TaggedText Dialog -->
     <string name="dialog_info_title">Information</string>
     <string name="dialog_close_btn">Close</string>
+
+    <!-- Data Sync Screen -->
+    <string name="data_sync_title">Database Update</string>
+    <string name="data_sync_description">Download the latest data about characters, weapons, and artifacts from the server. Data is updated automatically every day at 12:00.</string>
+    <string name="data_sync_button_update">Start Update</string>
+    <string name="data_sync_last_updated">Last updated: %1$s</string>
+    <string name="data_sync_never_updated">Never</string>
 </resources>

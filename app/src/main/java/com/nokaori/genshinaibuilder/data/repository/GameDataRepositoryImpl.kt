@@ -7,7 +7,6 @@ import com.nokaori.genshinaibuilder.data.local.entity.CharacterEntity
 import com.nokaori.genshinaibuilder.data.local.entity.WeaponEntity
 import com.nokaori.genshinaibuilder.data.remote.api.YattaApi
 import com.nokaori.genshinaibuilder.data.remote.mapper.*
-import com.nokaori.genshinaibuilder.domain.model.SupportedLanguages
 import com.nokaori.genshinaibuilder.domain.model.SyncStatus
 import com.nokaori.genshinaibuilder.domain.model.UiText
 import com.nokaori.genshinaibuilder.domain.repository.GameDataRepository
@@ -18,6 +17,7 @@ import kotlinx.coroutines.flow.first
 import java.util.Collections
 import javax.inject.Inject
 import com.nokaori.genshinaibuilder.domain.repository.SettingsRepository
+import java.util.concurrent.atomic.AtomicInteger
 
 class GameDataRepositoryImpl @Inject constructor(
     private val characterDao: CharacterDao,
@@ -48,9 +48,24 @@ class GameDataRepositoryImpl @Inject constructor(
             log(UiText.StringResource(R.string.sync_log_parallel_start), 0.1f)
 
             val currentLanguage = themeRepository.appLanguage.first()
-            val totalNew = updateCharacters(currentLanguage, ::log) +
-                    updateWeapons(currentLanguage, ::log) +
-                    updateArtifacts(currentLanguage, ::log)
+            
+            val totalItems = AtomicInteger(0)
+            val processedItems = AtomicInteger(0)
+            
+            fun reportProgress(msg: UiText) {
+                val total = totalItems.get().coerceAtLeast(1)
+                val processed = processedItems.get()
+                log(msg, 0.1f + 0.9f * (processed.toFloat() / total))
+            }
+
+            val (charsNew, weaponsNew, artifactsNew) = coroutineScope {
+                val charsDef = async { updateCharacters(currentLanguage, totalItems, processedItems, ::reportProgress) }
+                val weaponsDef = async { updateWeapons(currentLanguage, totalItems, processedItems, ::reportProgress) }
+                val artifactsDef = async { updateArtifacts(currentLanguage, totalItems, processedItems, ::reportProgress) }
+                Triple(charsDef.await(), weaponsDef.await(), artifactsDef.await())
+            }
+
+            val totalNew = charsNew + weaponsNew + artifactsNew
 
             val duration = (System.currentTimeMillis() - startTime) / 1000f
             val finalMsg = UiText.StringResource(R.string.sync_log_success, duration, totalNew)
@@ -66,9 +81,12 @@ class GameDataRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun updateCharacters(language: String, onLog: (UiText, Float) -> Unit): Int {
-        onLog(UiText.DynamicString("[$language] Loading characters..."), 0f)
-
+    private suspend fun updateCharacters(
+        language: String, 
+        totalItems: AtomicInteger,
+        processedItems: AtomicInteger,
+        onLog: (UiText) -> Unit
+    ): Int {
         val listResponse = api.getAvatarList(language)
         val dtoList = listResponse.data.items.values
         val basicEntities = dtoList.map { it.toEntity(language) }
@@ -79,8 +97,10 @@ class GameDataRepositoryImpl @Inject constructor(
 
         characterDao.insertCharacters(basicEntities)
 
+        totalItems.addAndGet(dtoList.size)
+
         val chunks = dtoList.chunked(5)
-        var processed = 0
+        var localProcessed = 0
 
         chunks.forEach { batch ->
             coroutineScope {
@@ -101,23 +121,27 @@ class GameDataRepositoryImpl @Inject constructor(
                                 characterDao.insertPromotions(promo)
                             }
                         } catch (e: Exception) {
-                            onLog(UiText.DynamicString("[$language] Error loading ${dto.name ?: "Unknown"}"), 0f)
+                            onLog(UiText.DynamicString("[$language] Error loading ${dto.name ?: "Unknown"}"))
                         }
                     }
                 }.awaitAll()
             }
-            processed += batch.size
-            if (processed % 10 == 0) onLog(UiText.DynamicString("[$language] Characters: $processed/${dtoList.size}"), 0f)
+            localProcessed += batch.size
+            processedItems.addAndGet(batch.size)
+            if (localProcessed % 10 == 0) onLog(UiText.DynamicString("[$language] Characters: $localProcessed/${dtoList.size}"))
             delay(50)
         }
 
-        onLog(UiText.DynamicString("[$language] Characters done: $newCount new"), 0f)
+        onLog(UiText.DynamicString("[$language] Characters done: $newCount new"))
         return newCount
     }
 
-    private suspend fun updateWeapons(language: String, onLog: (UiText, Float) -> Unit): Int {
-        onLog(UiText.DynamicString("[$language] Loading weapons..."), 0f)
-
+    private suspend fun updateWeapons(
+        language: String, 
+        totalItems: AtomicInteger,
+        processedItems: AtomicInteger,
+        onLog: (UiText) -> Unit
+    ): Int {
         val listResponse = api.getWeaponList(language)
         val dtoList = listResponse.data.items.values.filter { it.isWeaponSkin != true }
         val basicEntities = dtoList.map { it.toEntity(language) }
@@ -127,9 +151,11 @@ class GameDataRepositoryImpl @Inject constructor(
         val newCount = basicEntities.count { it.id !in existingIds }
 
         weaponDao.insertWeapons(basicEntities)
+        
+        totalItems.addAndGet(dtoList.size)
 
         val chunks = dtoList.chunked(10)
-        var processed = 0
+        var localProcessed = 0
 
         chunks.forEach { batch ->
             coroutineScope {
@@ -152,23 +178,31 @@ class GameDataRepositoryImpl @Inject constructor(
                     }
                 }.awaitAll()
             }
-            processed += batch.size
-            if (processed % 20 == 0) onLog(UiText.DynamicString("[$language] Weapons: $processed/${dtoList.size}"), 0f)
+            localProcessed += batch.size
+            processedItems.addAndGet(batch.size)
+            if (localProcessed % 20 == 0) onLog(UiText.DynamicString("[$language] Weapons: $localProcessed/${dtoList.size}"))
             delay(50)
         }
 
-        onLog(UiText.DynamicString("[$language] Weapons done: $newCount new"), 0f)
+        onLog(UiText.DynamicString("[$language] Weapons done: $newCount new"))
         return newCount
     }
 
-    private suspend fun updateArtifacts(language: String, onLog: (UiText, Float) -> Unit): Int {
-        onLog(UiText.DynamicString("[$language] Loading artifacts..."), 0f)
+    private suspend fun updateArtifacts(
+        language: String, 
+        totalItems: AtomicInteger,
+        processedItems: AtomicInteger,
+        onLog: (UiText) -> Unit
+    ): Int {
         val dtoList = api.getRelicList(language).data.items.values
 
         val existingIds = artifactDao.getAllArtifactSetIds().toSet()
         val newCount = dtoList.count { it.id !in existingIds }
 
+        totalItems.addAndGet(dtoList.size)
+
         val chunks = dtoList.chunked(5)
+        var localProcessed = 0
 
         chunks.forEach { batch ->
             coroutineScope {
@@ -185,10 +219,12 @@ class GameDataRepositoryImpl @Inject constructor(
                     }
                 }.awaitAll()
             }
+            localProcessed += batch.size
+            processedItems.addAndGet(batch.size)
             delay(50)
         }
 
-        onLog(UiText.DynamicString("[$language] Artifacts done: $newCount new"), 0f)
+        onLog(UiText.DynamicString("[$language] Artifacts done: $newCount new"))
         return newCount
     }
 }

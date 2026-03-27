@@ -67,8 +67,10 @@ class CharacterRepositoryImpl @Inject constructor (
     }
 
     override fun getUserCharacter(encyclopediaId: Int): Flow<UserCharacter?> {
-        return userDao.getUserCharacterCompleteByEncyclopediaId(encyclopediaId).map {
-            it?.toDomain()
+        return themeRepository.appLanguage.flatMapLatest { language ->
+            userDao.getUserCharacterCompleteByEncyclopediaId(encyclopediaId, language).map {
+                it?.toDomain()
+            }
         }
     }
 
