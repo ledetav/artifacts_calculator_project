@@ -12,6 +12,7 @@ import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.util.DebugLogger
 import com.nokaori.genshinaibuilder.data.local.AppDatabase
+import com.nokaori.genshinaibuilder.data.worker.UpdateNotificationHelper
 import com.nokaori.genshinaibuilder.data.worker.WorkerScheduler
 import com.nokaori.genshinaibuilder.domain.usecase.OfflineDataUpdater
 import kotlinx.coroutines.CoroutineScope
@@ -43,6 +44,7 @@ class GenshinBuilderApplication : Application(), SingletonImageLoader.Factory, C
 
     override fun onCreate() {
         super.onCreate()
+        UpdateNotificationHelper.createNotificationChannel(this)
         WorkerScheduler.scheduleDailySync(this)
         // Обновление встроенных игровых данных в фоне, не блокирует UI
         applicationScope.launch(Dispatchers.IO) {

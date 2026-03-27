@@ -25,6 +25,17 @@ class DailySyncWorker @AssistedInject constructor(
                 when (status) {
                     is SyncStatus.Success -> {
                         isSuccess = true
+                        if (status.newChars + status.newWeapons + status.newArtifacts > 0) {
+                            UpdateNotificationHelper.showUpdateNotification(
+                                context = applicationContext,
+                                newChars = status.newChars,
+                                newWeapons = status.newWeapons,
+                                newArtifacts = status.newArtifacts,
+                                sampleCharNames = status.sampleCharNames,
+                                sampleWeaponNames = status.sampleWeaponNames,
+                                sampleArtifactNames = status.sampleArtifactNames
+                            )
+                        }
                     }
                     is SyncStatus.Error -> {
                         isSuccess = false
