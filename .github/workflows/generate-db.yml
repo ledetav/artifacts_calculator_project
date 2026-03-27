@@ -39,7 +39,7 @@ jobs:
       run: |
         set -o pipefail
         echo "Запуск GenerateOfflineDbTest — загрузка данных из Yatta API (EN + RU)..."
-        ./gradlew :app:test --tests "*.GenerateOfflineDbTest" \
+        ./gradlew :app:testDebugUnitTest --tests "*.GenerateOfflineDbTest" \
           --info 2>&1 | tee db_gen.log
       # Увеличенный таймаут: API-запросы могут занять 5-10 минут
       timeout-minutes: 20
