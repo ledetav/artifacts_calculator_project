@@ -28,7 +28,7 @@ object WorkerScheduler {
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             SYNC_WORK_NAME,
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.KEEP,
             dailyWorkRequest
         )
     }
@@ -40,10 +40,10 @@ object WorkerScheduler {
         val target = Calendar.getInstance(mskTimeZone).apply {
             timeInMillis = now.timeInMillis
             // if we are already past 12:00 MSK today, schedule for tomorrow
-            if (get(Calendar.HOUR_OF_DAY) >= 12) {
+            if (get(Calendar.HOUR_OF_DAY) >= 13) {
                 add(Calendar.DAY_OF_YEAR, 1)
             }
-            set(Calendar.HOUR_OF_DAY, 12)
+            set(Calendar.HOUR_OF_DAY, 13)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
