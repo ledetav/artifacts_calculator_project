@@ -93,7 +93,7 @@ fun BaseCalibrationDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Slider(
-                    value = currentValue,
+                    value = currentValue.coerceIn(valueRange),
                     onValueChange = onValueChange,
                     valueRange = valueRange
                 )

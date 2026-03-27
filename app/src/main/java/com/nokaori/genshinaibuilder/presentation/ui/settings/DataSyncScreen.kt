@@ -40,7 +40,8 @@ fun DataSyncScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.editor_back_description))
                     }
-                }
+                },
+                windowInsets = WindowInsets(0.dp)
             )
         }
     ) { innerPadding ->
