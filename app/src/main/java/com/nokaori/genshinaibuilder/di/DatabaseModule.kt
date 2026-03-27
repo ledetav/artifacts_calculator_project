@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.nokaori.genshinaibuilder.data.local.AppDatabase
 import com.nokaori.genshinaibuilder.data.local.MIGRATION_1_2
+import com.nokaori.genshinaibuilder.data.local.MIGRATION_2_3
+import com.nokaori.genshinaibuilder.data.local.MIGRATION_3_4
 import com.nokaori.genshinaibuilder.data.local.dao.*
 import dagger.Module
 import dagger.Provides
@@ -34,7 +36,7 @@ object DatabaseModule {
         // При первой установке Room скопирует prepackaged.db из assets (если файл есть).
         // На уже установленных устройствах (v1 БД) — применится MIGRATION_1_2.
         .apply { if (hasPrepackaged) createFromAsset("prepackaged.db") }
-        .addMigrations(MIGRATION_1_2)
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
         .build()
     }
 

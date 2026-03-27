@@ -165,6 +165,14 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
             )
         """)
         db.execSQL("CREATE INDEX IF NOT EXISTS index_weapon_refinements_weapon_id_language ON weapon_refinements(weapon_id, language)")
+        
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS sync_metadata (
+                `key` TEXT NOT NULL,
+                value INTEGER NOT NULL,
+                PRIMARY KEY(`key`)
+            )
+        """)
     }
 }
 

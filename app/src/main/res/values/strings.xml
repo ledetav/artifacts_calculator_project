@@ -220,6 +220,7 @@
     <string name="data_sync_button_update">Запустить обновление</string>
     <string name="data_sync_last_updated">Последнее обновление: %1$s</string>
     <string name="data_sync_never_updated">Никогда</string>
+    <string name="settings_data_date">Данные от: %1$s</string>
 
     <string name="settings_preferences_title">Настройки</string>
 </resources>

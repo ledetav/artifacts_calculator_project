@@ -34,9 +34,10 @@ import com.nokaori.genshinaibuilder.data.local.entity.*
 
         // 6. Builds
         CharacterBuildEntity::class,
-        TeamBuildEntity::class
+        TeamBuildEntity::class,
+        SyncMetadataEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -49,4 +50,5 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
     abstract fun buildDao(): BuildDao
+    abstract fun syncMetadataDao(): SyncMetadataDao
 }

@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.nokaori.genshinaibuilder.data.local.AppDatabase
 import com.nokaori.genshinaibuilder.data.remote.api.YattaApi
 import com.nokaori.genshinaibuilder.data.repository.GameDataRepositoryImpl
+import com.nokaori.genshinaibuilder.data.local.entity.SyncMetadataEntity
 import com.nokaori.genshinaibuilder.domain.model.SupportedLanguages
 import com.nokaori.genshinaibuilder.domain.model.SyncStatus
 import com.nokaori.genshinaibuilder.domain.repository.SettingsRepository
@@ -95,6 +96,11 @@ class GenerateOfflineDbTest {
         val statusRu = repoRu.updateGameData().first { it.isTerminal() }
         assertTrue("Синхронизация RU завершилась ошибкой: $statusRu", statusRu is SyncStatus.Success)
         println("=== [GenerateOfflineDbTest] RU готов ✓")
+
+        // Сохраняем дату генерации БД
+        val timestamp = System.currentTimeMillis()
+        db.syncMetadataDao().upsert(SyncMetadataEntity("last_updated_at", timestamp))
+        println("=== [GenerateOfflineDbTest] Дата генерации сохранена: $timestamp")
 
         // Закрываем БД — обязательно перед копированием файла
         db.close()

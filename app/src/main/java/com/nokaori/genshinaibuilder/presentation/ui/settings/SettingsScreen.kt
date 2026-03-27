@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.background
@@ -34,6 +35,7 @@ fun SettingsScreen(
     onNavigateToDataSync: () -> Unit
 ) {
     val appLanguage by settingsViewModel.appLanguage.collectAsStateWithLifecycle()
+    val lastSyncTime by settingsViewModel.lastSyncTime.collectAsStateWithLifecycle()
     val shouldShowLanguageSyncDialog by settingsViewModel.shouldShowLanguageSyncDialog.collectAsStateWithLifecycle()
 
     if (shouldShowLanguageSyncDialog) {
@@ -112,6 +114,11 @@ fun SettingsScreen(
         SettingsItemCard(
             icon = Icons.Default.Sync,
             title = stringResource(R.string.data_sync_title),
+            subtitle = if (lastSyncTime > 0L) {
+                val context = androidx.compose.ui.platform.LocalContext.current
+                val dateFormatted = android.text.format.DateFormat.getMediumDateFormat(context).format(java.util.Date(lastSyncTime))
+                stringResource(R.string.settings_data_date, dateFormatted)
+            } else null,
             onClick = onNavigateToDataSync
         )
         
@@ -130,7 +137,7 @@ fun SettingsSectionTitle(title: String) {
 }
 
 @Composable
-fun SettingsItemCard(icon: ImageVector, title: String, onClick: () -> Unit) {
+fun SettingsItemCard(icon: ImageVector, title: String, subtitle: String? = null, onClick: () -> Unit) {
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -152,11 +159,19 @@ fun SettingsItemCard(icon: ImageVector, title: String, onClick: () -> Unit) {
                 modifier = Modifier.size(28.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(1f)
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    )
+                }
+            }
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,

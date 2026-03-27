@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import com.nokaori.genshinaibuilder.data.local.AppDatabase
 import com.nokaori.genshinaibuilder.data.repository.dataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -37,7 +38,7 @@ class OfflineDataUpdater @Inject constructor(
          * Текущая версия встроенных игровых данных.
          * Увеличьте на 1 при каждом обновлении prepackaged.db.
          */
-        const val CURRENT_OFFLINE_DB_VERSION = 1
+        const val CURRENT_OFFLINE_DB_VERSION = 2
 
         private const val TAG = "OfflineDataUpdater"
         private val KEY_OFFLINE_DB_VERSION = intPreferencesKey("offline_db_version")
@@ -53,7 +54,8 @@ class OfflineDataUpdater @Inject constructor(
             "weapon_promotions",
             "weapon_refinements",
             "artifact_sets_data",
-            "artifact_pieces_data"
+            "artifact_pieces_data",
+            "sync_metadata"
         )
     }
 
@@ -113,11 +115,16 @@ class OfflineDataUpdater @Inject constructor(
             // 6. Удаляем временный файл
             tmpFile.delete()
 
-            // 7. Сохраняем новую версию в DataStore
+            // 7. Сохраняем новую версию и время синхронизации в DataStore
+            val dbTimestamp = db.syncMetadataDao().getValue("last_updated_at") ?: System.currentTimeMillis()
+            
             context.dataStore.edit { prefs ->
                 prefs[KEY_OFFLINE_DB_VERSION] = CURRENT_OFFLINE_DB_VERSION
+                // Используем longPreferencesKey("last_sync_time") напрямую или через репозиторий
+                // Но лучше просто добавить ключ здесь для инкапсуляции обновления
+                prefs[longPreferencesKey("last_sync_time")] = dbTimestamp
             }
-            Log.i(TAG, "Offline DB version saved: v$CURRENT_OFFLINE_DB_VERSION")
+            Log.i(TAG, "Offline DB version saved: v$CURRENT_OFFLINE_DB_VERSION, timestamp: $dbTimestamp")
 
         } catch (e: Exception) {
             Log.e(TAG, "Failed to update offline game data", e)
