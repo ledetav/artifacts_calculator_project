@@ -3,6 +3,19 @@ package com.nokaori.genshinaibuilder.data.local
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
+/**
+ * Версия 1 → 2: схема таблиц не изменилась.
+ * Смена версии нужна для корректной работы Room.createFromAsset("prepackaged.db"):
+ * при первой установке Room копирует prepackaged.db (версия 1) и тут же
+ * применяет эту миграцию, поднимая активную БД до версии 2.
+ * Данные пользователя (user_*, character_builds, team_builds) не затрагиваются.
+ */
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // No schema changes — version bump only.
+    }
+}
+
 val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // Удаляем все данные из справочных таблиц, так как структура изменилась
