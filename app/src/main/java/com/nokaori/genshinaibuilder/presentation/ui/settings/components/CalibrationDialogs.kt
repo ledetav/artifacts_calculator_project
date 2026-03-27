@@ -28,6 +28,14 @@ import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.sqrt
 
+private fun roundedFloatToString(value: Float, decimals: Int): String {
+    return if (decimals == 0) {
+        value.toInt().toString()
+    } else {
+        String.format(java.util.Locale.US, "%.${decimals}f", value)
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BaseCalibrationDialog(
@@ -38,7 +46,8 @@ fun BaseCalibrationDialog(
     onValueChange: (Float) -> Unit,
     onDismiss: () -> Unit,
     isGestureDetected: Boolean,
-    unit: String = ""
+    unit: String = "",
+    stepSize: Float = 0.1f
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -119,13 +128,20 @@ fun BaseCalibrationDialog(
 
                 Slider(
                     value = currentValue.coerceIn(valueRange),
-                    onValueChange = onValueChange,
+                    onValueChange = { newValue ->
+                        val rounded = Math.round(newValue / stepSize) * stepSize
+                        // Предотвращаем выход за пределы (на случай погрешностей округления)
+                        onValueChange(rounded.coerceIn(valueRange))
+                    },
                     valueRange = valueRange,
                     thumb = { SliderThumb() }
                 )
                 
+                // Чтобы избежать отображения длинных хвостов вроде 1.1000001
+                val displayValue = if (stepSize >= 1f) roundedFloatToString(currentValue, 0) else roundedFloatToString(currentValue, 1)
+
                 Text(
-                    text = stringResource(R.string.calibration_current_threshold, currentValue, unit),
+                    text = stringResource(R.string.calibration_current_threshold, displayValue, unit),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -134,7 +150,8 @@ fun BaseCalibrationDialog(
                     onClick = { onValueChange(defaultValue) },
                     modifier = Modifier.padding(top = 8.dp)
                 ) {
-                    Text(stringResource(R.string.calibration_reset_default, defaultValue, unit))
+                    val defaultDisplayValue = if (stepSize >= 1f) roundedFloatToString(defaultValue, 0) else roundedFloatToString(defaultValue, 1)
+                    Text(stringResource(R.string.calibration_reset_default, defaultDisplayValue, unit))
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -350,6 +367,7 @@ fun TiltCalibrationDialog(
         onValueChange = onSave,
         onDismiss = onDismiss,
         isGestureDetected = isDetected,
-        unit = "°"
+        unit = "°",
+        stepSize = 1.0f
     )
 }
