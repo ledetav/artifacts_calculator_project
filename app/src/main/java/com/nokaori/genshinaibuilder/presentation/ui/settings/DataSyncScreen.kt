@@ -165,7 +165,7 @@ fun DataSyncScreen(
 @Composable
 fun LogConsole(logs: List<UiText>) {
     ElevatedCard(
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
         modifier = Modifier.fillMaxWidth().height(250.dp).padding(top = 16.dp)
     ) {
