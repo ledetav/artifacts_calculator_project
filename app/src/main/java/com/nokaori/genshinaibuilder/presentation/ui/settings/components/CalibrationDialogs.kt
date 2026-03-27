@@ -137,11 +137,8 @@ fun BaseCalibrationDialog(
                     thumb = { SliderThumb() }
                 )
                 
-                // Чтобы избежать отображения длинных хвостов вроде 1.1000001
-                val displayValue = if (stepSize >= 1f) roundedFloatToString(currentValue, 0) else roundedFloatToString(currentValue, 1)
-
                 Text(
-                    text = stringResource(R.string.calibration_current_threshold, displayValue, unit),
+                    text = stringResource(R.string.calibration_current_threshold, currentValue, unit),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -150,8 +147,7 @@ fun BaseCalibrationDialog(
                     onClick = { onValueChange(defaultValue) },
                     modifier = Modifier.padding(top = 8.dp)
                 ) {
-                    val defaultDisplayValue = if (stepSize >= 1f) roundedFloatToString(defaultValue, 0) else roundedFloatToString(defaultValue, 1)
-                    Text(stringResource(R.string.calibration_reset_default, defaultDisplayValue, unit))
+                    Text(stringResource(R.string.calibration_reset_default, defaultValue, unit))
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
