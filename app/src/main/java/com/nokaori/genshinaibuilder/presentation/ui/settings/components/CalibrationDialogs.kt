@@ -99,7 +99,7 @@ fun BaseCalibrationDialog(
                 )
                 
                 Text(
-                    text = stringResource(R.string.calibration_current_threshold, String.format("%.1f", currentValue), unit),
+                    text = stringResource(R.string.calibration_current_threshold, currentValue, unit),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -108,7 +108,7 @@ fun BaseCalibrationDialog(
                     onClick = { onValueChange(defaultValue) },
                     modifier = Modifier.padding(top = 8.dp)
                 ) {
-                    Text(stringResource(R.string.calibration_reset_default, String.format("%.1f", defaultValue), unit))
+                    Text(stringResource(R.string.calibration_reset_default, defaultValue, unit))
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
