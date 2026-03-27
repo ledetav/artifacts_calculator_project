@@ -12,6 +12,11 @@ import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.util.DebugLogger
 import com.nokaori.genshinaibuilder.data.worker.WorkerScheduler
+import com.nokaori.genshinaibuilder.domain.usecase.OfflineDataUpdater
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import okio.Path.Companion.toOkioPath
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -22,13 +27,23 @@ class GenshinBuilderApplication : Application(), SingletonImageLoader.Factory, C
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
+    @Inject
+    lateinit var offlineDataUpdater: OfflineDataUpdater
+
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
+
     override fun onCreate() {
         super.onCreate()
         WorkerScheduler.scheduleDailySync(this)
+        // Обновление встроенных игровых данных в фоне, не блокирует UI
+        applicationScope.launch {
+            offlineDataUpdater.runIfNeeded()
+        }
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {
@@ -51,4 +66,4 @@ class GenshinBuilderApplication : Application(), SingletonImageLoader.Factory, C
             .logger(DebugLogger()) 
             .build()
     }
-}
+}
