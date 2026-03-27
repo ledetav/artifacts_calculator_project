@@ -223,4 +223,33 @@
     <string name="settings_data_date">Данные от: %1$s</string>
 
     <string name="settings_preferences_title">Настройки</string>
+
+    <!-- Update Notifications -->
+    <string name="notif_update_channel_name">Обновления энциклопедии</string>
+    <string name="notif_update_channel_desc">Уведомления о новых данных в базе персонажей, оружия и артефактов</string>
+    <string name="notif_update_title">Энциклопедия обновлена!</string>
+    <string name="notif_update_body_prefix">Добавлено:</string>
+    <string name="notif_update_sample_more">и другие</string>
+
+    <plurals name="notif_update_chars">
+        <item quantity="one">%1$d новый персонаж</item>
+        <item quantity="few">%1$d новых персонажа</item>
+        <item quantity="many">%1$d новых персонажей</item>
+        <item quantity="other">%1$d новых персонажей</item>
+    </plurals>
+
+    <plurals name="notif_update_weapons">
+        <item quantity="one">%1$d новый вид оружия</item>
+        <item quantity="few">%1$d новых вида оружия</item>
+        <item quantity="many">%1$d новых видов оружия</item>
+        <item quantity="other">%1$d новых видов оружия</item>
+    </plurals>
+
+    <plurals name="notif_update_artifacts">
+        <item quantity="one">%1$d новый сет артефактов</item>
+        <item quantity="few">%1$d новых сета артефактов</item>
+        <item quantity="many">%1$d новых сетов артефактов</item>
+        <item quantity="other">%1$d новых сетов артефактов</item>
+    </plurals>
+
 </resources>
