@@ -102,7 +102,7 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
         
-        SettingsSectionTitle("Preferences")
+        SettingsSectionTitle(stringResource(R.string.settings_preferences_title))
         SettingsItemCard(
             icon = Icons.Default.TouchApp,
             title = stringResource(R.string.settings_gesture_controls),
