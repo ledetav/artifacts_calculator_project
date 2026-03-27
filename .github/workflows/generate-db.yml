@@ -1,0 +1,101 @@
+name: Generate Offline DB
+
+on:
+  # Запускается вручную из интерфейса GitHub Actions
+  workflow_dispatch:
+  # Автоматически при merge PR в main/master (не мешает release workflow — он идёт параллельно)
+  pull_request:
+    types: [closed]
+    branches: [ "main", "master" ]
+
+jobs:
+  generate-db:
+    # При автозапуске — только если PR был смёрджен
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🚀 Notify Start
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: "🗄️ Запуск генерации prepackaged.db #${{ github.run_number }}. Подготовка окружения..."
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: 🌐 Generate prepackaged.db (fetches live API data)
+      run: |
+        set -o pipefail
+        echo "Запуск GenerateOfflineDbTest — загрузка данных из Yatta API (EN + RU)..."
+        ./gradlew :app:test --tests "*.GenerateOfflineDbTest" \
+          --info 2>&1 | tee db_gen.log
+      # Увеличенный таймаут: API-запросы могут занять 5-10 минут
+      timeout-minutes: 20
+
+    - name: ✅ Verify prepackaged.db was created
+      run: |
+        DB_PATH="app/src/main/assets/prepackaged.db"
+        if [ ! -f "$DB_PATH" ]; then
+          echo "❌ prepackaged.db не найден в assets!"
+          exit 1
+        fi
+        DB_SIZE=$(stat -c%s "$DB_PATH")
+        echo "✅ prepackaged.db найден! Размер: $DB_SIZE байт"
+
+    - name: 📦 Upload prepackaged.db as GitHub Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: prepackaged-db-${{ github.run_number }}
+        path: app/src/main/assets/prepackaged.db
+        if-no-files-found: error
+        # Артефакт доступен 90 дней
+        retention-days: 90
+
+    - name: 🎉 Notify Success
+      if: success()
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          ✅ prepackaged.db успешно сгенерирован (#${{ github.run_number }})!
+          
+          📥 Скачать артефакт:
+          https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          ℹ️ Файл доступен 90 дней. Для включения в APK — скачай и положи в app/src/main/assets/
+
+    # --- БЛОК ОБРАБОТКИ ОШИБОК ---
+    - name: Extract Error Log
+      if: failure()
+      run: |
+        echo "ERROR_LOG<<EOF" >> $GITHUB_ENV
+        tail -n 50 db_gen.log >> $GITHUB_ENV || echo "Лог недоступен" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - name: ❌ Notify Failure
+      if: failure()
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          ❌ Ошибка генерации prepackaged.db! (#${{ github.run_number }})
+          Автор: ${{ github.actor }}
+          
+          📝 Последние строки лога:
+          `${{ env.ERROR_LOG }}`
+          
+          🔍 Полные логи: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
