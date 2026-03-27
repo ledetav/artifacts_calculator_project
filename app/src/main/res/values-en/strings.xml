@@ -138,11 +138,11 @@
     <string name="sync_log_curves_start">📥 Loading curves…</string>
     <string name="sync_log_curves_done">✅ Curves updated (%1$d items)</string>
     <string name="sync_log_parallel_start">🚀 Starting parallel download…</string>
-    <string name="sync_log_success">✅ Success! Took: %1$.2fs. New: %2$d</string>
+    <string name="sync_log_success">Success! Took: %1$.2fs. New: %2$d</string>
     <string name="sync_error_unknown">Unknown error</string>
     
     <string name="sync_log_chars_start">👤 [Characters] Start…</string>
-    <string name="sync_log_chars_error">⚠️ Error: %1$s</string>
+    <string name="sync_log_chars_error">Error: %1$s</string>
     <string name="sync_log_chars_progress">👤 Characters: %1$d/%2$d</string>
     <string name="sync_log_chars_done">✅ [Characters] Done (+%1$d)</string>
 

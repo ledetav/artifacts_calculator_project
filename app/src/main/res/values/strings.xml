@@ -138,11 +138,11 @@
     <string name="sync_log_curves_start">📥 Загрузка кривых…</string>
     <string name="sync_log_curves_done">✅ Кривые обновлены (%1$d шт)</string>
     <string name="sync_log_parallel_start">🚀 Запуск параллельной загрузки…</string>
-    <string name="sync_log_success">✅ Успешно! Заняло: %1$.2fс. Новых: %2$d</string>
+    <string name="sync_log_success">Успешно! Заняло: %1$.2fс. Новых: %2$d</string>
     <string name="sync_error_unknown">Неизвестная ошибка</string>
     
     <string name="sync_log_chars_start">👤 [Персонажи] Старт…</string>
-    <string name="sync_log_chars_error">⚠️ Ошибка: %1$s</string>
+    <string name="sync_log_chars_error">Ошибка: %1$s</string>
     <string name="sync_log_chars_progress">👤 Персонажи: %1$d/%2$d</string>
     <string name="sync_log_chars_done">✅ [Персонажи] Готово (+%1$d)</string>
 
