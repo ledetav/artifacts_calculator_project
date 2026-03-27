@@ -17,12 +17,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.clickable
+import com.nokaori.genshinaibuilder.presentation.ui.common.components.SliderThumb
 import com.nokaori.genshinaibuilder.R
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.sqrt
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BaseCalibrationDialog(
     title: String,
@@ -34,14 +40,33 @@ fun BaseCalibrationDialog(
     isGestureDetected: Boolean,
     unit: String = ""
 ) {
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = MaterialTheme.shapes.extraLarge,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.3f))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismiss
+                ),
+            contentAlignment = Alignment.Center
         ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.92f)
+                    .padding(16.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {}
+                    ),
+                shape = MaterialTheme.shapes.extraLarge,
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -95,7 +120,8 @@ fun BaseCalibrationDialog(
                 Slider(
                     value = currentValue.coerceIn(valueRange),
                     onValueChange = onValueChange,
-                    valueRange = valueRange
+                    valueRange = valueRange,
+                    thumb = { SliderThumb() }
                 )
                 
                 Text(
