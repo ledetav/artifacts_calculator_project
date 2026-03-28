@@ -181,9 +181,15 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // Adds tags_dictionary column that was missing from MIGRATION_2_3.
         // The column stores a JSON-serialised Map<String,String> via Room TypeConverter.
-        // DEFAULT '' is needed for existing rows; Room TypeConverter maps '' to emptyMap().
-        db.execSQL(
-            "ALTER TABLE characters_data ADD COLUMN tags_dictionary TEXT NOT NULL DEFAULT '{}'"
-        )
+        // SQLite does not support "ADD COLUMN IF NOT EXISTS", so we guard with try-catch:
+        // prepackaged.db (version 4) already contains this column, and attempting to
+        // ALTER again would throw "duplicate column name".
+        try {
+            db.execSQL(
+                "ALTER TABLE characters_data ADD COLUMN tags_dictionary TEXT NOT NULL DEFAULT '{}'"
+            )
+        } catch (_: Exception) {
+            // Column already exists — safe to ignore.
+        }
     }
 }
