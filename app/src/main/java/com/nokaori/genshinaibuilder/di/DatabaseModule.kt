@@ -35,8 +35,18 @@ object DatabaseModule {
         )
         // При первой установке Room скопирует prepackaged.db из assets (если файл есть).
         // На уже установленных устройствах (v1 БД) — применится MIGRATION_1_2.
-        .apply { if (hasPrepackaged) createFromAsset("prepackaged.db") }
+        .apply { if (hasAsset) createFromAsset("prepackaged.db") }
         .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+        .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+        .addCallback(object : RoomDatabase.Callback() {
+            override fun onOpen(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                super.onOpen(db)
+                // Принудительно создаем таблицу Room, если она отсутствует.
+                // Это предотвращает SQLiteException: no such table: room_table_modification_log
+                db.execSQL("CREATE TABLE IF NOT EXISTS room_table_modification_log (table_id INTEGER PRIMARY KEY, invalidated INTEGER NOT NULL DEFAULT 0)")
+            }
+        })
+        .enableMultiInstanceInvalidation()
         .build()
     }
 
