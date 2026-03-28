@@ -37,7 +37,7 @@ object DatabaseModule {
         )
         // При первой установке Room скопирует prepackaged.db из assets (если файл есть).
         // На уже установленных устройствах (v1 БД) — применится MIGRATION_1_2.
-        .apply { if (hasPrepackaged) createFromAsset("prepackaged.db") }
+        .let { if (hasPrepackaged) it.createFromAsset("prepackaged.db") else it }
         .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
         .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
         .addCallback(object : RoomDatabase.Callback() {
@@ -70,4 +70,7 @@ object DatabaseModule {
     
     @Provides
     fun provideStatCurveDao(db: AppDatabase): StatCurveDao = db.statCurveDao()
+
+    @Provides
+    fun provideSyncMetadataDao(db: AppDatabase): SyncMetadataDao = db.syncMetadataDao()
 }
