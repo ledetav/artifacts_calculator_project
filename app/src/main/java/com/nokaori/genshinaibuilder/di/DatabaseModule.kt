@@ -2,6 +2,8 @@ package com.nokaori.genshinaibuilder.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.nokaori.genshinaibuilder.data.local.AppDatabase
 import com.nokaori.genshinaibuilder.data.local.MIGRATION_1_2
 import com.nokaori.genshinaibuilder.data.local.MIGRATION_2_3
@@ -35,11 +37,11 @@ object DatabaseModule {
         )
         // При первой установке Room скопирует prepackaged.db из assets (если файл есть).
         // На уже установленных устройствах (v1 БД) — применится MIGRATION_1_2.
-        .apply { if (hasAsset) createFromAsset("prepackaged.db") }
+        .apply { if (hasPrepackaged) createFromAsset("prepackaged.db") }
         .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
         .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
         .addCallback(object : RoomDatabase.Callback() {
-            override fun onOpen(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+            override fun onOpen(db: SupportSQLiteDatabase) {
                 super.onOpen(db)
                 // Принудительно создаем таблицу Room, если она отсутствует.
                 // Это предотвращает SQLiteException: no such table: room_table_modification_log
