@@ -186,9 +186,7 @@ fun ConstellationItem(
                     elementColor = elementColor,
                     tagDictionary = tagDictionary,
                     style = MaterialTheme.typography.bodyMedium,
-                    textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = if(isUnlocked) 10 else 2,
-                    overflow = TextOverflow.Ellipsis
+                    textColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
