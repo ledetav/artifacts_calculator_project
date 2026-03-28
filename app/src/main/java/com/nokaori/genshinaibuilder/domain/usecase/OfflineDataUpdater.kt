@@ -38,7 +38,7 @@ class OfflineDataUpdater @Inject constructor(
          * Текущая версия встроенных игровых данных.
          * Увеличьте на 1 при каждом обновлении prepackaged.db.
          */
-        const val CURRENT_OFFLINE_DB_VERSION = 2
+        const val CURRENT_OFFLINE_DB_VERSION = 4
 
         private const val TAG = "OfflineDataUpdater"
         private val KEY_OFFLINE_DB_VERSION = intPreferencesKey("offline_db_version")
@@ -86,6 +86,12 @@ class OfflineDataUpdater @Inject constructor(
         Log.i(TAG, "Offline DB update: v$installedVersion → v$CURRENT_OFFLINE_DB_VERSION. Starting...")
 
         try {
+            // ПРИНУДИТЕЛЬНАЯ ИНИЦИАЛИЗАЦИЯ Room 2.8+.
+            // Вызов любого DAO-метода через Room API гарантирует, что Room создаст все
+            // внутренние таблицы (в т.ч. room_table_modification_log) ПЕРЕД тем,
+            // как мы обратимся к legacy-интерфейсу openHelper.
+            db.syncMetadataDao().getValue("init_check")
+
             // 3. Копируем asset во временный файл (ATTACH DATABASE требует реальный путь)
             val tmpFile = File(context.cacheDir, "prepackaged_tmp.db")
             context.assets.open("prepackaged.db").use { input ->

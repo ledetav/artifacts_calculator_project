@@ -47,6 +47,7 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
                 curve_id TEXT NOT NULL,
                 icon_url TEXT NOT NULL,
                 splash_url TEXT NOT NULL,
+                tags_dictionary TEXT NOT NULL DEFAULT '{}',
                 PRIMARY KEY(id, language)
             )
         """)

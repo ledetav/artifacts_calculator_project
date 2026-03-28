@@ -11,7 +11,6 @@ import coil3.memory.MemoryCache
 import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.util.DebugLogger
-import com.nokaori.genshinaibuilder.data.local.AppDatabase
 import com.nokaori.genshinaibuilder.data.worker.UpdateNotificationHelper
 import com.nokaori.genshinaibuilder.data.worker.WorkerScheduler
 import com.nokaori.genshinaibuilder.domain.usecase.OfflineDataUpdater
@@ -32,9 +31,6 @@ class GenshinBuilderApplication : Application(), SingletonImageLoader.Factory, C
     @Inject
     lateinit var offlineDataUpdater: OfflineDataUpdater
 
-    @Inject
-    lateinit var db: AppDatabase
-
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     override val workManagerConfiguration: Configuration
@@ -46,11 +42,10 @@ class GenshinBuilderApplication : Application(), SingletonImageLoader.Factory, C
         super.onCreate()
         UpdateNotificationHelper.createNotificationChannel(this)
         WorkerScheduler.scheduleDailySync(this)
-        // Обновление встроенных игровых данных в фоне, не блокирует UI
+        // OfflineDataUpdater проверяет prepackaged.db в assets и обновляет
+        // игровые таблицы, если нужно. Room 2.8+ сам инициализирует
+        // room_table_modification_log при первом DAO-вызове через свой API.
         applicationScope.launch(Dispatchers.IO) {
-            // Принудительно инициализируем БД (копирование из assets при первом запуске).
-            // Это предотвращает гонку между OfflineDataUpdater и UI-запросами.
-            db.openHelper.writableDatabase
             offlineDataUpdater.runIfNeeded()
         }
     }
