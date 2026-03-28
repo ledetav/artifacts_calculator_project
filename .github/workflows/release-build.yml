@@ -48,6 +48,16 @@ jobs:
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: "⚙️ Окружение готово. Начинаю компиляцию APK (assembleRelease)..."
 
+    - name: 🌐 Generate prepackaged.db if missing
+      run: |
+        if [ ! -f "app/src/main/assets/prepackaged.db" ]; then
+          echo "prepackaged.db not found, generating..."
+          mkdir -p app/src/main/assets
+          ./gradlew :app:testDebugUnitTest --tests "*.GenerateOfflineDbTest"
+        else
+          echo "prepackaged.db already exists, skipping generation."
+        fi
+
     - name: Build Release APK
       run: |
         set -o pipefail

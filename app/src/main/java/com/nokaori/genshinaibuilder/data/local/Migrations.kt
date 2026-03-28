@@ -3,6 +3,19 @@ package com.nokaori.genshinaibuilder.data.local
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
+/**
+ * Версия 1 → 2: схема таблиц не изменилась.
+ * Смена версии нужна для корректной работы Room.createFromAsset("prepackaged.db"):
+ * при первой установке Room копирует prepackaged.db (версия 1) и тут же
+ * применяет эту миграцию, поднимая активную БД до версии 2.
+ * Данные пользователя (user_*, character_builds, team_builds) не затрагиваются.
+ */
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // No schema changes — version bump only.
+    }
+}
+
 val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // Удаляем все данные из справочных таблиц, так как структура изменилась
@@ -34,6 +47,7 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
                 curve_id TEXT NOT NULL,
                 icon_url TEXT NOT NULL,
                 splash_url TEXT NOT NULL,
+                tags_dictionary TEXT NOT NULL DEFAULT '{}',
                 PRIMARY KEY(id, language)
             )
         """)
@@ -152,11 +166,30 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
             )
         """)
         db.execSQL("CREATE INDEX IF NOT EXISTS index_weapon_refinements_weapon_id_language ON weapon_refinements(weapon_id, language)")
+        
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS sync_metadata (
+                `key` TEXT NOT NULL,
+                value INTEGER NOT NULL,
+                PRIMARY KEY(`key`)
+            )
+        """)
     }
 }
 
 val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        // No changes needed for version 4
+        // Adds tags_dictionary column that was missing from MIGRATION_2_3.
+        // The column stores a JSON-serialised Map<String,String> via Room TypeConverter.
+        // SQLite does not support "ADD COLUMN IF NOT EXISTS", so we guard with try-catch:
+        // prepackaged.db (version 4) already contains this column, and attempting to
+        // ALTER again would throw "duplicate column name".
+        try {
+            db.execSQL(
+                "ALTER TABLE characters_data ADD COLUMN tags_dictionary TEXT NOT NULL DEFAULT '{}'"
+            )
+        } catch (_: Exception) {
+            // Column already exists — safe to ignore.
+        }
     }
 }

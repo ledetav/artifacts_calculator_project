@@ -28,7 +28,7 @@ object WorkerScheduler {
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             SYNC_WORK_NAME,
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.KEEP,
             dailyWorkRequest
         )
     }

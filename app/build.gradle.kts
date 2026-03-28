@@ -188,6 +188,9 @@ dependencies {
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.androidx.room.runtime)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.retrofit)
+    testImplementation(libs.retrofit.converter.gson)
+    testImplementation(libs.okhttp3)
 
     androidTestImplementation(libs.junit4)
     androidTestImplementation(libs.androidx.test.ext.junit)

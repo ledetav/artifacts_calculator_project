@@ -220,6 +220,30 @@
     <string name="data_sync_button_update">Start Update</string>
     <string name="data_sync_last_updated">Last updated: %1$s</string>
     <string name="data_sync_never_updated">Never</string>
+    <string name="settings_data_date">Data from: %1$s</string>
 
     <string name="settings_preferences_title">Settings</string>
+
+    <!-- Update Notifications -->
+    <string name="notif_update_channel_name">Encyclopedia Updates</string>
+    <string name="notif_update_channel_desc">Notifications about new characters, weapons, and artifact set data</string>
+    <string name="notif_update_title">Encyclopedia Updated!</string>
+    <string name="notif_update_body_prefix">Added:</string>
+    <string name="notif_update_sample_more">and others</string>
+
+    <plurals name="notif_update_chars">
+        <item quantity="one">%1$d new character</item>
+        <item quantity="other">%1$d new characters</item>
+    </plurals>
+
+    <plurals name="notif_update_weapons">
+        <item quantity="one">%1$d new weapon</item>
+        <item quantity="other">%1$d new weapons</item>
+    </plurals>
+
+    <plurals name="notif_update_artifacts">
+        <item quantity="one">%1$d new artifact set</item>
+        <item quantity="other">%1$d new artifact sets</item>
+    </plurals>
+
 </resources>

@@ -2,7 +2,12 @@ package com.nokaori.genshinaibuilder.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.nokaori.genshinaibuilder.data.local.AppDatabase
+import com.nokaori.genshinaibuilder.data.local.MIGRATION_1_2
+import com.nokaori.genshinaibuilder.data.local.MIGRATION_2_3
+import com.nokaori.genshinaibuilder.data.local.MIGRATION_3_4
 import com.nokaori.genshinaibuilder.data.local.dao.*
 import dagger.Module
 import dagger.Provides
@@ -18,14 +23,35 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
+        val hasPrepackaged = try {
+            context.assets.open("prepackaged.db").close()
+            true
+        } catch (_: Exception) {
+            false
+        }
+
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
             "genshin_optimizer.db"
         )
-        .fallbackToDestructiveMigration()
+        // При первой установке Room скопирует prepackaged.db из assets (если файл есть).
+        // На уже установленных устройствах (v1 БД) — применится MIGRATION_1_2.
+        .let { if (hasPrepackaged) it.createFromAsset("prepackaged.db") else it }
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+        .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+        .addCallback(object : RoomDatabase.Callback() {
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                super.onOpen(db)
+                // Принудительно создаем таблицу Room, если она отсутствует.
+                // Это предотвращает SQLiteException: no such table: room_table_modification_log
+                db.execSQL("CREATE TABLE IF NOT EXISTS room_table_modification_log (table_id INTEGER PRIMARY KEY, invalidated INTEGER NOT NULL DEFAULT 0)")
+            }
+        })
+        .enableMultiInstanceInvalidation()
         .build()
     }
+
     
     @Provides
     fun provideArtifactDao(db: AppDatabase): ArtifactDao = db.artifactDao()
@@ -44,4 +70,7 @@ object DatabaseModule {
     
     @Provides
     fun provideStatCurveDao(db: AppDatabase): StatCurveDao = db.statCurveDao()
+
+    @Provides
+    fun provideSyncMetadataDao(db: AppDatabase): SyncMetadataDao = db.syncMetadataDao()
 }

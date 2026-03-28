@@ -9,8 +9,14 @@ sealed class SyncStatus {
     ) : SyncStatus()
     
     data class Success(
-        val summary: UiText, 
-        val fullLogs: List<UiText>
+        val summary: UiText,
+        val fullLogs: List<UiText>,
+        val newChars: Int = 0,
+        val newWeapons: Int = 0,
+        val newArtifacts: Int = 0,
+        val sampleCharNames: List<String> = emptyList(),
+        val sampleWeaponNames: List<String> = emptyList(),
+        val sampleArtifactNames: List<String> = emptyList()
     ) : SyncStatus()
     
     data class Error(
