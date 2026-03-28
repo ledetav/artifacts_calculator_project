@@ -3,15 +3,11 @@ name: Generate Offline DB
 on:
   # Запускается вручную из интерфейса GitHub Actions
   workflow_dispatch:
-  # Автоматически при merge PR в main/master (не мешает release workflow — он идёт параллельно)
-  pull_request:
-    types: [closed]
-    branches: [ "main", "master" ]
 
 jobs:
   generate-db:
     # При автозапуске — только если PR был смёрджен
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
