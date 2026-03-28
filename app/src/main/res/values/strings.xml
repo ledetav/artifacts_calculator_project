@@ -230,6 +230,10 @@
     <string name="notif_update_title">Энциклопедия обновлена!</string>
     <string name="notif_update_body_prefix">Добавлено:</string>
     <string name="notif_update_sample_more">и другие</string>
+    <string name="notif_sync_channel_name">Синхронизация данных</string>
+    <string name="notif_sync_channel_desc">Фоновое обновление базы данных — тихое уведомление</string>
+    <string name="notif_sync_in_progress_title">Обновление базы данных...</string>
+    <string name="notif_sync_in_progress_body">Загрузка актуальных данных</string>
 
     <plurals name="notif_update_chars">
         <item quantity="one">%1$d новый персонаж</item>

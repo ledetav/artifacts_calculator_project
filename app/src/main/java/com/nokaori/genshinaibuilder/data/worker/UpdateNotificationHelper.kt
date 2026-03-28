@@ -15,22 +15,38 @@ import com.nokaori.genshinaibuilder.R
 object UpdateNotificationHelper {
 
     private const val CHANNEL_ID = "encyclopedia_updates"
+    const val SYNC_CHANNEL_ID = "encyclopedia_sync_progress"
     private const val NOTIFICATION_ID = 1001
 
     /** Call once from Application.onCreate() to register the channel (safe to call multiple times). */
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = context.getString(R.string.notif_update_channel_name)
-            val description = context.getString(R.string.notif_update_channel_desc)
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-                this.description = description
-            }
             val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+
+            // Канал результата обновления (нормальный приоритет)
+            val updateChannel = NotificationChannel(
+                CHANNEL_ID,
+                context.getString(R.string.notif_update_channel_name),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = context.getString(R.string.notif_update_channel_desc)
+            }
+            notificationManager.createNotificationChannel(updateChannel)
+
+            // Канал foreground-прогресса (тихий, LOW)
+            val syncChannel = NotificationChannel(
+                SYNC_CHANNEL_ID,
+                context.getString(R.string.notif_sync_channel_name),
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = context.getString(R.string.notif_sync_channel_desc)
+                setShowBadge(false)
+            }
+            notificationManager.createNotificationChannel(syncChannel)
         }
     }
+
 
     /**
      * Shows a notification summarising newly added game data.

@@ -19,16 +19,22 @@ object WorkerScheduler {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
+        val initialDelay = calculateInitialDelayTo12MSK()
+
         val dailyWorkRequest = PeriodicWorkRequestBuilder<DailySyncWorker>(
-            24, TimeUnit.HOURS // Repeat every 24 hours
+            24, TimeUnit.HOURS,
+            // flex window: задача может выполниться в последние 30 мин окна
+            30, TimeUnit.MINUTES
         )
             .setConstraints(constraints)
-            .setInitialDelay(calculateInitialDelayTo12MSK(), TimeUnit.MILLISECONDS)
+            .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
             .build()
 
+        // UPDATE — пересчитывает initial delay каждый раз при старте приложения.
+        // KEEP оставлял старый delay и задача никогда не попадала в 12:00 МСК.
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             SYNC_WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.UPDATE,
             dailyWorkRequest
         )
     }
@@ -36,20 +42,19 @@ object WorkerScheduler {
     private fun calculateInitialDelayTo12MSK(): Long {
         val mskTimeZone = TimeZone.getTimeZone("Europe/Moscow")
         val now = Calendar.getInstance(mskTimeZone)
-        
+
         val target = Calendar.getInstance(mskTimeZone).apply {
             timeInMillis = now.timeInMillis
-            // if we are already past 12:00 MSK today, schedule for tomorrow
-            if (get(Calendar.HOUR_OF_DAY) >= 12) {
-                add(Calendar.DAY_OF_YEAR, 1)
-            }
             set(Calendar.HOUR_OF_DAY, 12)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
+            // Если сейчас уже позже 12:00 — назначаем на завтра
+            if (now.timeInMillis >= timeInMillis) {
+                add(Calendar.DAY_OF_YEAR, 1)
+            }
         }
 
-        val initialDelay = target.timeInMillis - now.timeInMillis
-        return if (initialDelay < 0) 0 else initialDelay
+        return target.timeInMillis - now.timeInMillis
     }
 }

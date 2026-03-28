@@ -230,6 +230,10 @@
     <string name="notif_update_title">Encyclopedia Updated!</string>
     <string name="notif_update_body_prefix">Added:</string>
     <string name="notif_update_sample_more">and others</string>
+    <string name="notif_sync_channel_name">Data Sync</string>
+    <string name="notif_sync_channel_desc">Silent background database update notification</string>
+    <string name="notif_sync_in_progress_title">Updating database...</string>
+    <string name="notif_sync_in_progress_body">Downloading latest data</string>
 
     <plurals name="notif_update_chars">
         <item quantity="one">%1$d new character</item>
