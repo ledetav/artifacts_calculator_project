@@ -21,40 +21,60 @@ object WorkerScheduler {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        val initialDelay = calculateInitialDelayTo1430MSK()
+        // 1. Сначала планируем OneTimeWorkRequest для "первого" запуска точно в 15:45 (ТЕСТ).
+        // Это обходит баг WorkManager, когда initialDelay в PeriodicWorkRequest 
+        // добавляется ПОВЕРХ первого периода (в итоге запуск был через 48ч вместо 24ч).
+        val initialDelay = calculateInitialDelayTo1545MSK()
         val hours = initialDelay / 3_600_000
         val minutes = (initialDelay % 3_600_000) / 60_000
-        Log.i(TAG, "Scheduling daily sync. Next run in ${hours}h ${minutes}m (delay=${initialDelay}ms)")
+        Log.i(TAG, "Scheduling one-time sync for first run. Next run in ${hours}h ${minutes}m (delay=${initialDelay}ms)")
 
+        val firstRunRequest = androidx.work.OneTimeWorkRequestBuilder<DailySyncWorker>()
+            .setConstraints(constraints)
+            .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+            .addTag("first_sync_run")
+            .build()
+
+        // Используем REPLACE для теста, чтобы сразу увидеть изменения
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "first_daily_sync",
+            androidx.work.ExistingWorkPolicy.REPLACE,
+            firstRunRequest
+        )
+
+        // 2. Также планируем периодическую задачу на будущее. 
+        // Она начнет свои циклы. Даже если она запустится чуть позже первого 
+        //OneTime-воркера — не страшно, они используют одинаковый уникальный нейм внутри (если бы были одинаковы).
+        // Но лучше: DailySyncWorker сам может перепланировать периодику, 
+        // либо мы просто ставим Periodic с KEEP, чтобы он подхватил через 24ч.
         val dailyWorkRequest = PeriodicWorkRequestBuilder<DailySyncWorker>(
             24, TimeUnit.HOURS,
-            // flex window: задача может выполниться в последние 30 мин окна
             30, TimeUnit.MINUTES
         )
             .setConstraints(constraints)
             .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
             .build()
 
-        // UPDATE — пересчитывает initial delay каждый раз при старте приложения.
-        // KEEP оставлял старый delay и задача никогда не попадала в 14:30 МСК.
+        // REPLACE для теста
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             SYNC_WORK_NAME,
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.REPLACE,
             dailyWorkRequest
         )
     }
 
-    private fun calculateInitialDelayTo1430MSK(): Long {
+    private fun calculateInitialDelayTo1545MSK(): Long {
         val mskTimeZone = TimeZone.getTimeZone("Europe/Moscow")
         val now = Calendar.getInstance(mskTimeZone)
 
         val target = Calendar.getInstance(mskTimeZone).apply {
             timeInMillis = now.timeInMillis
-            set(Calendar.HOUR_OF_DAY, 14)
-            set(Calendar.MINUTE, 30)
+            set(Calendar.HOUR_OF_DAY, 15)
+            set(Calendar.MINUTE, 45)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
-            // Если сейчас уже позже 14:30 — назначаем на завтра
+
+            // Если сейчас уже позже 15:45 — планируем на завтра.
             if (now.timeInMillis >= timeInMillis) {
                 add(Calendar.DAY_OF_YEAR, 1)
             }
