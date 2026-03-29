@@ -21,13 +21,17 @@ object WorkerScheduler {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        // 1. Сначала планируем OneTimeWorkRequest для "первого" запуска точно в 16:45 (ТЕСТ).
-        // Это обходит баг WorkManager, когда initialDelay в PeriodicWorkRequest 
-        // добавляется ПОВЕРХ первого периода (в итоге запуск был через 48ч вместо 24ч).
-        val initialDelay = calculateInitialDelayTo1645MSK()
-        val hours = initialDelay / 3_600_000
-        val minutes = (initialDelay % 3_600_000) / 60_000
-        Log.i(TAG, "Scheduling one-time sync for first run. Next run in ${hours}h ${minutes}m (delay=${initialDelay}ms)")
+        // 1. Сначала планируем OneTimeWorkRequest для "первого" запуска точно в 12:00 МСК.
+        val initialDelay = calculateInitialDelayTo1200MSK()
+        
+        // Для лога: показываем время в МЕСТНОМ часовом поясе устройства
+        val targetLocal = java.util.Calendar.getInstance().apply {
+            timeInMillis = System.currentTimeMillis() + initialDelay
+        }
+        val localTimeStr = android.text.format.DateFormat.getTimeFormat(context).format(targetLocal.time)
+        val localDateStr = android.text.format.DateFormat.getDateFormat(context).format(targetLocal.time)
+
+        Log.i(TAG, "Scheduling one-time sync. First run at $localDateStr, $localTimeStr (Local Time) | delay=${initialDelay}ms")
 
         val firstRunRequest = androidx.work.OneTimeWorkRequestBuilder<DailySyncWorker>()
             .setConstraints(constraints)
@@ -35,10 +39,10 @@ object WorkerScheduler {
             .addTag("first_sync_run")
             .build()
 
-        // Используем REPLACE для теста, чтобы сразу увидеть изменения
+        // Используем KEEP, чтобы не сдвигать время первого запуска при каждом перезапуске приложения
         WorkManager.getInstance(context).enqueueUniqueWork(
             "first_daily_sync",
-            androidx.work.ExistingWorkPolicy.REPLACE,
+            androidx.work.ExistingWorkPolicy.KEEP,
             firstRunRequest
         )
 
@@ -55,26 +59,26 @@ object WorkerScheduler {
             .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
             .build()
 
-        // REPLACE для теста
+        // KEEP — критически важно.
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             SYNC_WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingPeriodicWorkPolicy.KEEP,
             dailyWorkRequest
         )
     }
 
-    private fun calculateInitialDelayTo1645MSK(): Long {
+    private fun calculateInitialDelayTo1200MSK(): Long {
         val mskTimeZone = TimeZone.getTimeZone("Europe/Moscow")
         val now = Calendar.getInstance(mskTimeZone)
 
         val target = Calendar.getInstance(mskTimeZone).apply {
             timeInMillis = now.timeInMillis
-            set(Calendar.HOUR_OF_DAY, 16)
-            set(Calendar.MINUTE, 45)
+            set(Calendar.HOUR_OF_DAY, 12)
+            set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
 
-            // Если сейчас уже позже 16:45 — планируем на завтра.
+            // Если сейчас уже позже 12:00 — планируем на завтра.
             if (now.timeInMillis >= timeInMillis) {
                 add(Calendar.DAY_OF_YEAR, 1)
             }

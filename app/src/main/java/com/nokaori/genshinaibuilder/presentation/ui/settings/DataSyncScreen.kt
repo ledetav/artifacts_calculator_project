@@ -65,8 +65,22 @@ fun DataSyncScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
+            val context = LocalContext.current
+            val syncDescription = stringResource(R.string.data_sync_description)
+            
+            // Динамический расчет 12:00 МСК в местном времени
+            val syncTimeLocal = remember {
+                val mskTimeZone = java.util.TimeZone.getTimeZone("Europe/Moscow")
+                val mskCalendar = java.util.Calendar.getInstance(mskTimeZone).apply {
+                    set(java.util.Calendar.HOUR_OF_DAY, 12)
+                    set(java.util.Calendar.MINUTE, 0)
+                    set(java.util.Calendar.SECOND, 0)
+                }
+                DateFormat.getTimeFormat(context).format(mskCalendar.time)
+            }
+
             Text(
-                text = stringResource(R.string.data_sync_description),
+                text = "$syncDescription ($syncTimeLocal)",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 8.dp),

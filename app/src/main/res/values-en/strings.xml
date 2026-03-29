@@ -216,7 +216,7 @@
 
     <!-- Data Sync Screen -->
     <string name="data_sync_title">Database Update</string>
-    <string name="data_sync_description">Download the latest data about characters, weapons, and artifacts from the server. Data is updated automatically every day at 14:30.</string>
+    <string name="data_sync_description">Download the latest data about characters, weapons, and artifacts from the server. Data is updated automatically every day at 12:00 MSK.</string>
     <string name="data_sync_button_update">Start Update</string>
     <string name="data_sync_last_updated">Last updated: %1$s</string>
     <string name="data_sync_never_updated">Never</string>
