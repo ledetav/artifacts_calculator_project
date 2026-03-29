@@ -23,9 +23,17 @@ class DailySyncWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         Log.i(TAG, "doWork() started — background DB sync triggered")
-        // Запускаем как foreground-задачу чтобы Android не убил процесс на 12+
-        setForeground(getForegroundInfo())
+        
         return try {
+            // Запускаем как foreground-задачу. 
+            // На Android 14+ может выбросить ForegroundServiceStartNotAllowedException,
+            // если приложение в глубоком фоне. В этом случае просто продолжаем в обычном фоне.
+            try {
+                setForeground(getForegroundInfo())
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to set foreground mode, continuing in background", e)
+            }
+
             var isSuccess = false
             gameDataRepository.updateGameData().collect { status ->
                 when (status) {

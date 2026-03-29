@@ -21,10 +21,10 @@ object WorkerScheduler {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        // 1. Сначала планируем OneTimeWorkRequest для "первого" запуска точно в 15:45 (ТЕСТ).
+        // 1. Сначала планируем OneTimeWorkRequest для "первого" запуска точно в 16:45 (ТЕСТ).
         // Это обходит баг WorkManager, когда initialDelay в PeriodicWorkRequest 
         // добавляется ПОВЕРХ первого периода (в итоге запуск был через 48ч вместо 24ч).
-        val initialDelay = calculateInitialDelayTo1545MSK()
+        val initialDelay = calculateInitialDelayTo1645MSK()
         val hours = initialDelay / 3_600_000
         val minutes = (initialDelay % 3_600_000) / 60_000
         Log.i(TAG, "Scheduling one-time sync for first run. Next run in ${hours}h ${minutes}m (delay=${initialDelay}ms)")
@@ -63,18 +63,18 @@ object WorkerScheduler {
         )
     }
 
-    private fun calculateInitialDelayTo1545MSK(): Long {
+    private fun calculateInitialDelayTo1645MSK(): Long {
         val mskTimeZone = TimeZone.getTimeZone("Europe/Moscow")
         val now = Calendar.getInstance(mskTimeZone)
 
         val target = Calendar.getInstance(mskTimeZone).apply {
             timeInMillis = now.timeInMillis
-            set(Calendar.HOUR_OF_DAY, 15)
+            set(Calendar.HOUR_OF_DAY, 16)
             set(Calendar.MINUTE, 45)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
 
-            // Если сейчас уже позже 15:45 — планируем на завтра.
+            // Если сейчас уже позже 16:45 — планируем на завтра.
             if (now.timeInMillis >= timeInMillis) {
                 add(Calendar.DAY_OF_YEAR, 1)
             }
