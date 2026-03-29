@@ -2,6 +2,7 @@ package com.nokaori.genshinaibuilder.data.worker
 
 import android.app.Notification
 import android.content.Context
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -21,6 +22,7 @@ class DailySyncWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
+        Log.i(TAG, "doWork() started — background DB sync triggered")
         // Запускаем как foreground-задачу чтобы Android не убил процесс на 12+
         setForeground(getForegroundInfo())
         return try {
@@ -73,5 +75,6 @@ class DailySyncWorker @AssistedInject constructor(
 
     companion object {
         private const val SYNC_NOTIFICATION_ID = 1002
+        private const val TAG = "DailySyncWorker"
     }
 }
