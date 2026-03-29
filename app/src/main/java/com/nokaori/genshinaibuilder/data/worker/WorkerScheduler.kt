@@ -21,7 +21,7 @@ object WorkerScheduler {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        val initialDelay = calculateInitialDelayTo14MSK()
+        val initialDelay = calculateInitialDelayTo1430MSK()
         val hours = initialDelay / 3_600_000
         val minutes = (initialDelay % 3_600_000) / 60_000
         Log.i(TAG, "Scheduling daily sync. Next run in ${hours}h ${minutes}m (delay=${initialDelay}ms)")
@@ -36,7 +36,7 @@ object WorkerScheduler {
             .build()
 
         // UPDATE — пересчитывает initial delay каждый раз при старте приложения.
-        // KEEP оставлял старый delay и задача никогда не попадала в 14:00 МСК.
+        // KEEP оставлял старый delay и задача никогда не попадала в 14:30 МСК.
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             SYNC_WORK_NAME,
             ExistingPeriodicWorkPolicy.UPDATE,
@@ -44,17 +44,17 @@ object WorkerScheduler {
         )
     }
 
-    private fun calculateInitialDelayTo14MSK(): Long {
+    private fun calculateInitialDelayTo1430MSK(): Long {
         val mskTimeZone = TimeZone.getTimeZone("Europe/Moscow")
         val now = Calendar.getInstance(mskTimeZone)
 
         val target = Calendar.getInstance(mskTimeZone).apply {
             timeInMillis = now.timeInMillis
             set(Calendar.HOUR_OF_DAY, 14)
-            set(Calendar.MINUTE, 0)
+            set(Calendar.MINUTE, 30)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
-            // Если сейчас уже позже 14:00 — назначаем на завтра
+            // Если сейчас уже позже 14:30 — назначаем на завтра
             if (now.timeInMillis >= timeInMillis) {
                 add(Calendar.DAY_OF_YEAR, 1)
             }

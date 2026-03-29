@@ -25,7 +25,7 @@ class GameDataRepositoryImpl @Inject constructor(
     private val weaponDao: WeaponDao,
     private val artifactDao: ArtifactDao,
     private val api: YattaApi,
-    private val themeRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository
 ) : GameDataRepository {
 
     override fun updateGameData(): Flow<SyncStatus> = channelFlow {
@@ -47,7 +47,7 @@ class GameDataRepositoryImpl @Inject constructor(
 
             log(UiText.StringResource(R.string.sync_log_parallel_start), 0.1f)
 
-            val currentLanguage = themeRepository.appLanguage.first()
+            val currentLanguage = settingsRepository.appLanguage.first()
             
             val totalItems = AtomicInteger(0)
             val processedItems = AtomicInteger(0)
@@ -73,6 +73,9 @@ class GameDataRepositoryImpl @Inject constructor(
             val duration = (System.currentTimeMillis() - startTime) / 1000f
             val finalMsg = UiText.StringResource(R.string.sync_log_success, duration, totalNew)
             logs.add(finalMsg)
+
+            // Сохраняем время последнего успешного обновления
+            settingsRepository.setLastSyncTime(System.currentTimeMillis())
 
             send(
                 SyncStatus.Success(
