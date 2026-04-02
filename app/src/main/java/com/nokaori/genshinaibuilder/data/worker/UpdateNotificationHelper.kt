@@ -9,16 +9,15 @@ import androidx.core.app.NotificationManagerCompat
 import com.nokaori.genshinaibuilder.R
 
 /**
- * Helper for creating the encyclopedia-update notification channel
- * and posting update notifications when new game data is synced.
+ * Helper для создания канала обновления данных энциклопедии
+ * и отправки уведомления, если есть новые игровые данные. 
  */
 object UpdateNotificationHelper {
 
     private const val CHANNEL_ID = "encyclopedia_updates"
     const val SYNC_CHANNEL_ID = "encyclopedia_sync_progress"
     private const val NOTIFICATION_ID = 1001
-
-    /** Call once from Application.onCreate() to register the channel (safe to call multiple times). */
+    
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager =
@@ -49,8 +48,8 @@ object UpdateNotificationHelper {
 
 
     /**
-     * Shows a notification summarising newly added game data.
-     * Does nothing if all counts are zero.
+     * Показывает уведомление, если есть новые данные.
+     * Если пусто, уведомление не приходит.
      */
     fun showUpdateNotification(
         context: Context,
@@ -99,11 +98,11 @@ object UpdateNotificationHelper {
         try {
             NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
         } catch (e: SecurityException) {
-            // POST_NOTIFICATIONS not granted — silently skip (expected on Android 13+ if user denied)
+            // POST_NOTIFICATIONS not granted — скип
         }
     }
 
-    /** Appends sample names to a quantity string, e.g. "2 новых персонажа (Нахида и другие)". */
+    /** Напр: "2 новых персонажа (Нахида и другие)". */
     private fun buildPart(
         context: Context,
         quantityStr: String,
